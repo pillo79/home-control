@@ -1,6 +1,8 @@
 #ifndef __MODBUSIO_H__
 #define __MODBUSIO_H__
 
+#include <errno.h>
+
 class ModbusDevice;
 
 class ModbusIO {
@@ -17,7 +19,7 @@ class ModbusIO {
 class BitInput : public ModbusIO {
 		int mBitAddr;
 	public:
-		BitInput(int bitAddr, ModbusDevice *dev);
+		BitInput(ModbusDevice *dev, int bitAddr);
 		virtual ~BitInput() { }
 
 		virtual int getValue();
@@ -26,17 +28,17 @@ class BitInput : public ModbusIO {
 class BitOutput : public ModbusIO {
 		int mBitAddr;
 	public:
-		BitOutput(int bitAddr, ModbusDevice *dev);
+		BitOutput(ModbusDevice *dev, int bitAddr);
 		virtual ~BitOutput() { }
 
-		virtual int  getValue(int value);
+		virtual int  getValue();
 		virtual void setValue(int value);
 };
 
 class WordInput : public ModbusIO {
 		int mWordAddr;
 	public:
-		WordInput(int bitAddr, ModbusDevice *dev);
+		WordInput(ModbusDevice *dev, int wordAddr);
 		virtual ~WordInput() { }
 
 		virtual int getValue();
@@ -45,10 +47,10 @@ class WordInput : public ModbusIO {
 class WordOutput : public ModbusIO {
 		int mWordAddr;
 	public:
-		WordOutput(int bitAddr, ModbusDevice *dev);
+		WordOutput(ModbusDevice *dev, int wordAddr);
 		virtual ~WordOutput() { }
 
-		virtual int  getValue(int value);
+		virtual int  getValue();
 		virtual void setValue(int value);
 };
 

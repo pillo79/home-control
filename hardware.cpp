@@ -7,7 +7,7 @@ static ModbusDevice *Seneca_10DO_2;
 static ModbusDevice *Seneca_3AO_3;
 static ModbusDevice *Seneca_4RTD_4, *Seneca_4RTD_5;
 
-void InitHardware()
+int InitHardware()
 {
 	Seneca_16DI_8DO_1 = new Seneca_16DI_8DO(1);
 	Seneca_10DO_2 = new Seneca_10DO(2);
@@ -35,10 +35,10 @@ void InitHardware()
 	HW.FanCoilCorridoio.xStartVentilatore = new BitOutput(Seneca_10DO_2, 3);
 	HW.FanCoilCorridoio.xMuoviSerrandaCucina = new BitOutput(Seneca_10DO_2, 9);
 	HW.FanCoilCorridoio.xChiudiSerrandaCucina = new BitOutput(Seneca_10DO_2, 8);
-	HW.FanCoilCorridoio.wLivelloVentilatore = new WordOutput(Seneca_3AO_3, 1;
+	HW.FanCoilCorridoio.wLivelloVentilatore = new WordOutput(Seneca_3AO_3, 1);
 	// inputs
 	HW.FanCoilCorridoio.xValvolaAperta = new BitInput(Seneca_16DI_8DO_1, 3);
-	HW.FanCoilCorridoio.wTemperaturaUscitaAria = new WordInput(Seneca_4RTD_4, 1;
+	HW.FanCoilCorridoio.wTemperaturaUscitaAria = new WordInput(Seneca_4RTD_4, 1);
 	// outputs
 	HW.PompaCalore.xStopPompaCalore = new BitOutput(Seneca_10DO_2, 10);
 	HW.PompaCalore.xRichiestaCaldo = new BitOutput(Seneca_10DO_2, 4);
@@ -54,4 +54,6 @@ void InitHardware()
 	HW.Ambiente.wTemperaturaEsterna = new WordInput(Seneca_4RTD_5, 1);
 	HW.Ambiente.wTemperaturaZonaGiorno = new WordInput(Seneca_4RTD_5, 3);
 	HW.Ambiente.wTemperaturaSoffitta = new WordInput(Seneca_4RTD_4, 2);
+
+	return 0;
 }

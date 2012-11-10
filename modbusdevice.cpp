@@ -3,7 +3,7 @@
 
 static modbus_t *mb = 0;
 
-static int ModbusDevice::openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits)
+int ModbusDevice::openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits)
 {
 	int ret = 0;
 	if (!mb) {
@@ -15,7 +15,7 @@ static int ModbusDevice::openSerial(const char *device, int baudrate, char parit
 	return ret;
 }
 
-static void ModbusDevice::closeSerial();
+void ModbusDevice::closeSerial()
 {
 	if (mb) {
 		modbus_close(mb);
@@ -24,18 +24,18 @@ static void ModbusDevice::closeSerial();
 	}
 }
 
-ModbusDevice::ModbusDevice(int modAddress, FILE *serial)
+ModbusDevice::ModbusDevice(int modAddress)
 	: mAddress (modAddress)
 {
 }
 
-int ModbusDevice::mbRead4x(int idx, int count, uint8_t *values)
+int ModbusDevice::mbRead4x(int idx, int count, uint16_t *values)
 {
 	modbus_set_slave(mb, mAddress);
 	return modbus_read_registers(mb, idx, count, values);
 }
 
-int ModbusDevice::mbWrite4x(int idx, int count, const uint8_t *values)
+int ModbusDevice::mbWrite4x(int idx, int count, const uint16_t *values)
 {
 	modbus_set_slave(mb, mAddress);
 	return modbus_write_registers(mb, idx, count, values);
@@ -73,7 +73,7 @@ Seneca_10DO::Seneca_10DO(int modAddress)
 
 void Seneca_10DO::updateOutputs()
 {
-	mbWrite4x(40003, 1, &mInputs);
+	mbWrite4x(40003, 1, &mOutputs);
 }
 
 int Seneca_10DO::getDigOutput(int output)
@@ -83,14 +83,16 @@ int Seneca_10DO::getDigOutput(int output)
 	return mOutputs & (1 << (output-1));
 }
 
-void Seneca_10DO::setDigOutput(int output, bool value)
+int Seneca_10DO::setDigOutput(int output, bool value)
 {
-	if (output < 1) return;
-	if (output > 10) return;
+	if (output < 1) return -ENOTSUP;
+	if (output > 10) return -ENOTSUP;
 	if (value)
 		mOutputs |= (1 << (output-1));
 	else
 		mOutputs &= ~(1 << (output-1));
+
+	return 0;
 }
 
 
@@ -127,10 +129,10 @@ int Seneca_16DI_8DO::getDigOutput(int output)
 	return mOutputs & (1 << (output-1));
 }
 
-void Seneca_16DI_8DO::setDigOutput(int output, bool value)
+int Seneca_16DI_8DO::setDigOutput(int output, bool value)
 {
-	if (output < 1) return;
-	if (output > 8) return;
+	if (output < 1) return -ENOTSUP;
+	if (output > 8) return -ENOTSUP;
 	if (value)
 		mOutputs |= (1 << (output-1));
 	else
@@ -149,7 +151,7 @@ Seneca_4RTD::Seneca_4RTD(int modAddress)
 
 void Seneca_4RTD::updateInputs()
 {
-	mbRead4x(40003, 4, &mInputs);
+	mbRead4x(40003, 4, mInputs);
 }
 
 int Seneca_4RTD::getInputVal(int input)
@@ -171,7 +173,7 @@ Seneca_4AI::Seneca_4AI(int modAddress)
 
 void Seneca_4AI::updateInputs()
 {
-	mbRead4x(40017, 4, &mInputs);
+	mbRead4x(40017, 4, mInputs);
 }
 
 int Seneca_4AI::getInputVal(int input)
@@ -193,7 +195,7 @@ Seneca_3AO::Seneca_3AO(int modAddress)
 
 void Seneca_3AO::updateOutputs()
 {
-	mbWrite4x(40005, 3, &mOutputs);
+	mbWrite4x(40005, 3, mOutputs);
 }
 
 int Seneca_3AO::getOutputVal(int output)

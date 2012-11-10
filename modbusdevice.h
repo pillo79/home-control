@@ -1,11 +1,12 @@
 #ifndef __MODBUSDEVICE_H__
 #define __MODBUSDEVICE_H__
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 
 class ModbusDevice {
-		int mModAddr;
+		int mAddress;
 	public:
 		static int openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits);
 		static void closeSerial();
@@ -23,8 +24,8 @@ class ModbusDevice {
 		virtual int getOutputVal(int output) { return -ENOTSUP; }
 		virtual int setOutputVal(int output, int value) { return -ENOTSUP; }
 	protected:
-		int mbRead4x(int idx, int count, short *values);
-		int mbWrite4x(int idx, int count, short *values);
+		int mbRead4x(int idx, int count, uint16_t *values);
+		int mbWrite4x(int idx, int count, const uint16_t *values);
 };
 
 class Seneca_10DI : public ModbusDevice {
