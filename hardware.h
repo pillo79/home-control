@@ -66,6 +66,7 @@ struct Hardware {
 extern struct Hardware HW;
 
 int InitHardware();
-int DoneHardware();
+void ReadHardwareInputs();
+void WriteHardwareOutputs();
 
 #endif /* __HARDWARE_H__ */

@@ -57,3 +57,21 @@ int InitHardware()
 
 	return 0;
 }
+
+void ReadHardwareInputs()
+{
+	Seneca_16DI_8DO_1->updateInputs();
+	Seneca_10DO_2->updateInputs();
+	Seneca_3AO_3->updateInputs();
+	Seneca_4RTD_4->updateInputs();
+	Seneca_4RTD_5->updateInputs();
+}
+
+void WriteHardwareOutputs()
+{
+	Seneca_16DI_8DO_1->updateOutputs();
+	Seneca_10DO_2->updateOutputs();
+	Seneca_3AO_3->updateOutputs();
+	Seneca_4RTD_4->updateOutputs();
+	Seneca_4RTD_5->updateOutputs();
+}
