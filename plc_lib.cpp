@@ -1,4 +1,4 @@
-#include "plc.h"
+#include "plc_lib.h"
 
 #include <stdlib.h>
 #include <sys/time.h>
@@ -9,7 +9,7 @@ void Timer::tick()
 {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	m_now = ((tv.tv_sec*1000000ULL)+tv.tv_usec) >> 10;
+	m_now = (tv.tv_sec*1000000ULL)+tv.tv_usec;
 }
 
 DelayRiseTimer::DelayRiseTimer()

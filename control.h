@@ -20,6 +20,12 @@ class ControlThread : public QThread {
 
 		bool xUsaPompaCalore;
 		bool xUsaCaldaia;
+
+		bool xTrasfAccumulo;
+		bool xApriCucina;
+		bool xChiudiCucina;
+
+		int wVelFanCoil;
 };
 
 ControlThread &control();

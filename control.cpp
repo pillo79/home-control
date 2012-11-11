@@ -2,11 +2,12 @@
 
 #include "modbusdevice.h"
 #include "hardware.h"
-#include "plc.h"
+#include "plc_lib.h"
 
 ControlThread::ControlThread()
 {
 	start();
+	wVelFanCoil = 50;
 }
 
 ControlThread::~ControlThread()
@@ -39,6 +40,16 @@ void ControlThread::run()
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
 		static DelayRiseTimer tStartFanCoil;
 		HW.FanCoilCorridoio.xStartVentilatore->setValue(tStartFanCoil.update(DELAY_SEC(30), xFanCoil));
+		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(wVelFanCoil*200);
+
+		bool muovi_serranda = xApriCucina || xChiudiCucina;
+		HW.FanCoilCorridoio.xMuoviSerrandaCucina->setValue(muovi_serranda);
+		HW.FanCoilCorridoio.xChiudiSerrandaCucina->setValue(xChiudiCucina);
+		static DelayRiseTimer tStopSerrandaCucina;
+		bool stop_serranda = tStopSerrandaCucina.update(xChiudiCucina? DELAY_SEC(30) : DELAY_SEC(10), muovi_serranda);
+		if (stop_serranda)  {
+			xApriCucina = xChiudiCucina = false;
+		}
 
 		HW.PompaCalore.xStopPompaCalore->setValue(!xUsaPompaCalore);
 		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
@@ -48,6 +59,10 @@ void ControlThread::run()
 		HW.Caldaia.xStartCaldaia->setValue(tStartCaldaia.update(DELAY_SEC(10), xUsaCaldaia));
 		static DelayFallTimer tStartPompa;
 		HW.Caldaia.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Caldaia.xStartCaldaia->getValue()));
+
+		HW.Accumuli.xApriValvola->setValue(xTrasfAccumulo);
+		static DelayRiseTimer tStartPompaAccumulo;
+		HW.Accumuli.xStartPompa->setValue(tStartPompaAccumulo.update(DELAY_SEC(30), xTrasfAccumulo));
 
 		mFields.unlock();
 

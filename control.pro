@@ -5,8 +5,8 @@ INCLUDEPATH += . \
 	../libmodbus/src/
 
 # Input
-HEADERS += hardware.h modbusdevice.h modbusio.h plc.h control.h
-SOURCES += main.cpp plc.cpp hardware.cpp modbusdevice.cpp modbusio.cpp control.cpp
+HEADERS += hardware.h modbusdevice.h modbusio.h plc_lib.h control.h
+SOURCES += main.cpp plc_lib.cpp hardware.cpp modbusdevice.cpp modbusio.cpp control.cpp
 LIBS += -L../libmodbus/src -lmodbus
 
 HEADERS += dlg_main.h
