@@ -58,8 +58,10 @@ int InitHardware()
 	return 0;
 }
 
-// #define DUMP(x) do { printf("%s: ", #x); int ret = x; if (ret < 0) printf("err -%i\n", #x, errno); else printf("OK\n"); } while (0)
+// #define DUMP(x) do { printf("%s: ", #x); int ret = x; if (ret < 0) printf("err %i\n", -errno); else printf("OK\n"); } while (0)
+// #define DUMP(x) do { int ret = x; if (ret < 0) printf("%s err %i\n", #x, -errno); } while (0)
 #define DUMP(x) x
+
 void ReadHardwareInputs()
 {
 	DUMP(Seneca_16DI_8DO_1->updateInputs());

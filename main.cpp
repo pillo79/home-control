@@ -2,27 +2,21 @@
 #include "modbusdevice.h"
 #include "hardware.h"
 
+#include "control.h"
 #include "dlg_main.h"
 
 #include <QtGui>
 
 int main(int argc, char *argv[])
 {
-	ModbusDevice::openSerial("/dev/ttymxc1", 38400, 'N', 8, 1);
-	InitHardware();
+	QApplication app(argc, argv);
 
-	ReadHardwareInputs();
-
-	HW.FanCoilCorridoio.xStartVentilatore->setValue(1);
-	HW.FanCoilCorridoio.wLivelloVentilatore->setValue(500);
-	WriteHardwareOutputs();
-
-/*	QApplication app(argc, argv);
+	control();
 
 	MainDlg *mainDlg = new MainDlg;
 	mainDlg->show();
 
 	return app.exec();
-*/
+
 	return 0;
 }

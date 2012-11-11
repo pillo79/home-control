@@ -8,16 +8,9 @@ int ModbusDevice::openSerial(const char *device, int baudrate, char parity, int 
 	int ret = 0;
 	if (!mb) {
 		mb = modbus_new_rtu(device, baudrate, parity, data_bits, stop_bits);
-		modbus_set_debug(mb, 1);
-//		struct timeval tv;
-//		modbus_get_byte_timeout(mb, &tv);
-//		printf("byte: %i %i\n", tv.tv_sec, tv.tv_usec);
-//		modbus_get_response_timeout(mb, &tv);
-//		printf("resp: %i %i\n", tv.tv_sec, tv.tv_usec);
-//		tv.tv_sec = 3;
-//		tv.tv_usec = 0;
-//		modbus_set_response_timeout(mb, &tv);
-//		modbus_set_byte_timeout(mb, &tv);
+		struct timeval tv = { 0, 100000 };
+		modbus_set_response_timeout(mb, &tv);
+//		modbus_set_debug(mb, 1);
 		ret = modbus_connect(mb);
 		if (ret < 0)
 			closeSerial();
@@ -89,7 +82,6 @@ Seneca_10DO::Seneca_10DO(int modAddress)
 
 int Seneca_10DO::updateOutputs()
 {
-	uint16_t mInputs;
 	return mbWriteReg(40003, 1, &mOutputs);
 }
 
@@ -154,6 +146,7 @@ int Seneca_16DI_8DO::setDigOutput(int output, bool value)
 		mOutputs |= (1 << (output-1));
 	else
 		mOutputs &= ~(1 << (output-1));
+	return 0;
 }
 
 

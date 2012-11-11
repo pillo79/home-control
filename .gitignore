@@ -4,3 +4,4 @@ control
 tags
 tags.vim
 moc_*
+ui_*.h

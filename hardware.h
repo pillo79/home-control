@@ -27,7 +27,6 @@ struct Hardware {
 	struct {
 		// outputs
 		BitOutput *xChiudiValvola;
-		BitOutput *xAlimenta;
 		BitOutput *xStartVentilatore;
 		BitOutput *xMuoviSerrandaCucina;
 		BitOutput *xChiudiSerrandaCucina;
