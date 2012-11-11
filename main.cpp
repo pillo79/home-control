@@ -1,13 +1,23 @@
 #include "hardware.h"
 #include "modbusdevice.h"
 
-int main(void)
+#include "dlg_main.h"
+
+#include <QtGui>
+
+int main(int argc, char *argv[])
 {
-	ModbusDevice::openSerial("/dev/ttyS0", 115200, 'N', 8, 1);
+	ModbusDevice::openSerial("/dev/ttymxc2", 115200, 'N', 8, 1);
 	InitHardware();
 
 	ReadHardwareInputs();
+
 	WriteHardwareOutputs();
 
-	return 0;
+	QApplication app(argc, argv);
+
+	MainDlg *mainDlg = new MainDlg;
+	mainDlg->show();
+
+	return app.exec();
 }
