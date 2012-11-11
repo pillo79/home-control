@@ -58,5 +58,5 @@ int WordOutput::getValue()
 
 void WordOutput::setValue(int value)
 {
-	mDev->setOutputVal(mWordAddr, !!value);
+	mDev->setOutputVal(mWordAddr, value);
 }

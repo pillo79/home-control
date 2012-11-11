@@ -58,20 +58,22 @@ int InitHardware()
 	return 0;
 }
 
+// #define DUMP(x) do { printf("%s: ", #x); int ret = x; if (ret < 0) printf("err -%i\n", #x, errno); else printf("OK\n"); } while (0)
+#define DUMP(x) x
 void ReadHardwareInputs()
 {
-	Seneca_16DI_8DO_1->updateInputs();
-	Seneca_10DO_2->updateInputs();
-	Seneca_3AO_3->updateInputs();
-	Seneca_4RTD_4->updateInputs();
-	Seneca_4RTD_5->updateInputs();
+	DUMP(Seneca_16DI_8DO_1->updateInputs());
+	DUMP(Seneca_10DO_2->updateInputs());
+	DUMP(Seneca_3AO_3->updateInputs());
+	DUMP(Seneca_4RTD_4->updateInputs());
+	DUMP(Seneca_4RTD_5->updateInputs());
 }
 
 void WriteHardwareOutputs()
 {
-	Seneca_16DI_8DO_1->updateOutputs();
-	Seneca_10DO_2->updateOutputs();
-	Seneca_3AO_3->updateOutputs();
-	Seneca_4RTD_4->updateOutputs();
-	Seneca_4RTD_5->updateOutputs();
+	DUMP(Seneca_16DI_8DO_1->updateOutputs());
+	DUMP(Seneca_10DO_2->updateOutputs());
+	DUMP(Seneca_3AO_3->updateOutputs());
+	DUMP(Seneca_4RTD_4->updateOutputs());
+	DUMP(Seneca_4RTD_5->updateOutputs());
 }

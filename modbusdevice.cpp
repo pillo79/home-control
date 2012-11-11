@@ -8,6 +8,16 @@ int ModbusDevice::openSerial(const char *device, int baudrate, char parity, int 
 	int ret = 0;
 	if (!mb) {
 		mb = modbus_new_rtu(device, baudrate, parity, data_bits, stop_bits);
+		modbus_set_debug(mb, 1);
+//		struct timeval tv;
+//		modbus_get_byte_timeout(mb, &tv);
+//		printf("byte: %i %i\n", tv.tv_sec, tv.tv_usec);
+//		modbus_get_response_timeout(mb, &tv);
+//		printf("resp: %i %i\n", tv.tv_sec, tv.tv_usec);
+//		tv.tv_sec = 3;
+//		tv.tv_usec = 0;
+//		modbus_set_response_timeout(mb, &tv);
+//		modbus_set_byte_timeout(mb, &tv);
 		ret = modbus_connect(mb);
 		if (ret < 0)
 			closeSerial();
@@ -29,16 +39,22 @@ ModbusDevice::ModbusDevice(int modAddress)
 {
 }
 
-int ModbusDevice::mbRead4x(int idx, int count, uint16_t *values)
+int ModbusDevice::mbReadReg(int idx, int count, uint16_t *values)
 {
 	modbus_set_slave(mb, mAddress);
-	return modbus_read_registers(mb, idx, count, values);
+	if ((idx > 40000) && (idx < 50000))
+		return modbus_read_registers(mb, idx-40001, count, values);
+	else
+		return -ENOTSUP;
 }
 
-int ModbusDevice::mbWrite4x(int idx, int count, const uint16_t *values)
+int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 {
 	modbus_set_slave(mb, mAddress);
-	return modbus_write_registers(mb, idx, count, values);
+	if ((idx > 40000) && (idx < 50000))
+		return modbus_write_registers(mb, idx-40001, count, values);
+	else
+		return -ENOTSUP;
 }
 
 
@@ -50,9 +66,9 @@ Seneca_10DI::Seneca_10DI(int modAddress)
 {
 }
 
-void Seneca_10DI::updateInputs()
+int Seneca_10DI::updateInputs()
 {
-	mbRead4x(40002, 1, &mInputs);
+	return mbReadReg(40002, 1, &mInputs);
 }
 
 int Seneca_10DI::getDigInput(int input)
@@ -71,9 +87,10 @@ Seneca_10DO::Seneca_10DO(int modAddress)
 {
 }
 
-void Seneca_10DO::updateOutputs()
+int Seneca_10DO::updateOutputs()
 {
-	mbWrite4x(40003, 1, &mOutputs);
+	uint16_t mInputs;
+	return mbWriteReg(40003, 1, &mOutputs);
 }
 
 int Seneca_10DO::getDigOutput(int output)
@@ -105,14 +122,14 @@ Seneca_16DI_8DO::Seneca_16DI_8DO(int modAddress)
 {
 }
 
-void Seneca_16DI_8DO::updateInputs()
+int Seneca_16DI_8DO::updateInputs()
 {
-	mbRead4x(40301, 1, &mInputs);
+	return mbReadReg(40301, 1, &mInputs);
 }
 
-void Seneca_16DI_8DO::updateOutputs()
+int Seneca_16DI_8DO::updateOutputs()
 {
-	mbWrite4x(40005, 1, &mInputs);
+	return mbWriteReg(40005, 1, &mOutputs);
 }
 
 int Seneca_16DI_8DO::getDigInput(int input)
@@ -149,9 +166,9 @@ Seneca_4RTD::Seneca_4RTD(int modAddress)
 		mInputs[i] = 0;
 }
 
-void Seneca_4RTD::updateInputs()
+int Seneca_4RTD::updateInputs()
 {
-	mbRead4x(40003, 4, mInputs);
+	return mbReadReg(40003, 4, mInputs);
 }
 
 int Seneca_4RTD::getInputVal(int input)
@@ -171,9 +188,9 @@ Seneca_4AI::Seneca_4AI(int modAddress)
 		mInputs[i] = 0;
 }
 
-void Seneca_4AI::updateInputs()
+int Seneca_4AI::updateInputs()
 {
-	mbRead4x(40017, 4, mInputs);
+	return mbReadReg(40017, 4, mInputs);
 }
 
 int Seneca_4AI::getInputVal(int input)
@@ -193,9 +210,9 @@ Seneca_3AO::Seneca_3AO(int modAddress)
 		mOutputs[i] = 0;
 }
 
-void Seneca_3AO::updateOutputs()
+int Seneca_3AO::updateOutputs()
 {
-	mbWrite4x(40005, 3, mOutputs);
+	return mbWriteReg(40005, 3, mOutputs);
 }
 
 int Seneca_3AO::getOutputVal(int output)
