@@ -13,6 +13,7 @@ class ControlThread : public QThread {
 
 		QMutex mFields;
 
+		/* inputs */
 		bool xRiscaldaNotte;
 		bool xRiscaldaGiorno;
 		bool xRiscaldaSoffitta;
@@ -26,6 +27,13 @@ class ControlThread : public QThread {
 		bool xChiudiCucina;
 
 		int wVelFanCoil;
+
+		/* outputs */
+		bool xCaldaiaInUso;
+
+		int wTemperaturaACS;
+		int wTemperaturaBoiler;
+		int wTemperaturaAccumuli;
 };
 
 ControlThread &control();

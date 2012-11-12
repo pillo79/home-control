@@ -35,6 +35,8 @@ class MainDlg : public QWidget
 	private:
 		Ui::MainDlg ui;
 		QTimer screenUpdate;
+
+		void updateRiscCaldaia();
 };
 
 #endif /* __DLG_MAIN_H__ */

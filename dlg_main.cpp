@@ -11,6 +11,10 @@ MainDlg::MainDlg(QWidget *parent)
 {
 	ui.setupUi(this);
 
+	Qt::WindowFlags flags = windowFlags();
+	flags |= Qt::FramelessWindowHint;
+	setWindowFlags(flags);
+
 	connect(&screenUpdate, SIGNAL( timeout(void) ), this, SLOT ( updateScreen(void) ));
 	screenUpdate.setSingleShot(false);
 	screenUpdate.start(100);
@@ -64,19 +68,26 @@ void MainDlg::on_pbFanCoil_toggled(bool checked)
 	control().xFanCoil = checked;
 }
 
-void MainDlg::on_pbRiscCaldaia_toggled(bool checked)
+void MainDlg::updateRiscCaldaia()
 {
-	if (checked) {
+	if (ui.pbRiscCaldaia->isChecked()) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
 		ui.pbRiscCaldaia->setText("Caldaia ON");
 		ui.pbRiscPompaCalore->setChecked(false);
+	} else if (control().xCaldaiaInUso) {
+		ui.pbRiscCaldaia->setPalette(QPalette(QColor(220,220,128)));
+		ui.pbRiscCaldaia->setText("Caldaia auto ON");
 	} else {
 		ui.pbRiscCaldaia->setPalette(QApplication::palette());
 		ui.pbRiscCaldaia->setText("Caldaia OFF");
 	}
+}
 
+void MainDlg::on_pbRiscCaldaia_toggled(bool checked)
+{
 	QMutexLocker lock(&control().mFields);
 	control().xUsaCaldaia = checked;
+	updateRiscCaldaia();
 }
 
 void MainDlg::on_pbRiscPompaCalore_toggled(bool checked)
@@ -147,14 +158,23 @@ void MainDlg::on_pbChiudiCucina_clicked()
 void MainDlg::updateScreen()
 {
 	char buf[256];
-	sprintf(buf, "%.1f", HW.PompaCalore.wTemperaturaACS->getValue()/10.0);
-	ui.tlTempAcquaTop->setText(buf);
-	sprintf(buf, "%.1f", HW.PompaCalore.wTemperaturaBoiler->getValue()/10.0);
-	ui.tlTempAcquaBot->setText(buf);
-	sprintf(buf, "%.1f", HW.Accumuli.wTemperatura->getValue()/10.0);
-	ui.tlTempAccumulo->setText(buf);
+
+	ui.tlData->setText(QDate::currentDate().toString("dd/MM/yyyy"));
+	ui.tlOra->setText(QTime::currentTime().toString("h:mm"));
 
 	QMutexLocker lock(&control().mFields);
+	sprintf(buf, "%.1f", control().wTemperaturaACS/10.0);
+	ui.tlTempAcquaTop->setText(buf);
+	sprintf(buf, "%.1f", control().wTemperaturaBoiler/10.0);
+	ui.tlTempAcquaBot->setText(buf);
+	sprintf(buf, "%.1f", control().wTemperaturaAccumuli/10.0);
+	ui.tlTempAccumulo->setText(buf);
+
+	if (control().xCaldaiaInUso) {
+		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
+	} else {
+		ui.pbApriCucina->setPalette(QApplication::palette());
+	}
 	if (control().xApriCucina) {
 		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
 	} else {
@@ -165,4 +185,6 @@ void MainDlg::updateScreen()
 	} else {
 		ui.pbChiudiCucina->setPalette(QApplication::palette());
 	}
+
+	updateRiscCaldaia();
 }
