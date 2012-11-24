@@ -15,6 +15,8 @@ MainDlg::MainDlg(QWidget *parent)
 	flags |= Qt::FramelessWindowHint;
 	setWindowFlags(flags);
 
+	ui.pbRiscPompaCalore->setChecked(true);
+
 	char buf[256];
 	sprintf(buf, "%i%%", control().wVelFanCoil);
 	ui.tlVelFanCoil->setText(buf);
