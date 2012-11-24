@@ -59,21 +59,28 @@ void ControlThread::run()
 			xApriCucina = xChiudiCucina = false;
 		}
 
-		HW.PompaCalore.xStopPompaCalore->setValue(!xUsaPompaCalore);
+		static DelayRiseTimer tStopForzaPompaCalore;
+		bool stop_forza_pompa_calore = tStopForzaPompaCalore.update(DELAY_MIN(5), risc_acceso || xFanCoil);
+		if ((risc_acceso || xFanCoil) && !stop_forza_pompa_calore)
+			xPompaCaloreInUso = true;
+		else
+			xPompaCaloreInUso = xUsaPompaCalore;
+		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
 		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
+		bool zona_attiva = false;
 		if (!xUsaPompaCalore) {
-			bool zona_attiva = false;
+			/* caldaia auto */
 			zona_attiva |= ((QTime::currentTime()>QTime(6,0)) && (QTime::currentTime()<QTime(8,30)));
 			zona_attiva |= ((QTime::currentTime()>QTime(11,0)) && (QTime::currentTime()<QTime(15,0)));
 			zona_attiva |= ((QTime::currentTime()>QTime(18,0)) && (QTime::currentTime()<QTime(21,0)));
-			if (zona_attiva && (wTemperaturaACS < 450))
-				xCaldaiaInUso = true;
-			else if (zona_attiva && (wTemperaturaACS > 500))
-				xCaldaiaInUso = false;
-			xCaldaiaInUso |= xUsaCaldaia;
-		} else
-			xCaldaiaInUso = xUsaCaldaia;
+		}
+		zona_attiva |= stop_forza_pompa_calore;
+		if (zona_attiva && (wTemperaturaACS < 450))
+			xCaldaiaInUso = true;
+		else if (zona_attiva && (wTemperaturaACS > 500))
+			xCaldaiaInUso = false;
+		xCaldaiaInUso |= xUsaCaldaia;
 
 		HW.Caldaia.xAlimenta->setValue(xCaldaiaInUso);
 		static DelayRiseTimer tStartCaldaia;

@@ -15,6 +15,10 @@ MainDlg::MainDlg(QWidget *parent)
 	flags |= Qt::FramelessWindowHint;
 	setWindowFlags(flags);
 
+	char buf[256];
+	sprintf(buf, "%i%%", control().wVelFanCoil);
+	ui.tlVelFanCoil->setText(buf);
+
 	connect(&screenUpdate, SIGNAL( timeout(void) ), this, SLOT ( updateScreen(void) ));
 	screenUpdate.setSingleShot(false);
 	screenUpdate.start(100);
@@ -68,12 +72,11 @@ void MainDlg::on_pbFanCoil_toggled(bool checked)
 	control().xFanCoil = checked;
 }
 
-void MainDlg::updateRiscCaldaia()
+void MainDlg::updateStatoRisc()
 {
 	if (ui.pbRiscCaldaia->isChecked()) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
 		ui.pbRiscCaldaia->setText("Caldaia ON");
-		ui.pbRiscPompaCalore->setChecked(false);
 	} else if (control().xCaldaiaInUso) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(220,220,128)));
 		ui.pbRiscCaldaia->setText("Caldaia auto ON");
@@ -81,28 +84,31 @@ void MainDlg::updateRiscCaldaia()
 		ui.pbRiscCaldaia->setPalette(QApplication::palette());
 		ui.pbRiscCaldaia->setText("Caldaia OFF");
 	}
+
+	if (ui.pbRiscPompaCalore->isChecked()) {
+		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64, 255, 64)));
+		ui.pbRiscPompaCalore->setText("Pompa di calore ON");
+	} else if (control().xPompaCaloreInUso) {
+		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(220,220,128)));
+		ui.pbRiscPompaCalore->setText("Pompa di calore auto ON");
+	} else {
+		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
+		ui.pbRiscPompaCalore->setText("Pompa di calore OFF");
+	}
 }
 
 void MainDlg::on_pbRiscCaldaia_toggled(bool checked)
 {
 	QMutexLocker lock(&control().mFields);
 	control().xUsaCaldaia = checked;
-	updateRiscCaldaia();
+	updateStatoRisc();
 }
 
 void MainDlg::on_pbRiscPompaCalore_toggled(bool checked)
 {
-	if (checked) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64, 255, 64)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore ON");
-		ui.pbRiscCaldaia->setChecked(false);
-	} else {
-		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
-		ui.pbRiscPompaCalore->setText("Pompa di calore OFF");
-	}
-
 	QMutexLocker lock(&control().mFields);
 	control().xUsaPompaCalore = checked;
+	updateStatoRisc();
 }
 
 void MainDlg::on_pbVelMinus_clicked()
@@ -186,5 +192,5 @@ void MainDlg::updateScreen()
 		ui.pbChiudiCucina->setPalette(QApplication::palette());
 	}
 
-	updateRiscCaldaia();
+	updateStatoRisc();
 }
