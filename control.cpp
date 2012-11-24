@@ -8,8 +8,10 @@
 
 ControlThread::ControlThread()
 {
+	wVelFanCoil = 20;
+	xUsaPompaCalore = true;
+
 	start();
-	wVelFanCoil = 50;
 }
 
 ControlThread::~ControlThread()
@@ -60,19 +62,18 @@ void ControlThread::run()
 		HW.PompaCalore.xStopPompaCalore->setValue(!xUsaPompaCalore);
 		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
-		if (xUsaCaldaia)
-			xCaldaiaInUso = true;
-		else if (!xUsaPompaCalore) {
+		if (!xUsaPompaCalore) {
 			bool zona_attiva = false;
 			zona_attiva |= ((QTime::currentTime()>QTime(6,0)) && (QTime::currentTime()<QTime(8,30)));
 			zona_attiva |= ((QTime::currentTime()>QTime(11,0)) && (QTime::currentTime()<QTime(15,0)));
 			zona_attiva |= ((QTime::currentTime()>QTime(18,0)) && (QTime::currentTime()<QTime(21,0)));
-			if (zona_attiva && (wTemperaturaACS < 500))
+			if (zona_attiva && (wTemperaturaACS < 450))
 				xCaldaiaInUso = true;
-			else if (zona_attiva && (wTemperaturaACS > 550))
+			else if (zona_attiva && (wTemperaturaACS > 500))
 				xCaldaiaInUso = false;
+			xCaldaiaInUso |= xUsaCaldaia;
 		} else
-			xCaldaiaInUso = false;
+			xCaldaiaInUso = xUsaCaldaia;
 
 		HW.Caldaia.xAlimenta->setValue(xCaldaiaInUso);
 		static DelayRiseTimer tStartCaldaia;
