@@ -2,13 +2,27 @@
 
 #include "modbusdevice.h"
 
-ModbusIO::ModbusIO(ModbusDevice *dev)
+ModbusIOPtrList BitInput::mElements;
+ModbusIOPtrList BitOutput::mElements;
+ModbusIOPtrList WordInput::mElements;
+ModbusIOPtrList WordOutput::mElements;
+
+ModbusIO::ModbusIO(QString name, ModbusDevice *dev)
 {
 	mDev = dev;
+	mName = name;
+	if (objList())
+		objList()->append(this);
 }
 
-BitInput::BitInput(ModbusDevice *dev, int bitAddr)
-	: ModbusIO(dev)
+ModbusIO::~ModbusIO()
+{
+	if (objList())
+		objList()->removeOne(this);
+}
+
+BitInput::BitInput(QString name, ModbusDevice *dev, int bitAddr)
+	: ModbusIO(name, dev)
 {
 	mBitAddr = bitAddr;
 }
@@ -18,8 +32,8 @@ int BitInput::getValue()
 	return mDev->getDigInput(mBitAddr);
 }
 
-BitOutput::BitOutput(ModbusDevice *dev, int bitAddr)
-	: ModbusIO(dev)
+BitOutput::BitOutput(QString name, ModbusDevice *dev, int bitAddr)
+	: ModbusIO(name, dev)
 {
 	mBitAddr = bitAddr;
 }
@@ -34,8 +48,8 @@ void BitOutput::setValue(int value)
 	mDev->setDigOutput(mBitAddr, !!value);
 }
 
-WordInput::WordInput(ModbusDevice *dev, int wordAddr)
-	: ModbusIO(dev)
+WordInput::WordInput(QString name, ModbusDevice *dev, int wordAddr)
+	: ModbusIO(name, dev)
 {
 	mWordAddr = wordAddr;
 }
@@ -45,8 +59,8 @@ int WordInput::getValue()
 	return mDev->getInputVal(mWordAddr);
 }
 
-WordOutput::WordOutput(ModbusDevice *dev, int wordAddr)
-	: ModbusIO(dev)
+WordOutput::WordOutput(QString name, ModbusDevice *dev, int wordAddr)
+	: ModbusIO(name, dev)
 {
 	mWordAddr = wordAddr;
 }

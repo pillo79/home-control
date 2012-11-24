@@ -15,45 +15,49 @@ int InitHardware()
 	Seneca_4RTD_4 = new Seneca_4RTD(4);
 	Seneca_4RTD_5 = new Seneca_4RTD(5);
 
+#define INIT(var, type, dev, num) HW. var = new type( #var, dev, num)
 	// outputs
-	HW.Caldaia.xAlimenta = new BitOutput(Seneca_16DI_8DO_1, 1);
-	HW.Caldaia.xStartCaldaia = new BitOutput(Seneca_16DI_8DO_1, 2);
-	HW.Caldaia.xStartPompa = new BitOutput(Seneca_16DI_8DO_1, 3);
+	INIT(Caldaia.xAlimenta,				BitOutput,	Seneca_16DI_8DO_1, 1);
+	INIT(Caldaia.xStartCaldaia,			BitOutput,	Seneca_16DI_8DO_1, 2);
+	INIT(Caldaia.xStartPompa,			BitOutput,	Seneca_16DI_8DO_1, 3);
 	// inputs
-	HW.Caldaia.xFiammaAccesa = new BitInput(Seneca_16DI_8DO_1, 1);
+	INIT(Caldaia.xFiammaAccesa,			BitInput,	Seneca_16DI_8DO_1, 1);
 	// outputs
-	HW.Riscaldamento.xChiudiValvola = new BitOutput(Seneca_16DI_8DO_1, 4);
-	HW.Riscaldamento.xStartPompaGiorno = new BitOutput(Seneca_16DI_8DO_1, 5);
-	HW.Riscaldamento.xStartPompaNotte = new BitOutput(Seneca_16DI_8DO_1, 6);
-	HW.Riscaldamento.xStartPompaSoffitta = new BitOutput(Seneca_16DI_8DO_1, 7);
-	HW.Riscaldamento.xStartFanCoilStanzaSoffitta = new BitOutput(Seneca_16DI_8DO_1, 8);
-	HW.Riscaldamento.xStartFanCoilBagnoSoffitta = new BitOutput(Seneca_10DO_2, 1);
+	INIT(Riscaldamento.xChiudiValvola,		BitOutput,	Seneca_16DI_8DO_1, 4);
+	INIT(Riscaldamento.xStartPompaGiorno,		BitOutput,	Seneca_16DI_8DO_1, 5);
+	INIT(Riscaldamento.xStartPompaNotte,		BitOutput,	Seneca_16DI_8DO_1, 6);
+	INIT(Riscaldamento.xStartPompaSoffitta,		BitOutput,	Seneca_16DI_8DO_1, 7);
+	INIT(Riscaldamento.xStartFanCoilStanzaSoffitta,	BitOutput,	Seneca_16DI_8DO_1, 8);
+	INIT(Riscaldamento.xStartFanCoilBagnoSoffitta,	BitOutput,	Seneca_10DO_2, 1);
 	// inputs
-	HW.Riscaldamento.xValvolaAperta = new BitInput(Seneca_16DI_8DO_1, 2);
+	INIT(Riscaldamento.xValvolaAperta,		BitInput,	Seneca_16DI_8DO_1, 2);
 	// outputs
-	HW.FanCoilCorridoio.xChiudiValvola = new BitOutput(Seneca_10DO_2, 2);
-	HW.FanCoilCorridoio.xStartVentilatore = new BitOutput(Seneca_10DO_2, 3);
-	HW.FanCoilCorridoio.xMuoviSerrandaCucina = new BitOutput(Seneca_10DO_2, 9);
-	HW.FanCoilCorridoio.xApriSerrandaCucina = new BitOutput(Seneca_10DO_2, 8);
-	HW.FanCoilCorridoio.wLivelloVentilatore = new WordOutput(Seneca_3AO_3, 1);
+	INIT(FanCoilCorridoio.xChiudiValvola,		BitOutput,	Seneca_10DO_2, 2);
+	INIT(FanCoilCorridoio.xStartVentilatore,	BitOutput,	Seneca_10DO_2, 3);
+	INIT(FanCoilCorridoio.xMuoviSerrandaCucina,	BitOutput,	Seneca_10DO_2, 9);
+	INIT(FanCoilCorridoio.xApriSerrandaCucina,	BitOutput,	Seneca_10DO_2, 8);
+	// word outputs
+	INIT(FanCoilCorridoio.wLivelloVentilatore,	WordOutput,	Seneca_3AO_3, 1);
 	// inputs
-	HW.FanCoilCorridoio.xValvolaAperta = new BitInput(Seneca_16DI_8DO_1, 3);
-	HW.FanCoilCorridoio.wTemperaturaUscitaAria = new WordInput(Seneca_4RTD_4, 1);
+	INIT(FanCoilCorridoio.xValvolaAperta,		BitInput,	Seneca_16DI_8DO_1, 3);
+	INIT(FanCoilCorridoio.wTemperaturaUscitaAria,	WordInput,	Seneca_4RTD_4, 1);
 	// outputs
-	HW.PompaCalore.xStopPompaCalore = new BitOutput(Seneca_10DO_2, 10);
-	HW.PompaCalore.xRichiestaCaldo = new BitOutput(Seneca_10DO_2, 4);
-	HW.PompaCalore.xRichiestaFreddo = new BitOutput(Seneca_10DO_2, 5);
-	HW.PompaCalore.wTemperaturaACS = new WordInput(Seneca_4RTD_4, 3);
-	HW.PompaCalore.wTemperaturaBoiler = new WordInput(Seneca_4RTD_4, 4);
-	HW.PompaCalore.wTemperaturaPannelli = new WordInput(Seneca_4RTD_5, 2);
-	// outputs
-	HW.Accumuli.xStartPompa = new BitOutput(Seneca_10DO_2, 6);
-	HW.Accumuli.xApriValvola = new BitOutput(Seneca_10DO_2, 7);
-	HW.Accumuli.wTemperatura = new WordInput(Seneca_4RTD_5, 4);
+	INIT(PompaCalore.xStopPompaCalore,		BitOutput,	Seneca_10DO_2, 10);
+	INIT(PompaCalore.xRichiestaCaldo,		BitOutput,	Seneca_10DO_2, 4);
+	INIT(PompaCalore.xRichiestaFreddo,		BitOutput,	Seneca_10DO_2, 5);
 	// word inputs
-	HW.Ambiente.wTemperaturaEsterna = new WordInput(Seneca_4RTD_5, 1);
-	HW.Ambiente.wTemperaturaZonaGiorno = new WordInput(Seneca_4RTD_5, 3);
-	HW.Ambiente.wTemperaturaSoffitta = new WordInput(Seneca_4RTD_4, 2);
+	INIT(PompaCalore.wTemperaturaACS,		WordInput,	Seneca_4RTD_4, 3);
+	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
+	INIT(PompaCalore.wTemperaturaPannelli,		WordInput,	Seneca_4RTD_5, 2);
+	// outputs
+	INIT(Accumuli.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
+	INIT(Accumuli.xApriValvola,			BitOutput,	Seneca_10DO_2, 7);
+	// word inputs
+	INIT(Accumuli.wTemperatura,			WordInput,	Seneca_4RTD_5, 4);
+	// word inputs
+	INIT(Ambiente.wTemperaturaEsterna,		WordInput,	Seneca_4RTD_5, 1);
+	INIT(Ambiente.wTemperaturaZonaGiorno,		WordInput,	Seneca_4RTD_5, 3);
+	INIT(Ambiente.wTemperaturaSoffitta,		WordInput,	Seneca_4RTD_4, 2);
 
 	return 0;
 }
