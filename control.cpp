@@ -76,11 +76,17 @@ void ControlThread::run()
 			zona_attiva |= ((QTime::currentTime()>QTime(18,0)) && (QTime::currentTime()<QTime(21,0)));
 		}
 		zona_attiva |= stop_forza_pompa_calore;
-		if (zona_attiva && (wTemperaturaACS < 450))
-			xCaldaiaInUso = true;
-		else if (zona_attiva && (wTemperaturaACS > 500))
-			xCaldaiaInUso = false;
-		xCaldaiaInUso |= xUsaCaldaia;
+		if (zona_attiva) {
+			/* auto mode: caldaia = richiesta acs | bottone */
+			if (wTemperaturaACS < 450)
+				xCaldaiaInUso = true;
+			else if (wTemperaturaACS > 500)
+				xCaldaiaInUso = false;
+			xCaldaiaInUso |= xUsaCaldaia;
+		} else {
+			/* man mode: caldaia = bottone */
+			xCaldaiaInUso = xUsaCaldaia;
+		}
 
 		HW.Caldaia.xAlimenta->setValue(xCaldaiaInUso);
 		static DelayRiseTimer tStartCaldaia;
