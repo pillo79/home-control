@@ -37,7 +37,7 @@ bool DelayRiseTimer::update(unsigned delayus, bool input)
 DelayFallTimer::DelayFallTimer()
 	: Timer()
 	, m_lastInput(false)
-	, m_lastEdge(m_now)
+	, m_lastEdge(0)
 {
 
 }
