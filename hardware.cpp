@@ -34,7 +34,7 @@ int InitHardware()
 	HW.FanCoilCorridoio.xChiudiValvola = new BitOutput(Seneca_10DO_2, 2);
 	HW.FanCoilCorridoio.xStartVentilatore = new BitOutput(Seneca_10DO_2, 3);
 	HW.FanCoilCorridoio.xMuoviSerrandaCucina = new BitOutput(Seneca_10DO_2, 9);
-	HW.FanCoilCorridoio.xChiudiSerrandaCucina = new BitOutput(Seneca_10DO_2, 8);
+	HW.FanCoilCorridoio.xApriSerrandaCucina = new BitOutput(Seneca_10DO_2, 8);
 	HW.FanCoilCorridoio.wLivelloVentilatore = new WordOutput(Seneca_3AO_3, 1);
 	// inputs
 	HW.FanCoilCorridoio.xValvolaAperta = new BitInput(Seneca_16DI_8DO_1, 3);

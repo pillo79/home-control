@@ -50,9 +50,9 @@ void ControlThread::run()
 
 		bool muovi_serranda = xApriCucina || xChiudiCucina;
 		HW.FanCoilCorridoio.xMuoviSerrandaCucina->setValue(muovi_serranda);
-		HW.FanCoilCorridoio.xChiudiSerrandaCucina->setValue(xChiudiCucina);
+		HW.FanCoilCorridoio.xApriSerrandaCucina->setValue(xApriCucina);
 		static DelayRiseTimer tStopSerrandaCucina;
-		bool stop_serranda = tStopSerrandaCucina.update(xChiudiCucina? DELAY_SEC(30) : DELAY_SEC(10), muovi_serranda);
+		bool stop_serranda = tStopSerrandaCucina.update(xChiudiCucina? DELAY_SEC(30) : DELAY_SEC(13), muovi_serranda);
 		if (stop_serranda)  {
 			xApriCucina = xChiudiCucina = false;
 		}

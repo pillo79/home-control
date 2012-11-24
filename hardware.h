@@ -29,7 +29,7 @@ struct Hardware {
 		BitOutput *xChiudiValvola;
 		BitOutput *xStartVentilatore;
 		BitOutput *xMuoviSerrandaCucina;
-		BitOutput *xChiudiSerrandaCucina;
+		BitOutput *xApriSerrandaCucina;
 		// word outputs
 		WordOutput *wLivelloVentilatore;
 		// inputs
