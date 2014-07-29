@@ -2,18 +2,24 @@
 
 struct Hardware HW;
 
+static ModbusDevice *Undefined;
+
 static ModbusDevice *Seneca_16DI_8DO_1;
 static ModbusDevice *Seneca_10DO_2;
 static ModbusDevice *Seneca_3AO_3;
 static ModbusDevice *Seneca_4RTD_4, *Seneca_4RTD_5;
+static ModbusDevice *Burosoft_Temp_32;
 
 int InitHardware()
 {
+	Undefined = new ModbusDevice(-1);
+
 	Seneca_16DI_8DO_1 = new Seneca_16DI_8DO(1);
 	Seneca_10DO_2 = new Seneca_10DO(2);
 	Seneca_3AO_3 = new Seneca_3AO(3);
 	Seneca_4RTD_4 = new Seneca_4RTD(4);
 	Seneca_4RTD_5 = new Seneca_4RTD(5);
+	Burosoft_Temp_32 = new Burosoft_Temp(0x20);
 
 #define INIT(var, type, dev, num) HW. var = new type( #var, dev, num)
 	// outputs
@@ -55,10 +61,14 @@ int InitHardware()
 	// word inputs
 	INIT(Accumuli.wTemperatura,			WordInput,	Seneca_4RTD_5, 4);
 	// word inputs
-	INIT(Ambiente.wTemperaturaEsterna,		WordInput,	Seneca_4RTD_5, 1);
-	INIT(Ambiente.wTemperaturaZonaGiorno,		WordInput,	Seneca_4RTD_5, 3);
-	INIT(Ambiente.wTemperaturaSoffitta,		WordInput,	Seneca_4RTD_4, 2);
-
+	INIT(Ambiente.wTemperaturaEsterna,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wUmiditaEsterna,			WordInput,	Undefined, -1);
+	INIT(Ambiente.wTemperaturaZonaGiorno,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wUmiditaZonaGiorno,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wTemperaturaZonaNotte,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wUmiditaZonaNotte,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wTemperaturaSoffitta,		WordInput,	Burosoft_Temp_32, 1);
+	INIT(Ambiente.wUmiditaSoffitta,			WordInput,	Burosoft_Temp_32, 2);
 	return 0;
 }
 
@@ -73,6 +83,7 @@ void ReadHardwareInputs()
 	DUMP(Seneca_3AO_3->updateInputs());
 	DUMP(Seneca_4RTD_4->updateInputs());
 	DUMP(Seneca_4RTD_5->updateInputs());
+	DUMP(Burosoft_Temp_32->updateInputs());
 }
 
 void WriteHardwareOutputs()
@@ -82,4 +93,5 @@ void WriteHardwareOutputs()
 	DUMP(Seneca_3AO_3->updateOutputs());
 	DUMP(Seneca_4RTD_4->updateOutputs());
 	DUMP(Seneca_4RTD_5->updateOutputs());
+	DUMP(Burosoft_Temp_32->updateOutputs());
 }

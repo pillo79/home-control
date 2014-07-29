@@ -57,8 +57,13 @@ struct Hardware {
 	struct {
 		// word inputs
 		WordInput *wTemperaturaEsterna;
+		WordInput *wUmiditaEsterna;
 		WordInput *wTemperaturaZonaGiorno;
+		WordInput *wUmiditaZonaGiorno;
+		WordInput *wTemperaturaZonaNotte;
+		WordInput *wUmiditaZonaNotte;
 		WordInput *wTemperaturaSoffitta;
+		WordInput *wUmiditaSoffitta;
 	} Ambiente;
 };
 
