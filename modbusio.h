@@ -5,6 +5,8 @@
 #include <QList>
 #include <QString>
 
+#include "global.h"
+
 class ModbusDevice;
 
 typedef QList<const class ModbusIO *> ModbusIOPtrList;
@@ -15,7 +17,7 @@ class ModbusIO {
 		virtual ~ModbusIO();
 
 		virtual int  getValue() { return -ENOTSUP; }
-		virtual void setValue(int value) { }
+		virtual void setValue(int value) { UNUSED(value); }
 	protected:
 		ModbusDevice *mDev;
 		QString mName;

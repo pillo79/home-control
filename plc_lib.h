@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "global.h"
+
 #define DELAY_MSEC(x) ((x)*1000)
 #define DELAY_SEC(x) DELAY_MSEC((x)*1000)
 #define DELAY_MIN(x) DELAY_SEC((x)*60)
@@ -11,7 +13,7 @@ class Timer {
 	public:
 		Timer() { }
 		virtual ~Timer() { }
-		virtual bool update(unsigned usdelay, bool input) { return input; }
+		virtual bool update(unsigned usdelay, bool input) { UNUSED(usdelay); return input; }
 	public:
 		static void tick();
 	protected:

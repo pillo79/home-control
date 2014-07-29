@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "global.h"
+
 class ModbusDevice {
 	public:
 		static int openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits);
@@ -16,12 +18,12 @@ class ModbusDevice {
 		virtual int updateInputs() { return 0; };
 		virtual int updateOutputs() { return 0; };
 
-		virtual int getDigInput(int input) { return -ENOTSUP; }
-		virtual int getDigOutput(int output) { return -ENOTSUP; }
-		virtual int setDigOutput(int output, bool value) { return -ENOTSUP; }
-		virtual int getInputVal(int input) { return -ENOTSUP; }
-		virtual int getOutputVal(int output) { return -ENOTSUP; }
-		virtual int setOutputVal(int output, int value) { return -ENOTSUP; }
+		virtual int getDigInput(int input) { UNUSED(input); return -ENOTSUP; }
+		virtual int getDigOutput(int output) { UNUSED(output); return -ENOTSUP; }
+		virtual int setDigOutput(int output, bool value) { UNUSED(output); UNUSED(value); return -ENOTSUP; }
+		virtual int getInputVal(int input) { UNUSED(input); return -ENOTSUP; }
+		virtual int getOutputVal(int output) { UNUSED(output); return -ENOTSUP; }
+		virtual int setOutputVal(int output, int value) { UNUSED(output); UNUSED(value); return -ENOTSUP; }
 	protected:
 		int mAddress;
 		int mbReadReg(int idx, int count, uint16_t *values);
