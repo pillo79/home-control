@@ -66,9 +66,13 @@ class Seneca_16DI_8DO : public ModbusDevice {
 		virtual int getDigInput(int input);
 		virtual int getDigOutput(int output);
 		virtual int setDigOutput(int output, bool value);
+
+		virtual int getInputVal(int input);
 	private:
 		uint16_t mInputs;
 		uint16_t mOutputs;
+
+		uint16_t mCounters[16];
 };
 
 class Seneca_4RTD : public ModbusDevice {

@@ -116,7 +116,15 @@ Seneca_16DI_8DO::Seneca_16DI_8DO(int modAddress)
 
 int Seneca_16DI_8DO::updateInputs()
 {
-	return mbReadReg(40301, 1, &mInputs);
+	int ret;
+
+	// read digital inputs
+	ret = mbReadReg(40301, 1, &mInputs);
+	if (ret) return ret;
+
+	// read counters
+	ret = mbReadReg(40009, 16, mCounters);
+	return ret;
 }
 
 int Seneca_16DI_8DO::updateOutputs()
@@ -147,6 +155,15 @@ int Seneca_16DI_8DO::setDigOutput(int output, bool value)
 	else
 		mOutputs &= ~(1 << (output-1));
 	return 0;
+}
+
+int Seneca_16DI_8DO::getInputVal(int input)
+{
+	if (input < 1) return -ENOTSUP;
+	if (input > 8) return -ENOTSUP;
+
+	input = (input-1) << 1;
+	return (mCounters[input] << 16) | mCounters[input+1];
 }
 
 
