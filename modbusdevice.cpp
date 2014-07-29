@@ -225,3 +225,23 @@ int Seneca_3AO::setOutputVal(int output, int val)
 }
 
 
+
+/* Sensore temp/umidita */
+Burosoft_Temp::Burosoft_Temp(int modAddress)
+	: ModbusDevice(modAddress)
+{
+	for (int i=0; i<2; ++i)
+		mInputs[i] = 0;
+}
+
+int Burosoft_Temp::updateInputs()
+{
+	return mbReadReg(40001, 2, mInputs);
+}
+
+int Burosoft_Temp::getInputVal(int input)
+{
+	if (input < 1) return -ENOTSUP;
+	if (input > 2) return -ENOTSUP;
+	return mInputs[input-1];
+}

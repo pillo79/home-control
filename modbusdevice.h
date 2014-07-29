@@ -106,4 +106,16 @@ class Seneca_3AO : public ModbusDevice {
 		uint16_t mOutputs[3];
 };
 
+class Burosoft_Temp : public ModbusDevice {
+	public:
+		Burosoft_Temp(int modAddress);
+		virtual ~Burosoft_Temp() { };
+
+		virtual int updateInputs();
+
+		virtual int getInputVal(int input);
+	private:
+		uint16_t mInputs[2];
+};
+
 #endif /* __MODBUSDEVICE_H__ */
