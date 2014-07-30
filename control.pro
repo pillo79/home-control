@@ -12,3 +12,8 @@ LIBS += -L../libmodbus/src -lmodbus
 HEADERS += dlg_control.h
 SOURCES += dlg_control.cpp
 FORMS += dlg_control.ui
+
+HEADERS += dlg_status.h
+SOURCES += dlg_status.cpp
+FORMS += dlg_status.ui
+

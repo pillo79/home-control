@@ -34,6 +34,10 @@ void ControlThread::run()
 		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
 		wTemperaturaAccumuli = HW.Accumuli.wTemperatura->getValue();
+		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
+
+		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
+		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();
 
 		bool risc_acceso = xRiscaldaNotte || xRiscaldaGiorno || xRiscaldaSoffitta;
 		HW.Riscaldamento.xChiudiValvola->setValue(!risc_acceso);

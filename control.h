@@ -35,6 +35,16 @@ class ControlThread : public QThread {
 		int wTemperaturaACS;
 		int wTemperaturaBoiler;
 		int wTemperaturaAccumuli;
+		int wTemperaturaPannelli;
+
+		int wTempGiorno;
+		int wUmidGiorno;
+		int wTempNotte;
+		int wUmidNotte;
+		int wTempSoffitta;
+		int wUmidSoffitta;
+		int wTempEsterno;
+		int wUmidEsterno;
 };
 
 ControlThread &control();

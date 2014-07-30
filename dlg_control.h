@@ -1,5 +1,5 @@
-#ifndef __DLG_MAIN_H__
-#define __DLG_MAIN_H__
+#ifndef __DLG_CONTROL_H__
+#define __DLG_CONTROL_H__
 
 #include <QWidget>
 #include <QTimer>
@@ -14,6 +14,9 @@ class ControlDlg : public QWidget
 		ControlDlg(QWidget *parent = 0);
 
 	public slots:
+		void updateScreen();
+
+	private slots:
 		void on_pbNotte_toggled(bool checked);
 		void on_pbGiorno_toggled(bool checked);
 		void on_pbSoffitta_toggled(bool checked);
@@ -30,13 +33,14 @@ class ControlDlg : public QWidget
 		void on_pbApriCucina_clicked();
 		void on_pbChiudiCucina_clicked();
 
-		void updateScreen();
+		void on_pbOK_clicked();
 
 	private:
 		Ui::ControlDlg ui;
-		QTimer screenUpdate;
+		QTimer m_closeTimer;
 
+		void resetCloseTimer();
 		void updateStatoRisc();
 };
 
-#endif /* __DLG_MAIN_H__ */
+#endif /* __DLG_CONTROL_H__ */
