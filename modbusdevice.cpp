@@ -120,7 +120,7 @@ int Seneca_16DI_8DO::updateInputs()
 
 	// read digital inputs
 	ret = mbReadReg(40301, 1, &mInputs);
-	if (ret) return ret;
+	if (ret < 1) return ret;
 
 	// read counters
 	ret = mbReadReg(40009, 16, mCounters);
