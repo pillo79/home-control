@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainDlg</class>
- <widget class="QWidget" name="MainDlg">
+ <class>ControlDlg</class>
+ <widget class="QWidget" name="ControlDlg">
   <property name="geometry">
    <rect>
     <x>0</x>

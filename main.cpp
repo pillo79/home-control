@@ -3,7 +3,7 @@
 #include "hardware.h"
 
 #include "control.h"
-#include "dlg_main.h"
+#include "dlg_control.h"
 
 #include <QtGui>
 
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
 	control();
 
-	MainDlg *mainDlg = new MainDlg;
+	ControlDlg *mainDlg = new ControlDlg;
 	mainDlg->show();
 
 	return app.exec();

@@ -4,14 +4,14 @@
 #include <QWidget>
 #include <QTimer>
 
-#include "ui_dlg_main.h"
+#include "ui_dlg_control.h"
 
-class MainDlg : public QWidget
+class ControlDlg : public QWidget
 {
 	Q_OBJECT
 
 	public:
-		MainDlg(QWidget *parent = 0);
+		ControlDlg(QWidget *parent = 0);
 
 	public slots:
 		void on_pbNotte_toggled(bool checked);
@@ -33,7 +33,7 @@ class MainDlg : public QWidget
 		void updateScreen();
 
 	private:
-		Ui::MainDlg ui;
+		Ui::ControlDlg ui;
 		QTimer screenUpdate;
 
 		void updateStatoRisc();

@@ -1,4 +1,4 @@
-#include "dlg_main.h"
+#include "dlg_control.h"
 
 #include "control.h"
 #include "hardware.h"
@@ -6,7 +6,7 @@
 #include <QtGui>
 #include <QApplication>
 
-MainDlg::MainDlg(QWidget *parent)
+ControlDlg::ControlDlg(QWidget *parent)
     : QWidget(parent)
 {
 	ui.setupUi(this);
@@ -26,7 +26,7 @@ MainDlg::MainDlg(QWidget *parent)
 	screenUpdate.start(100);
 }
 
-void MainDlg::on_pbNotte_toggled(bool checked)
+void ControlDlg::on_pbNotte_toggled(bool checked)
 {
 	if (checked) {
 		ui.pbNotte->setPalette(QPalette(QColor(255, 64, 64)));
@@ -38,7 +38,7 @@ void MainDlg::on_pbNotte_toggled(bool checked)
 	control().xRiscaldaNotte = checked;
 }
 
-void MainDlg::on_pbGiorno_toggled(bool checked)
+void ControlDlg::on_pbGiorno_toggled(bool checked)
 {
 	if (checked) {
 		ui.pbGiorno->setPalette(QPalette(QColor(255, 64, 64)));
@@ -50,7 +50,7 @@ void MainDlg::on_pbGiorno_toggled(bool checked)
 	control().xRiscaldaGiorno = checked;
 }
 
-void MainDlg::on_pbSoffitta_toggled(bool checked)
+void ControlDlg::on_pbSoffitta_toggled(bool checked)
 {
 	if (checked) {
 		ui.pbSoffitta->setPalette(QPalette(QColor(255, 64, 64)));
@@ -62,7 +62,7 @@ void MainDlg::on_pbSoffitta_toggled(bool checked)
 	control().xRiscaldaSoffitta = checked;
 }
 
-void MainDlg::on_pbFanCoil_toggled(bool checked)
+void ControlDlg::on_pbFanCoil_toggled(bool checked)
 {
 	if (checked) {
 		ui.pbFanCoil->setPalette(QPalette(QColor(255, 64, 64)));
@@ -74,7 +74,7 @@ void MainDlg::on_pbFanCoil_toggled(bool checked)
 	control().xFanCoil = checked;
 }
 
-void MainDlg::updateStatoRisc()
+void ControlDlg::updateStatoRisc()
 {
 	if (ui.pbRiscCaldaia->isChecked()) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
@@ -99,21 +99,21 @@ void MainDlg::updateStatoRisc()
 	}
 }
 
-void MainDlg::on_pbRiscCaldaia_toggled(bool checked)
+void ControlDlg::on_pbRiscCaldaia_toggled(bool checked)
 {
 	QMutexLocker lock(&control().mFields);
 	control().xUsaCaldaia = checked;
 	updateStatoRisc();
 }
 
-void MainDlg::on_pbRiscPompaCalore_toggled(bool checked)
+void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 {
 	QMutexLocker lock(&control().mFields);
 	control().xUsaPompaCalore = checked;
 	updateStatoRisc();
 }
 
-void MainDlg::on_pbVelMinus_clicked()
+void ControlDlg::on_pbVelMinus_clicked()
 {
 	QMutexLocker lock(&control().mFields);
 	if (control().wVelFanCoil > 5)
@@ -126,7 +126,7 @@ void MainDlg::on_pbVelMinus_clicked()
 	ui.tlVelFanCoil->setText(buf);
 }
 
-void MainDlg::on_pbVelPlus_clicked()
+void ControlDlg::on_pbVelPlus_clicked()
 {
 	QMutexLocker lock(&control().mFields);
 	if (control().wVelFanCoil < 95)
@@ -139,7 +139,7 @@ void MainDlg::on_pbVelPlus_clicked()
 	ui.tlVelFanCoil->setText(buf);
 }
 
-void MainDlg::on_pbTrasfAccumulo_toggled(bool checked)
+void ControlDlg::on_pbTrasfAccumulo_toggled(bool checked)
 {
 	if (checked) {
 		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(64, 255, 64)));
@@ -151,19 +151,19 @@ void MainDlg::on_pbTrasfAccumulo_toggled(bool checked)
 	control().xTrasfAccumulo = checked;
 }
 
-void MainDlg::on_pbApriCucina_clicked()
+void ControlDlg::on_pbApriCucina_clicked()
 {
 	QMutexLocker lock(&control().mFields);
 	control().xApriCucina = true;
 }
 
-void MainDlg::on_pbChiudiCucina_clicked()
+void ControlDlg::on_pbChiudiCucina_clicked()
 {
 	QMutexLocker lock(&control().mFields);
 	control().xChiudiCucina = true;
 }
 
-void MainDlg::updateScreen()
+void ControlDlg::updateScreen()
 {
 	char buf[256];
 
