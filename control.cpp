@@ -3,6 +3,7 @@
 #include "modbusdevice.h"
 #include "hardware.h"
 #include "plc_lib.h"
+#include "powercalc.h"
 
 #include <QTime>
 
@@ -35,6 +36,16 @@ void ControlThread::run()
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
 		wTemperaturaAccumuli = HW.Accumuli.wTemperatura->getValue();
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
+
+		static PeriodicTimer tImpiantoElettrico;
+		static PowerCalc pcProdotta;
+		static PowerCalc pcConsumata;
+		if (tImpiantoElettrico.update(DELAY_SEC(3), true)) {
+			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
+			wPotProdotta = pcProdotta.getCurrentPower();
+			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
+			wPotConsumata = pcConsumata.getCurrentPower();
+		}
 
 		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
 		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();

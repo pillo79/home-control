@@ -55,6 +55,9 @@ int InitHardware()
 	INIT(PompaCalore.wTemperaturaACS,		WordInput,	Seneca_4RTD_4, 3);
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
 	INIT(PompaCalore.wTemperaturaPannelli,		WordInput,	Seneca_4RTD_5, 2);
+	// word inputs
+	INIT(Pannelli.wPotenzaProdotta,			WordInput,	Seneca_16DI_8DO_1, 5);
+	INIT(Pannelli.wPotenzaConsumata,		WordInput,	Seneca_16DI_8DO_1, 4);
 	// outputs
 	INIT(Accumuli.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
 	INIT(Accumuli.xApriValvola,			BitOutput,	Seneca_10DO_2, 7);

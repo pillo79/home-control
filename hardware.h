@@ -55,6 +55,10 @@ struct Hardware {
 		WordInput *wTemperatura;
 	} Accumuli;
 	struct {
+		WordInput *wPotenzaProdotta;
+		WordInput *wPotenzaConsumata;
+	} Pannelli;
+	struct {
 		// word inputs
 		WordInput *wTemperaturaEsterna;
 		WordInput *wUmiditaEsterna;
