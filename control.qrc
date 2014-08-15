@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="rc" >
+    <file>rc/cold.png</file>
+    <file>rc/hot.png</file>
+  </qresource>
+  <qresource prefix="bg" >
+    <file>rc/attic.png</file>
+    <file>rc/day.png</file>
+    <file>rc/ext.png</file>
+    <file>rc/night.png</file>
+  </qresource>
+</RCC>
