@@ -6,6 +6,7 @@
 #include "powercalc.h"
 
 #include <QTime>
+#include <stdio.h>
 
 ControlThread::ControlThread()
 {
@@ -20,17 +21,49 @@ ControlThread::~ControlThread()
 
 }
 
+void echo(const char *what, const char *where)
+{
+	FILE *f = fopen(where, "w");
+	fprintf(f, "%s", what);
+	fclose(f);
+}
+
 void ControlThread::run()
 {
 	ModbusDevice::openSerial("/dev/ttyUSB0", 38400, 'N', 8, 1);
 	InitHardware();
 
+	QTime lastTime = QTime::currentTime();
+
 	while(1) {
+
+		static PowerCalc pcProdotta;
+		static PowerCalc pcConsumata;
+
 		ReadHardwareInputs();
 
-		mFields.lock();
-
 		Timer::tick();
+		QTime now = QTime::currentTime();
+
+		if (now.hour() != lastTime.hour()) {
+			switch (now.hour()) {
+			case 0:
+				// NEXT DAY!
+				pcProdotta.resetTotals();
+				pcConsumata.resetTotals();
+				break;
+			case 6:
+				// wake up display
+				echo("160", "/sys/devices/platform/pwm-backlight.0/backlight/pwm-backlight.0/brightness");
+				break;
+			case 22:
+				// set display to sleep brightness
+				echo("32", "/sys/devices/platform/pwm-backlight.0/backlight/pwm-backlight.0/brightness");
+				break;
+			}
+		}
+
+		mFields.lock();
 
 		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
@@ -38,13 +71,13 @@ void ControlThread::run()
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
 
 		static PeriodicTimer tImpiantoElettrico;
-		static PowerCalc pcProdotta;
-		static PowerCalc pcConsumata;
-		if (tImpiantoElettrico.update(DELAY_SEC(3), true)) {
+		if (tImpiantoElettrico.update(DELAY_SEC(SAMPLE_PERIOD_SECS), true)) {
 			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
 			wPotProdotta = pcProdotta.getCurrentPower();
+			wEnergProdotta = pcProdotta.getCurrentEnergy();
 			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
 			wPotConsumata = pcConsumata.getCurrentPower();
+			wEnergConsumata = pcConsumata.getCurrentEnergy();
 		}
 
 		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
@@ -86,9 +119,9 @@ void ControlThread::run()
 		bool zona_attiva = false;
 		if (!xUsaPompaCalore) {
 			/* caldaia auto */
-			zona_attiva |= ((QTime::currentTime()>QTime(6,0)) && (QTime::currentTime()<QTime(8,30)));
-			zona_attiva |= ((QTime::currentTime()>QTime(11,0)) && (QTime::currentTime()<QTime(15,0)));
-			zona_attiva |= ((QTime::currentTime()>QTime(18,0)) && (QTime::currentTime()<QTime(21,0)));
+			zona_attiva |= ((now>QTime(6,0)) && (now<QTime(8,30)));
+			zona_attiva |= ((now>QTime(11,0)) && (now<QTime(15,0)));
+			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
 		zona_attiva |= stop_forza_pompa_calore;
 		if (zona_attiva) {
@@ -114,8 +147,8 @@ void ControlThread::run()
 		HW.Accumuli.xStartPompa->setValue(tStartPompaAccumulo.update(DELAY_SEC(30), xTrasfAccumulo));
 
 		mFields.unlock();
-
 		WriteHardwareOutputs();
+		lastTime = now;
 	}
 }
 

@@ -58,6 +58,22 @@ void StatusDlg::updateStatoRisc()
 */
 }
 
+static void setLabelActive(QLabel *label, QColor color)
+{
+	QPalette palette = label->palette();
+	palette.setColor(label->backgroundRole(), color);
+	label->setPalette(palette);
+	label->setFrameShape(QFrame::Box);
+	label->setEnabled(true);
+}
+
+static void setLabelInactive(QLabel *label)
+{
+	label->setEnabled(false);
+	label->setPalette(QApplication::palette());
+	label->setFrameShape(QFrame::NoFrame);
+}
+
 void StatusDlg::updateScreen()
 {
 	char buf[256];
@@ -85,21 +101,26 @@ void StatusDlg::updateScreen()
 	sprintf(buf, "%i", control().wPotConsumata);
 	ui.tlPotConsumata->setText(buf);
 
-/*	if (control().xCaldaiaInUso) {
-		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
+	sprintf(buf, "%.3f kWh oggi", control().wEnergProdotta/1000.0);
+	ui.tlEnergiaProdotta->setText(buf);
+	sprintf(buf, "%.3f kWh oggi", control().wEnergConsumata/1000.0);
+	ui.tlEnergiaConsumata->setText(buf);
+
+	if (control().xCaldaiaInUso) {
+		setLabelActive(ui.tlStatoCaldaia, QColor(255, 64, 64));
 	} else {
-		ui.pbApriCucina->setPalette(QApplication::palette());
+		setLabelInactive(ui.tlStatoCaldaia);
 	}
-	if (control().xApriCucina) {
-		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
+
+	if (control().xPompaCaloreInUso) {
+		setLabelActive(ui.tlStatoPompaCalore, QColor(64, 255, 64));
 	} else {
-		ui.pbApriCucina->setPalette(QApplication::palette());
+		setLabelInactive(ui.tlStatoPompaCalore);
 	}
-	if (control().xChiudiCucina) {
-		ui.pbChiudiCucina->setPalette(QPalette(QColor(64, 255, 64)));
+
+	if (control().xFanCoil) {
+		setLabelActive(ui.tlStatoVentilatore, QColor(128, 128, 255));
 	} else {
-		ui.pbChiudiCucina->setPalette(QApplication::palette());
+		setLabelInactive(ui.tlStatoVentilatore);
 	}
-*/
-	updateStatoRisc();
 }

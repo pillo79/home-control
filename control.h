@@ -39,6 +39,8 @@ class ControlThread : public QThread {
 
 		int wPotProdotta;
 		int wPotConsumata;
+		int wEnergProdotta;
+		int wEnergConsumata;
 
 		int wTempGiorno;
 		int wUmidGiorno;

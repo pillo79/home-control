@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define SAMPLES_PER_HOUR	1100
-
 #define WRAP(x) ((x+SAMPLES_PER_HOUR) % SAMPLES_PER_HOUR)
 
 PowerCalc::PowerCalc()
@@ -12,7 +10,9 @@ PowerCalc::PowerCalc()
 	, m_initLast(true)
 {
 	bzero(m_samples, SAMPLES_PER_HOUR*sizeof(int));
-	printf("inited\n");
+	bzero(m_last_5W, sizeof(m_last_5W));
+	bzero(m_last_25W, sizeof(m_last_25W));
+	bzero(m_last_100W, sizeof(m_last_100W));
 }
 
 PowerCalc::~PowerCalc()
@@ -28,14 +28,26 @@ void PowerCalc::addSample(int now)
 		return;
 	}
 
-	unsigned long wrappedValue = ((1UL<<31)-m_last+now) & ((1<<31)-1);
-	m_runningPower_1W += wrappedValue-m_samples[m_sampleIdx];
+	unsigned long wrappedValue = ((1UL<<31)-m_last+now) & ((1UL<<31)-1);
+
+	// update running total
 	m_runningPower_5W += wrappedValue-m_samples[WRAP(m_sampleIdx-SAMPLES_PER_HOUR/5)];
 	m_runningPower_25W += wrappedValue-m_samples[WRAP(m_sampleIdx-SAMPLES_PER_HOUR/25)];
 	m_runningPower_100W += wrappedValue-m_samples[WRAP(m_sampleIdx-SAMPLES_PER_HOUR/100)];
 	m_runningEnergy += wrappedValue;
-	printf("%3i now %04x last %04x wrap %04x totals %5i %04x %5i %04x %5i %04x %5i %04x %04x\n", m_sampleIdx, now, m_last, wrappedValue, m_runningPower_1W, m_runningPower_1W, m_runningPower_5W*5, m_runningPower_5W, m_runningPower_25W*25, m_runningPower_25W, m_runningPower_100W*100, m_runningPower_100W, m_runningEnergy);
+
+	// update moving averages
+	m_maPower_5W += m_runningPower_5W-m_last_5W[m_sampleIdx & 7];
+	m_maPower_25W += m_runningPower_25W-m_last_25W[m_sampleIdx & 7];
+	m_maPower_100W += m_runningPower_100W-m_last_100W[m_sampleIdx & 7];
+
+//	printf("%3i now %04x last %04x wrap %04x totals %5i %04x %5i %04x %5i %04x %04x\n", m_sampleIdx, now, m_last, wrappedValue, m_runningPower_5W*5, m_runningPower_5W, m_runningPower_25W*25, m_runningPower_25W, m_runningPower_100W*100, m_runningPower_100W, m_runningEnergy);
+	printf("%4i +%-2i %4i %4i %4i %5i | ", m_sampleIdx, wrappedValue, m_runningPower_5W*5, m_runningPower_25W*25, m_runningPower_100W*100, m_runningEnergy);
+
 	m_samples[m_sampleIdx] = wrappedValue;
+	m_last_5W[m_sampleIdx & 7] = m_runningPower_5W;
+	m_last_25W[m_sampleIdx & 7] = m_runningPower_25W;
+	m_last_100W[m_sampleIdx & 7] = m_runningPower_100W;
 	m_sampleIdx = WRAP(m_sampleIdx+1);
 	m_last = now;
 }
@@ -57,11 +69,6 @@ int PowerCalc::getCurrentPower()
 	if ((next_power > est_power-delta) && (next_power < est_power+delta)) {
 		est_power = next_power;
 		delta = 2*5;
-	}
-
-	next_power = m_runningPower_1W;
-	if ((next_power > est_power-delta) && (next_power < est_power+delta)) {
-		est_power = next_power;
 	}
 
 	return est_power;
