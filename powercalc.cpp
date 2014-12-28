@@ -28,7 +28,8 @@ void PowerCalc::addSample(int now)
 		return;
 	}
 
-	unsigned long wrappedValue = ((1UL<<31)-m_last+now) & ((1UL<<31)-1);
+	// truncate to 16 bits and wrap
+	unsigned long wrappedValue = ((1UL<<16)-m_last+now) & ((1UL<<16)-1);
 
 	// update running total
 	m_runningPower_5W += wrappedValue-m_samples[WRAP(m_sampleIdx-SAMPLES_PER_HOUR/5)];
