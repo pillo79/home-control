@@ -271,7 +271,7 @@
      <x>4</x>
      <y>4</y>
      <width>791</width>
-     <height>247</height>
+     <height>256</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -358,7 +358,26 @@
             </font>
            </property>
            <property name="text">
-            <string>99.9 kWh oggi</string>
+            <string>99.999 kWh oggi</string>
+           </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="tlBilAttivo">
+           <property name="font">
+            <font>
+             <family>Sans Serif</family>
+             <pointsize>12</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>(9h99 in attivo)</string>
            </property>
            <property name="scaledContents">
             <bool>false</bool>
@@ -420,7 +439,7 @@ Consumo (W)</string>
             </font>
            </property>
            <property name="text">
-            <string>99.9 kWh oggi</string>
+            <string>99.999 kWh oggi</string>
            </property>
            <property name="scaledContents">
             <bool>false</bool>
@@ -928,9 +947,9 @@ Umidità (%)</string>
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>362</y>
+     <y>350</y>
      <width>218</width>
-     <height>111</height>
+     <height>130</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">

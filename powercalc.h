@@ -14,6 +14,7 @@ class PowerCalc {
 
 		int getCurrentPower();
 		int getCurrentEnergy();
+		int getDeltaSteps();
 
 	private:
 		int* m_samples;
@@ -21,6 +22,7 @@ class PowerCalc {
 		int m_sampleIdx;
 		bool m_initLast;
 		int m_last;
+		int m_lastDelta;
 		int m_runningPower_5W, m_maPower_5W;
 		int m_runningPower_25W, m_maPower_25W;
 		int m_runningPower_100W, m_maPower_100W;

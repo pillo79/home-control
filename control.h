@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QMutex>
+#include <QTime>
 
 class ControlThread : public QThread {
 	private:
@@ -41,6 +42,7 @@ class ControlThread : public QThread {
 		int wPotConsumata;
 		int wEnergProdotta;
 		int wEnergConsumata;
+		QTime tTempoAttivo;
 
 		int wTempGiorno;
 		int wUmidGiorno;

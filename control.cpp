@@ -45,12 +45,21 @@ void ControlThread::run()
 		Timer::tick();
 		QTime now = QTime::currentTime();
 
+		if (now.minute() != lastTime.minute())
+		{
+			int prod = pcProdotta.getDeltaSteps();
+			int cons = pcConsumata.getDeltaSteps();
+			if (prod > cons)
+				tTempoAttivo.addSecs(60);
+		}
+
 		if (now.hour() != lastTime.hour()) {
 			switch (now.hour()) {
 			case 0:
 				// NEXT DAY!
 				pcProdotta.resetTotals();
 				pcConsumata.resetTotals();
+				tTempoAttivo.setHMS(0,0,0);
 				break;
 			case 6:
 				// wake up display

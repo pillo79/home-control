@@ -24,12 +24,13 @@ void PowerCalc::addSample(int now)
 {
 	if (m_initLast) {
 		m_last = now;
+		m_lastDelta = now;
 		m_initLast = false;
 		return;
 	}
 
 	// truncate to 16 bits and wrap
-	unsigned long wrappedValue = ((1UL<<16)-m_last+now) & ((1UL<<16)-1);
+	int wrappedValue = ((1<<16)-m_last+now) & ((1<<16)-1);
 
 	// update running total
 	m_runningPower_5W += wrappedValue-m_samples[WRAP(m_sampleIdx-SAMPLES_PER_HOUR/5)];
@@ -80,7 +81,15 @@ int PowerCalc::getCurrentEnergy()
 	return m_runningEnergy;
 }
 
+int PowerCalc::getDeltaSteps()
+{
+	int ret = ((1<<16)-m_lastDelta+m_last) & ((1<<16)-1);
+	m_lastDelta = m_last;
+	return ret;
+}
+
 void PowerCalc::resetTotals()
 {
 	m_runningEnergy = 0;
+	m_lastDelta = m_last;
 }
