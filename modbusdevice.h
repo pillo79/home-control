@@ -55,8 +55,21 @@ class Seneca_10DO : public ModbusDevice {
 		uint16_t mOutputs;
 };
 
-class Seneca_16DI_8DO : public ModbusDevice {
+class Seneca_24DO : public ModbusDevice {
 	public:
+		Seneca_24DO(int modAddress);
+		virtual ~Seneca_24DO() { };
+
+		virtual int updateOutputs();
+
+		virtual int getDigOutput(int output);
+		virtual int setDigOutput(int output, bool value);
+	private:
+		uint32_t mOutputs;
+};
+
+class Seneca_16DI_8DO : public ModbusDevice {
+		public:
 		Seneca_16DI_8DO(int modAddress);
 		virtual ~Seneca_16DI_8DO() { };
 

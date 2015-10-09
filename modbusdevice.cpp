@@ -106,6 +106,44 @@ int Seneca_10DO::setDigOutput(int output, bool value)
 
 
 
+/* ZC-24DO */
+Seneca_24DO::Seneca_24DO(int modAddress)
+	: ModbusDevice(modAddress)
+	, mOutputs(0)
+{
+}
+
+int Seneca_24DO::updateOutputs()
+{
+	uint16_t words[2] = {
+		mOutputs & 0xffff,
+		mOutputs >> 16
+	};
+
+	return mbWriteReg(40301, 2, words);
+}
+
+int Seneca_24DO::getDigOutput(int output)
+{
+	if (output < 1) return -ENOTSUP;
+	if (output > 24) return -ENOTSUP;
+	return mOutputs & (1 << (output-1));
+}
+
+int Seneca_24DO::setDigOutput(int output, bool value)
+{
+	if (output < 1) return -ENOTSUP;
+	if (output > 24) return -ENOTSUP;
+	if (value)
+		mOutputs |= (1 << (output-1));
+	else
+		mOutputs &= ~(1 << (output-1));
+
+	return 0;
+}
+
+
+
 /* ZC-16DI-8DO */
 Seneca_16DI_8DO::Seneca_16DI_8DO(int modAddress)
 	: ModbusDevice(modAddress)
