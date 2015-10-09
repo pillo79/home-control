@@ -71,7 +71,9 @@ bool PeriodicTimer::update(unsigned delayus, bool input)
 		return false;
 	} else if (m_lastInput) {
 		if (m_now-m_lastEdge >= delayus) {
-			m_lastEdge += delayus;
+			// FIXME: more accurate but does not work for some reason
+			// m_lastEdge += delayus;
+			m_lastEdge = m_now;
 			return true;
 		}
 		return false;
