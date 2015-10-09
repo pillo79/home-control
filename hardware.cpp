@@ -53,11 +53,12 @@ int InitHardware()
 	INIT(PompaCalore.xStopPompaCalore,		BitOutput,	Seneca_10DO_2, 10);
 	INIT(PompaCalore.xRichiestaCaldo,		BitOutput,	Seneca_10DO_2, 4);
 	INIT(PompaCalore.xRichiestaFreddo,		BitOutput,	Seneca_10DO_2, 5);
-	INIT(PompaCalore.xForzaValvole,			BitOutput,	Seneca_24DO_6, 1);
-	INIT(PompaCalore.xForza3VieApri,		BitOutput,	Seneca_24DO_6, 2);
-	INIT(PompaCalore.xForza3VieChiudi,		BitOutput,	Seneca_24DO_6, 3);
-	INIT(PompaCalore.xForzaRiscApri,		BitOutput,	Seneca_24DO_6, 4);
-	INIT(PompaCalore.xForzaRiscFerma,		BitOutput,	Seneca_24DO_6, 5);
+	INIT(PompaCalore.xInserResistenze,		BitOutput,	Seneca_24DO_6, 1);
+	INIT(PompaCalore.xForzaValvole,			BitOutput,	Seneca_24DO_6, 2);
+	INIT(PompaCalore.xForza3VieApri,		BitOutput,	Seneca_24DO_6, 3);
+	INIT(PompaCalore.xForza3VieChiudi,		BitOutput,	Seneca_24DO_6, 4);
+	INIT(PompaCalore.xForzaRiscApri,		BitOutput,	Seneca_24DO_6, 5);
+	INIT(PompaCalore.xForzaRiscFerma,		BitOutput,	Seneca_24DO_6, 6);
 	// word inputs
 	INIT(PompaCalore.wTemperaturaACS,		WordInput,	Seneca_4RTD_4, 3);
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
