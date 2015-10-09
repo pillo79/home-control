@@ -34,6 +34,7 @@ void ControlThread::run()
 	InitHardware();
 
 	QTime lastTime = QTime::currentTime();
+	int lastSecs = lastTime.hour()*3600 + lastTime.minute()*60 + lastTime.second();
 
 	while(1) {
 
@@ -44,6 +45,16 @@ void ControlThread::run()
 
 		Timer::tick();
 		QTime now = QTime::currentTime();
+		int nowSecs = now.hour()*3600 + now.minute()*60 + now.second();
+
+		if ((nowSecs != lastSecs) && ((nowSecs % SAMPLE_PERIOD_SECS) == 0)) {
+			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
+			wPotProdotta = pcProdotta.getCurrentPower();
+			wEnergProdotta = pcProdotta.getCurrentEnergy();
+			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
+			wPotConsumata = pcConsumata.getCurrentPower();
+			wEnergConsumata = pcConsumata.getCurrentEnergy();
+		}
 
 		if (now.minute() != lastTime.minute())
 		{
@@ -79,16 +90,6 @@ void ControlThread::run()
 		wTemperaturaAccumuli = HW.Accumuli.wTemperatura->getValue();
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
 
-		static PeriodicTimer tImpiantoElettrico;
-		if (tImpiantoElettrico.update(DELAY_SEC(SAMPLE_PERIOD_SECS), true)) {
-			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
-			wPotProdotta = pcProdotta.getCurrentPower();
-			wEnergProdotta = pcProdotta.getCurrentEnergy();
-			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
-			wPotConsumata = pcConsumata.getCurrentPower();
-			wEnergConsumata = pcConsumata.getCurrentEnergy();
-		}
-
 		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
 		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();
 
@@ -123,7 +124,7 @@ void ControlThread::run()
 		else
 			xPompaCaloreInUso = xUsaPompaCalore;
 		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
-		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
+//		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
 		bool zona_attiva = false;
 		if (!xUsaPompaCalore) {
@@ -158,6 +159,7 @@ void ControlThread::run()
 		mFields.unlock();
 		WriteHardwareOutputs();
 		lastTime = now;
+		lastSecs = nowSecs;
 	}
 }
 
