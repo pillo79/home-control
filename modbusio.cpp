@@ -27,7 +27,7 @@ BitInput::BitInput(QString name, ModbusDevice *dev, int bitAddr)
 	mBitAddr = bitAddr;
 }
 
-int BitInput::getValue()
+int BitInput::getValue() const
 {
 	return mDev->getDigInput(mBitAddr);
 }
@@ -38,7 +38,7 @@ BitOutput::BitOutput(QString name, ModbusDevice *dev, int bitAddr)
 	mBitAddr = bitAddr;
 }
 
-int BitOutput::getValue()
+int BitOutput::getValue() const
 {
 	return mDev->getDigOutput(mBitAddr);
 }
@@ -54,7 +54,7 @@ WordInput::WordInput(QString name, ModbusDevice *dev, int wordAddr)
 	mWordAddr = wordAddr;
 }
 
-int WordInput::getValue()
+int WordInput::getValue() const
 {
 	return mDev->getInputVal(mWordAddr);
 }
@@ -65,7 +65,7 @@ WordOutput::WordOutput(QString name, ModbusDevice *dev, int wordAddr)
 	mWordAddr = wordAddr;
 }
 
-int WordOutput::getValue()
+int WordOutput::getValue() const
 {
 	return mDev->getOutputVal(mWordAddr);
 }

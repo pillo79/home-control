@@ -16,7 +16,8 @@ class ModbusIO {
 		ModbusIO(QString name, ModbusDevice *dev);
 		virtual ~ModbusIO();
 
-		virtual int  getValue() { return -ENOTSUP; }
+		virtual QString name() const { return mName; };
+		virtual int  getValue() const { return -ENOTSUP; }
 		virtual void setValue(int value) { UNUSED(value); }
 	protected:
 		ModbusDevice *mDev;
@@ -31,7 +32,7 @@ class BitInput : public ModbusIO {
 		BitInput(QString name, ModbusDevice *dev, int bitAddr);
 		virtual ~BitInput() { }
 
-		virtual int getValue();
+		virtual int getValue() const;
 
 	public:
 		static const ModbusIOPtrList *elements() { return &mElements; }
@@ -47,7 +48,7 @@ class BitOutput : public ModbusIO {
 		BitOutput(QString name, ModbusDevice *dev, int bitAddr);
 		virtual ~BitOutput() { }
 
-		virtual int  getValue();
+		virtual int  getValue() const;
 		virtual void setValue(int value);
 
 	public:
@@ -64,7 +65,7 @@ class WordInput : public ModbusIO {
 		WordInput(QString name, ModbusDevice *dev, int wordAddr);
 		virtual ~WordInput() { }
 
-		virtual int getValue();
+		virtual int getValue() const;
 
 	public:
 		static const ModbusIOPtrList *elements() { return &mElements; }
@@ -80,7 +81,7 @@ class WordOutput : public ModbusIO {
 		WordOutput(QString name, ModbusDevice *dev, int wordAddr);
 		virtual ~WordOutput() { }
 
-		virtual int  getValue();
+		virtual int  getValue() const;
 		virtual void setValue(int value);
 
 	public:
