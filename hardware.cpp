@@ -94,7 +94,8 @@ void ReadHardwareInputs()
 	DUMP(Seneca_3AO_3->updateInputs());
 	DUMP(Seneca_4RTD_4->updateInputs());
 	DUMP(Seneca_4RTD_5->updateInputs());
-	DUMP(Burosoft_Temp_32->updateInputs());
+	DUMP(Seneca_24DO_6->updateInputs());
+//	DUMP(Burosoft_Temp_32->updateInputs());
 }
 
 void WriteHardwareOutputs()
@@ -104,5 +105,6 @@ void WriteHardwareOutputs()
 	DUMP(Seneca_3AO_3->updateOutputs());
 	DUMP(Seneca_4RTD_4->updateOutputs());
 	DUMP(Seneca_4RTD_5->updateOutputs());
-	DUMP(Burosoft_Temp_32->updateOutputs());
+	DUMP(Seneca_24DO_6->updateOutputs());
+//	DUMP(Burosoft_Temp_32->updateOutputs());
 }
