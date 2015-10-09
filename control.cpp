@@ -103,6 +103,17 @@ void ControlThread::run()
 		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xRiscaldaSoffitta);
 		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xRiscaldaSoffitta);
 
+		// setup valvole pompa calore
+		static DelayRiseTimer tResetManValvole;
+		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), risc_acceso);
+		static DelayRiseTimer tSetPosValvolaUV1;
+		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_SEC(3), reset_man_finito);
+		HW.PompaCalore.xForzaValvole->setValue(risc_acceso);
+		HW.PompaCalore.xForza3VieApri->setValue(true);
+		HW.PompaCalore.xForza3VieChiudi->setValue(false);
+		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
+		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
+
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
 		static DelayRiseTimer tStartFanCoil;
 		HW.FanCoilCorridoio.xStartVentilatore->setValue(tStartFanCoil.update(DELAY_SEC(30), xFanCoil));

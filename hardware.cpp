@@ -8,6 +8,7 @@ static ModbusDevice *Seneca_16DI_8DO_1;
 static ModbusDevice *Seneca_10DO_2;
 static ModbusDevice *Seneca_3AO_3;
 static ModbusDevice *Seneca_4RTD_4, *Seneca_4RTD_5;
+static ModbusDevice *Seneca_24DO_6;
 static ModbusDevice *Burosoft_Temp_32;
 
 int InitHardware()
@@ -19,6 +20,7 @@ int InitHardware()
 	Seneca_3AO_3 = new Seneca_3AO(3);
 	Seneca_4RTD_4 = new Seneca_4RTD(4);
 	Seneca_4RTD_5 = new Seneca_4RTD(5);
+	Seneca_24DO_6 = new Seneca_24DO(6);
 	Burosoft_Temp_32 = new Burosoft_Temp(0x20);
 
 #define INIT(var, type, dev, num) HW. var = new type( #var, dev, num)
@@ -51,6 +53,11 @@ int InitHardware()
 	INIT(PompaCalore.xStopPompaCalore,		BitOutput,	Seneca_10DO_2, 10);
 	INIT(PompaCalore.xRichiestaCaldo,		BitOutput,	Seneca_10DO_2, 4);
 	INIT(PompaCalore.xRichiestaFreddo,		BitOutput,	Seneca_10DO_2, 5);
+	INIT(PompaCalore.xForzaValvole,			BitOutput,	Seneca_24DO_6, 1);
+	INIT(PompaCalore.xForza3VieApri,		BitOutput,	Seneca_24DO_6, 2);
+	INIT(PompaCalore.xForza3VieChiudi,		BitOutput,	Seneca_24DO_6, 3);
+	INIT(PompaCalore.xForzaRiscApri,		BitOutput,	Seneca_24DO_6, 4);
+	INIT(PompaCalore.xForzaRiscFerma,		BitOutput,	Seneca_24DO_6, 5);
 	// word inputs
 	INIT(PompaCalore.wTemperaturaACS,		WordInput,	Seneca_4RTD_4, 3);
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
