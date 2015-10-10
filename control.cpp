@@ -57,12 +57,11 @@ void ControlThread::run()
 			printf("\n");
 		}
 
-		if (now.minute() != lastTime.minute())
-		{
+		if (now.minute() != lastTime.minute()) {
 			int prod = pcProdotta.getDeltaSteps();
 			int cons = pcConsumata.getDeltaSteps();
 			if (prod > cons)
-				tTempoAttivo.addSecs(60);
+				tTempoAttivo = tTempoAttivo.addSecs(60);
 		}
 
 		if (now.hour() != lastTime.hour()) {
