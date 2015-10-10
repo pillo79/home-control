@@ -125,6 +125,12 @@ void StatusDlg::updateScreen()
 		setLabelInactive(ui.tlStatoPompaCalore);
 	}
 
+	if (control().xResistenzeInUso) {
+		setLabelActive(ui.tlStatoResistenze, QColor(255, 64, 64));
+	} else {
+		setLabelInactive(ui.tlStatoResistenze);
+	}
+
 	if (control().xFanCoil) {
 		setLabelActive(ui.tlStatoVentilatore, QColor(128, 128, 255));
 	} else {

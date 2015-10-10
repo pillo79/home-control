@@ -140,6 +140,24 @@ void ControlDlg::updateStatoRisc()
 		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
 		ui.pbRiscPompaCalore->setText("Pompa di calore OFF");
 	}
+
+	static bool ultimoResistenzeInUso = false;
+	if (ui.pbRiscResistenze->isChecked()) {
+		if (ultimoResistenzeInUso && !control().xResistenzeInUso) {
+			// fine ciclo: reset bottone automatico
+			ui.pbRiscResistenze->setChecked(false);
+		} else {
+			ui.pbRiscResistenze->setPalette(QPalette(QColor(255, 64, 64)));
+			ui.pbRiscResistenze->setText("Resistenze ON");
+		}
+	} else if (control().xResistenzeInUso) {
+		ui.pbRiscResistenze->setPalette(QPalette(QColor(220,220,128)));
+		ui.pbRiscResistenze->setText("Resistenze auto ON");
+	} else {
+		ui.pbRiscResistenze->setPalette(QApplication::palette());
+		ui.pbRiscResistenze->setText("Resistenze OFF");
+	}
+	ultimoResistenzeInUso = control().xResistenzeInUso;
 }
 
 void ControlDlg::on_pbRiscCaldaia_toggled(bool checked)
@@ -158,6 +176,16 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 
 	lockMutex();
 	control().xUsaPompaCalore = checked;
+	updateStatoRisc();
+	unlockMutex();
+}
+
+void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
+{
+	resetCloseTimer();
+
+	lockMutex();
+	control().xUsaResistenze = checked;
 	updateStatoRisc();
 	unlockMutex();
 }

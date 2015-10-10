@@ -108,12 +108,14 @@ void ControlThread::run()
 		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), risc_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
-		//HW.PompaCalore.xInserResistenze->setValue(now.second()% 10 < 5);
 		HW.PompaCalore.xForzaValvole->setValue(risc_acceso);
 		HW.PompaCalore.xForza3VieApri->setValue(risc_acceso && false);
 		HW.PompaCalore.xForza3VieChiudi->setValue(risc_acceso && true);
 		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
+
+		xResistenzeInUso = xUsaResistenze && (wTemperaturaACS < 800) && (wTemperaturaBoiler < 800);
+		HW.PompaCalore.xInserResistenze->setValue(xResistenzeInUso);
 
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
 		static DelayRiseTimer tStartFanCoil;
