@@ -121,24 +121,24 @@ void ControlDlg::updateStatoRisc()
 {
 	if (ui.pbRiscCaldaia->isChecked()) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbRiscCaldaia->setText("Caldaia ON");
+		ui.pbRiscCaldaia->setText("Caldaia\nON");
 	} else if (control().xCaldaiaInUso) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscCaldaia->setText("Caldaia auto ON");
+		ui.pbRiscCaldaia->setText("Caldaia\nauto ON");
 	} else {
 		ui.pbRiscCaldaia->setPalette(QApplication::palette());
-		ui.pbRiscCaldaia->setText("Caldaia OFF");
+		ui.pbRiscCaldaia->setText("Caldaia\nOFF");
 	}
 
 	if (ui.pbRiscPompaCalore->isChecked()) {
 		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64, 255, 64)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore ON");
+		ui.pbRiscPompaCalore->setText("Pompa di calore\nON");
 	} else if (control().xPompaCaloreInUso) {
 		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore auto ON");
+		ui.pbRiscPompaCalore->setText("Pompa di calore\nauto ON");
 	} else {
 		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
-		ui.pbRiscPompaCalore->setText("Pompa di calore OFF");
+		ui.pbRiscPompaCalore->setText("Pompa di calore\nOFF");
 	}
 
 	static bool ultimoResistenzeInUso = false;
@@ -148,14 +148,14 @@ void ControlDlg::updateStatoRisc()
 			ui.pbRiscResistenze->setChecked(false);
 		} else {
 			ui.pbRiscResistenze->setPalette(QPalette(QColor(255, 64, 64)));
-			ui.pbRiscResistenze->setText("Resistenze ON");
+			ui.pbRiscResistenze->setText("Resistenze\nON");
 		}
 	} else if (control().xResistenzeInUso) {
 		ui.pbRiscResistenze->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscResistenze->setText("Resistenze auto ON");
+		ui.pbRiscResistenze->setText("Resistenze\nauto ON");
 	} else {
 		ui.pbRiscResistenze->setPalette(QApplication::palette());
-		ui.pbRiscResistenze->setText("Resistenze OFF");
+		ui.pbRiscResistenze->setText("Resistenze\nOFF");
 	}
 	ultimoResistenzeInUso = control().xResistenzeInUso;
 }
