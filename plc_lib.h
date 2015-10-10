@@ -5,9 +5,9 @@
 
 #include "global.h"
 
-#define DELAY_MSEC(x) ((x)*1000)
-#define DELAY_SEC(x) DELAY_MSEC((x)*1000)
-#define DELAY_MIN(x) DELAY_SEC((x)*60)
+#define DELAY_MSEC(x) ((x)*1000UL)
+#define DELAY_SEC(x) DELAY_MSEC((x)*1000UL)
+#define DELAY_MIN(x) DELAY_SEC((x)*60UL)
 
 class Timer {
 	public:
