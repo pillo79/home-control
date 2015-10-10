@@ -49,6 +49,8 @@ void ControlDlg::on_pbNotte_toggled(bool checked)
 		ui.pbNotte->setPalette(QApplication::palette());
 	}
 
+	updateCondizioniRisc();
+
 	lockMutex();
 	control().xRiscaldaNotte = checked;
 	unlockMutex();
@@ -63,6 +65,8 @@ void ControlDlg::on_pbGiorno_toggled(bool checked)
 	} else {
 		ui.pbGiorno->setPalette(QApplication::palette());
 	}
+
+	updateCondizioniRisc();
 
 	lockMutex();
 	control().xRiscaldaGiorno = checked;
@@ -79,6 +83,8 @@ void ControlDlg::on_pbSoffitta_toggled(bool checked)
 		ui.pbSoffitta->setPalette(QApplication::palette());
 	}
 
+	updateCondizioniRisc();
+
 	lockMutex();
 	control().xRiscaldaSoffitta = checked;
 	unlockMutex();
@@ -94,9 +100,21 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 		ui.pbFanCoil->setPalette(QApplication::palette());
 	}
 
+	updateCondizioniRisc();
+
 	lockMutex();
 	control().xFanCoil = checked;
 	unlockMutex();
+}
+
+void ControlDlg::updateCondizioniRisc()
+{
+	bool risc_acceso = ui.pbNotte->isChecked() || ui.pbGiorno->isChecked() || ui.pbSoffitta->isChecked();
+	bool fancoil_acceso = ui.pbFanCoil->isChecked();
+	ui.pbNotte->setEnabled(!fancoil_acceso);
+	ui.pbGiorno->setEnabled(!fancoil_acceso);
+	ui.pbSoffitta->setEnabled(!fancoil_acceso);
+	ui.pbFanCoil->setEnabled(!risc_acceso);
 }
 
 void ControlDlg::updateStatoRisc()
@@ -226,11 +244,6 @@ void ControlDlg::updateScreen()
 	sprintf(buf, "%.1f", control().wTemperaturaAccumulo/10.0);
 	ui.tlTempAccumulo->setText(buf);
 
-	if (control().xCaldaiaInUso) {
-		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
-	} else {
-		ui.pbApriCucina->setPalette(QApplication::palette());
-	}
 	if (control().xApriCucina) {
 		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
 	} else {

@@ -40,10 +40,11 @@ class ControlDlg : public QWidget
 		QTimer m_closeTimer;
 		int mLockCount;
 
-		void resetCloseTimer();
-		void updateStatoRisc();
 		void lockMutex();
 		void unlockMutex();
+		void resetCloseTimer();
+		void updateStatoRisc();
+		void updateCondizioniRisc();
 };
 
 #endif /* __DLG_CONTROL_H__ */
