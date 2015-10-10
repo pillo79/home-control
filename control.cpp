@@ -54,6 +54,7 @@ void ControlThread::run()
 			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
 			wPotConsumata = pcConsumata.getCurrentPower();
 			wEnergConsumata = pcConsumata.getCurrentEnergy();
+			printf("\n");
 		}
 
 		if (now.minute() != lastTime.minute())
@@ -87,7 +88,7 @@ void ControlThread::run()
 
 		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
-		wTemperaturaAccumuli = HW.Accumuli.wTemperatura->getValue();
+		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue();
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
 
 		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
@@ -108,9 +109,10 @@ void ControlThread::run()
 		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), risc_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_SEC(3), reset_man_finito);
+		//HW.PompaCalore.xInserResistenze->setValue(now.second()% 10 < 5);
 		HW.PompaCalore.xForzaValvole->setValue(risc_acceso);
-		HW.PompaCalore.xForza3VieApri->setValue(true);
-		HW.PompaCalore.xForza3VieChiudi->setValue(false);
+		HW.PompaCalore.xForza3VieApri->setValue(risc_acceso && true);
+		HW.PompaCalore.xForza3VieChiudi->setValue(risc_acceso && false);
 		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
@@ -163,9 +165,14 @@ void ControlThread::run()
 		static DelayFallTimer tStartPompa;
 		HW.Caldaia.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Caldaia.xStartCaldaia->getValue()));
 
-		HW.Accumuli.xApriValvola->setValue(xTrasfAccumulo);
+		HW.Accumulo.xApriValvola->setValue(xTrasfAccumulo);
+
 		static DelayRiseTimer tStartPompaAccumulo;
-		HW.Accumuli.xStartPompa->setValue(tStartPompaAccumulo.update(DELAY_SEC(30), xTrasfAccumulo));
+		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumulo);
+		static DelayRiseTimer tDurataPompaAccumulo;
+		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo);
+		HW.Accumulo.xStartPompa->setValue(ok_start_pompa_accumulo && !max_durata_pompa_accumulo);
+		xTrasfAccumuloInCorso = xTrasfAccumulo && !max_durata_pompa_accumulo;
 
 		mFields.unlock();
 		WriteHardwareOutputs();

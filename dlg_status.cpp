@@ -86,7 +86,7 @@ void StatusDlg::updateScreen()
 	ui.tlTempAcquaTop->setText(buf);
 	sprintf(buf, "%.1f", control().wTemperaturaBoiler/10.0);
 	ui.tlTempAcquaBot->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaAccumuli/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaAccumulo/10.0);
 	ui.tlTempAccumulo->setText(buf);
 	sprintf(buf, "%.1f", control().wTemperaturaPannelli/10.0);
 	ui.tlTempPannelli->setText(buf);

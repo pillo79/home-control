@@ -59,7 +59,7 @@ struct Hardware {
 		BitOutput *xApriValvola;
 		// word inputs
 		WordInput *wTemperatura;
-	} Accumuli;
+	} Accumulo;
 	struct {
 		WordInput *wPotenzaProdotta;
 		WordInput *wPotenzaConsumata;

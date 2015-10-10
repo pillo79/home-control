@@ -32,10 +32,11 @@ class ControlThread : public QThread {
 		/* outputs */
 		bool xCaldaiaInUso;
 		bool xPompaCaloreInUso;
+		bool xTrasfAccumuloInCorso;
 
 		int wTemperaturaACS;
 		int wTemperaturaBoiler;
-		int wTemperaturaAccumuli;
+		int wTemperaturaAccumulo;
 		int wTemperaturaPannelli;
 
 		int wPotProdotta;

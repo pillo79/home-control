@@ -67,10 +67,10 @@ int InitHardware()
 	INIT(Pannelli.wPotenzaProdotta,			WordInput,	Seneca_16DI_8DO_1, 5);
 	INIT(Pannelli.wPotenzaConsumata,		WordInput,	Seneca_16DI_8DO_1, 4);
 	// outputs
-	INIT(Accumuli.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
-	INIT(Accumuli.xApriValvola,			BitOutput,	Seneca_10DO_2, 7);
+	INIT(Accumulo.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
+	INIT(Accumulo.xApriValvola,			BitOutput,	Seneca_10DO_2, 7);
 	// word inputs
-	INIT(Accumuli.wTemperatura,			WordInput,	Seneca_4RTD_5, 4);
+	INIT(Accumulo.wTemperatura,			WordInput,	Seneca_4RTD_5, 4);
 	// word inputs
 	INIT(Ambiente.wTemperaturaEsterna,		WordInput,	Undefined, -1);
 	INIT(Ambiente.wUmiditaEsterna,			WordInput,	Undefined, -1);
