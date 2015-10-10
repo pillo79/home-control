@@ -108,11 +108,11 @@ void ControlThread::run()
 		static DelayRiseTimer tResetManValvole;
 		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), risc_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
-		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_SEC(3), reset_man_finito);
+		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
 		//HW.PompaCalore.xInserResistenze->setValue(now.second()% 10 < 5);
 		HW.PompaCalore.xForzaValvole->setValue(risc_acceso);
-		HW.PompaCalore.xForza3VieApri->setValue(risc_acceso && true);
-		HW.PompaCalore.xForza3VieChiudi->setValue(risc_acceso && false);
+		HW.PompaCalore.xForza3VieApri->setValue(risc_acceso && false);
+		HW.PompaCalore.xForza3VieChiudi->setValue(risc_acceso && true);
 		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
@@ -130,12 +130,12 @@ void ControlThread::run()
 			xApriCucina = xChiudiCucina = false;
 		}
 
-		static DelayRiseTimer tStopForzaPompaCalore;
-		bool stop_forza_pompa_calore = tStopForzaPompaCalore.update(DELAY_MIN(5), risc_acceso || xFanCoil);
-		if ((risc_acceso || xFanCoil) && !stop_forza_pompa_calore)
-			xPompaCaloreInUso = true;
+		// FIXME in estate e' diverso!!
+		if (risc_acceso || xFanCoil)
+			xPompaCaloreInUso = false;
 		else
 			xPompaCaloreInUso = xUsaPompaCalore;
+
 		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
 //		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
@@ -146,7 +146,7 @@ void ControlThread::run()
 			zona_attiva |= ((now>QTime(11,0)) && (now<QTime(15,0)));
 			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
-		zona_attiva |= stop_forza_pompa_calore;
+		zona_attiva |= risc_acceso;
 		if (zona_attiva) {
 			/* auto mode: caldaia = richiesta acs | bottone */
 			if (wTemperaturaACS < 450)
