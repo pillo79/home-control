@@ -38,9 +38,12 @@ class ControlDlg : public QWidget
 	private:
 		Ui::ControlDlg ui;
 		QTimer m_closeTimer;
+		int mLockCount;
 
 		void resetCloseTimer();
 		void updateStatoRisc();
+		void lockMutex();
+		void unlockMutex();
 };
 
 #endif /* __DLG_CONTROL_H__ */
