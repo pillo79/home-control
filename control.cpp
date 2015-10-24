@@ -138,7 +138,7 @@ void ControlThread::run()
 			xPompaCaloreInUso = xUsaPompaCalore;
 
 		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
-//		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
+		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
 		bool zona_attiva = false;
 		if (!xUsaPompaCalore) {
