@@ -25,6 +25,7 @@ class ControlDlg : public QWidget
 		void on_pbRiscCaldaia_toggled(bool checked);
 		void on_pbRiscPompaCalore_toggled(bool checked);
 		void on_pbRiscResistenze_toggled(bool checked);
+		void on_pbRiscManuale_toggled(bool checked);
 
 		void on_pbVelMinus_clicked();
 		void on_pbVelPlus_clicked();

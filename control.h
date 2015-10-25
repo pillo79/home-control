@@ -20,6 +20,7 @@ class ControlThread : public QThread {
 		bool xRiscaldaSoffitta;
 		bool xFanCoil;
 
+		bool xSetManuale;
 		bool xUsaPompaCalore;
 		bool xUsaCaldaia;
 		bool xUsaResistenze;

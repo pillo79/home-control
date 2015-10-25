@@ -119,7 +119,21 @@ void ControlDlg::updateCondizioniRisc()
 
 void ControlDlg::updateStatoRisc()
 {
-	if (ui.pbRiscCaldaia->isChecked()) {
+	if (ui.pbRiscManuale->isChecked()) {
+		ui.pbRiscManuale->setPalette(QPalette(QColor(255, 64, 64)));
+		ui.pbRiscManuale->setText("Manuale");
+		ui.pbRiscCaldaia->setEnabled(true);
+		ui.pbRiscPompaCalore->setEnabled(true);
+		ui.pbRiscResistenze->setEnabled(true);
+	} else {
+		ui.pbRiscManuale->setPalette(QApplication::palette());
+		ui.pbRiscManuale->setText("Automatico");
+		ui.pbRiscCaldaia->setEnabled(false);
+		ui.pbRiscPompaCalore->setEnabled(false);
+		ui.pbRiscResistenze->setEnabled(false);
+	}
+
+	if (ui.pbRiscCaldaia->isChecked() && ui.pbRiscManuale->isChecked()) {
 		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
 		ui.pbRiscCaldaia->setText("Caldaia\nON");
 	} else if (control().xCaldaiaInUso) {
@@ -130,7 +144,7 @@ void ControlDlg::updateStatoRisc()
 		ui.pbRiscCaldaia->setText("Caldaia\nOFF");
 	}
 
-	if (ui.pbRiscPompaCalore->isChecked()) {
+	if (ui.pbRiscPompaCalore->isChecked() && ui.pbRiscManuale->isChecked()) {
 		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64, 255, 64)));
 		ui.pbRiscPompaCalore->setText("Pompa di calore\nON");
 	} else if (control().xPompaCaloreInUso) {
@@ -142,7 +156,7 @@ void ControlDlg::updateStatoRisc()
 	}
 
 	static bool ultimoResistenzeInUso = false;
-	if (ui.pbRiscResistenze->isChecked()) {
+	if (ui.pbRiscResistenze->isChecked() && ui.pbRiscManuale->isChecked()) {
 		if (ultimoResistenzeInUso && !control().xResistenzeInUso) {
 			// fine ciclo: reset bottone automatico
 			ui.pbRiscResistenze->setChecked(false);
@@ -158,6 +172,16 @@ void ControlDlg::updateStatoRisc()
 		ui.pbRiscResistenze->setText("Resistenze\nOFF");
 	}
 	ultimoResistenzeInUso = control().xResistenzeInUso;
+}
+
+void ControlDlg::on_pbRiscManuale_toggled(bool checked)
+{
+	resetCloseTimer();
+
+	lockMutex();
+	control().xSetManuale = checked;
+	updateStatoRisc();
+	unlockMutex();
 }
 
 void ControlDlg::on_pbRiscCaldaia_toggled(bool checked)

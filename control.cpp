@@ -36,12 +36,26 @@ void ControlThread::run()
 	QTime lastTime = QTime::currentTime();
 	int lastSecs = lastTime.hour()*3600 + lastTime.minute()*60 + lastTime.second();
 
+	bool xAutoResistenze = false;
+	bool xAutoCaldaia = false;
+	bool xAutoPompaCalore = false;
+
 	while(1) {
 
 		static PowerCalc pcProdotta;
 		static PowerCalc pcConsumata;
 
 		ReadHardwareInputs();
+
+		mFields.lock();
+
+		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
+		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
+		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue();
+		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
+
+		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
+		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();
 
 		Timer::tick();
 		QTime now = QTime::currentTime();
@@ -62,6 +76,16 @@ void ControlThread::run()
 			int cons = pcConsumata.getDeltaSteps();
 			if (prod > cons)
 				tTempoAttivo = tTempoAttivo.addSecs(60);
+
+			if (wPotProdotta > 2000)
+				xAutoPompaCalore = true;
+			else if (wPotProdotta < 1000)
+				xAutoPompaCalore = false;
+
+			if ((wPotProdotta-wPotConsumata > 2000) && (wTemperaturaACS > 550))
+				xAutoResistenze = true;
+			else
+				xAutoResistenze = false;
 		}
 
 		if (now.hour() != lastTime.hour()) {
@@ -82,16 +106,6 @@ void ControlThread::run()
 				break;
 			}
 		}
-
-		mFields.lock();
-
-		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
-		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
-		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue();
-		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
-
-		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
-		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();
 
 		bool risc_acceso = xRiscaldaNotte || xRiscaldaGiorno || xRiscaldaSoffitta;
 		HW.Riscaldamento.xChiudiValvola->setValue(!risc_acceso);
@@ -114,7 +128,11 @@ void ControlThread::run()
 		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
-		xResistenzeInUso = xUsaResistenze && (wTemperaturaACS < 800) && (wTemperaturaBoiler < 800);
+		if (xSetManuale)
+			xResistenzeInUso = xUsaResistenze;
+		else
+			xResistenzeInUso = xAutoResistenze;
+		xResistenzeInUso = xResistenzeInUso && (wTemperaturaACS < 800) && (wTemperaturaBoiler < 800);
 		HW.PompaCalore.xInserResistenze->setValue(xResistenzeInUso);
 
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
@@ -131,34 +149,36 @@ void ControlThread::run()
 			xApriCucina = xChiudiCucina = false;
 		}
 
-		// FIXME in estate e' diverso!!
-		if (risc_acceso || xFanCoil)
-			xPompaCaloreInUso = false;
-		else
+		if (xSetManuale)
 			xPompaCaloreInUso = xUsaPompaCalore;
+		else
+			xPompaCaloreInUso = xAutoPompaCalore;
 
 		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
 		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
 		bool zona_attiva = false;
-		if (!xUsaPompaCalore) {
+		if (!xPompaCaloreInUso) {
 			/* caldaia auto */
 			zona_attiva |= ((now>QTime(6,0)) && (now<QTime(8,30)));
-			zona_attiva |= ((now>QTime(11,0)) && (now<QTime(15,0)));
+			zona_attiva |= ((now>QTime(12,0)) && (now<QTime(14,00)));
 			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
 		zona_attiva |= risc_acceso;
 		if (zona_attiva) {
-			/* auto mode: caldaia = richiesta acs | bottone */
+			/* auto mode */
 			if (wTemperaturaACS < 450)
-				xCaldaiaInUso = true;
+				xAutoCaldaia = true;
 			else if (wTemperaturaACS > 500)
-				xCaldaiaInUso = false;
-			xCaldaiaInUso |= xUsaCaldaia;
+				xAutoCaldaia = false;
 		} else {
-			/* man mode: caldaia = bottone */
-			xCaldaiaInUso = xUsaCaldaia;
+			xAutoCaldaia = false;
 		}
+
+		if (xSetManuale)
+			xCaldaiaInUso = xUsaCaldaia;
+		else
+			xCaldaiaInUso = xAutoCaldaia;
 
 		HW.Caldaia.xAlimenta->setValue(xCaldaiaInUso);
 		static DelayRiseTimer tStartCaldaia;
