@@ -160,8 +160,7 @@ void ControlThread::run()
 		bool zona_attiva = false;
 		if (!xPompaCaloreInUso) {
 			/* caldaia auto */
-			zona_attiva |= ((now>QTime(6,0)) && (now<QTime(8,30)));
-			zona_attiva |= ((now>QTime(12,0)) && (now<QTime(14,00)));
+			zona_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
 		zona_attiva |= risc_acceso;
