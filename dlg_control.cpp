@@ -16,8 +16,6 @@ ControlDlg::ControlDlg(QWidget *parent)
 	flags |= Qt::FramelessWindowHint;
 	setWindowFlags(flags);
 
-	ui.pbRiscPompaCalore->setChecked(true);
-
 	connect(&m_closeTimer, SIGNAL( timeout(void) ), this, SLOT ( hide(void) ));
 
 	char buf[256];
@@ -107,12 +105,14 @@ void ControlDlg::updateStatoRisc()
 		ui.pbRiscCaldaia->setEnabled(true);
 		ui.pbRiscPompaCalore->setEnabled(true);
 		ui.pbRiscResistenze->setEnabled(true);
+		ui.pbTrasfAccumulo->setEnabled(true);
 	} else {
 		ui.pbRiscManuale->setPalette(QApplication::palette());
 		ui.pbRiscManuale->setText("Automatico");
 		ui.pbRiscCaldaia->setEnabled(false);
 		ui.pbRiscPompaCalore->setEnabled(false);
 		ui.pbRiscResistenze->setEnabled(false);
+		ui.pbTrasfAccumulo->setEnabled(false);
 	}
 
 	if (ui.pbRiscCaldaia->isChecked() && ui.pbRiscManuale->isChecked()) {
@@ -127,14 +127,14 @@ void ControlDlg::updateStatoRisc()
 	}
 
 	if (ui.pbRiscPompaCalore->isChecked() && ui.pbRiscManuale->isChecked()) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64, 255, 64)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore\nON");
+		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(255, 64, 64)));
+		ui.pbRiscPompaCalore->setText("HPSU\nON");
 	} else if (control().xPompaCaloreInUso) {
 		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore\nauto ON");
+		ui.pbRiscPompaCalore->setText("HPSU\nauto ON");
 	} else {
 		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
-		ui.pbRiscPompaCalore->setText("Pompa di calore\nOFF");
+		ui.pbRiscPompaCalore->setText("HPSU\nOFF");
 	}
 
 	static bool ultimoResistenzeInUso = false;
@@ -154,6 +154,22 @@ void ControlDlg::updateStatoRisc()
 		ui.pbRiscResistenze->setText("Resistenze\nOFF");
 	}
 	ultimoResistenzeInUso = control().xResistenzeInUso;
+
+	static bool ultimoTrasfAccumulo = false;
+	if (ui.pbTrasfAccumulo->isChecked() && ui.pbRiscManuale->isChecked()) {
+		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(64, 255, 64)));
+		ui.pbTrasfAccumulo->setText("Accumulo\nON");
+		ultimoTrasfAccumulo = true;
+	} else if (control().xTrasfAccumuloInCorso) {
+		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(220,220,128)));
+		ui.pbTrasfAccumulo->setText("Accumulo\nauto ON");
+	} else {
+		if (ultimoTrasfAccumulo)
+			ui.pbTrasfAccumulo->setChecked(false);
+		ui.pbTrasfAccumulo->setPalette(QApplication::palette());
+		ui.pbTrasfAccumulo->setText("Accumulo\nOFF");
+		ultimoTrasfAccumulo = false;
+	}
 }
 
 void ControlDlg::on_pbRiscManuale_toggled(bool checked)
@@ -161,7 +177,19 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	control().xSetManuale = checked;
+	if (checked) {
+		control().xSetManuale = true;
+		ui.pbRiscCaldaia->setChecked(control().xCaldaiaInUso);
+		ui.pbRiscPompaCalore->setChecked(control().xPompaCaloreInUso);
+		ui.pbRiscResistenze->setChecked(control().xResistenzeInUso);
+		ui.pbTrasfAccumulo->setChecked(control().xTrasfAccumuloInCorso);
+	} else {
+		control().xSetManuale = false;
+		ui.pbRiscCaldaia->setChecked(false);
+		ui.pbRiscPompaCalore->setChecked(false);
+		ui.pbRiscResistenze->setChecked(false);
+		ui.pbTrasfAccumulo->setChecked(false);
+	}
 	updateStatoRisc();
 	unlockMutex();
 }
@@ -292,17 +320,6 @@ void ControlDlg::updateScreen()
 		ui.pbChiudiCucina->setPalette(QPalette(QColor(64, 255, 64)));
 	} else {
 		ui.pbChiudiCucina->setPalette(QApplication::palette());
-	}
-
-	static bool ultimoTrasfAccumulo = false;
-	if (control().xTrasfAccumuloInCorso) {
-		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(64, 255, 64)));
-		ultimoTrasfAccumulo = true;
-	} else {
-		if (ultimoTrasfAccumulo)
-			ui.pbTrasfAccumulo->setChecked(false);
-		ui.pbTrasfAccumulo->setPalette(QApplication::palette());
-		ultimoTrasfAccumulo = false;
 	}
 
 	updateStatoRisc();

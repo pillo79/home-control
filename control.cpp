@@ -39,6 +39,7 @@ void ControlThread::run()
 	bool xAutoResistenze = false;
 	bool xAutoCaldaia = false;
 	bool xAutoPompaCalore = false;
+	bool xAutoTrasfAccumulo = false;
 
 	while(1) {
 
@@ -84,9 +85,10 @@ void ControlThread::run()
 
 			if ((wPotProdotta-wPotConsumata > 2000) && (wTemperaturaACS > 550))
 				xAutoResistenze = true;
-			else
-				xAutoResistenze = false;
 		}
+
+		if (wPotProdotta-wPotConsumata < 500)
+			xAutoResistenze = false;
 
 		if (now.hour() != lastTime.hour()) {
 			switch (now.hour()) {
@@ -164,6 +166,43 @@ void ControlThread::run()
 			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
 		zona_attiva |= risc_acceso;
+
+		if (zona_attiva) {
+			if ((wTemperaturaAccumulo > 600) && (wTemperaturaAccumulo > wTemperaturaBoiler+150) && !xCaldaiaInUso) {
+				/* trasf Accumulo->HPSU */
+				xAutoTrasfAccumulo = true;
+			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 500) || (wTemperaturaAccumulo < wTemperaturaBoiler+50)) {
+				xAutoTrasfAccumulo = false;
+			}
+
+			if (xAutoTrasfAccumulo)
+				zona_attiva = false;
+		} else {
+			if ((wTemperaturaBoiler > 500) && (wTemperaturaAccumulo < wTemperaturaBoiler-150) && !xCaldaiaInUso) {
+				/* trasf HPSU->Accumulo */
+				xAutoTrasfAccumulo = true;
+			} else if (xCaldaiaInUso || (wTemperaturaBoiler < 400) || (wTemperaturaAccumulo > wTemperaturaBoiler-50)) {
+				xAutoTrasfAccumulo = false;
+			}
+		}
+
+		if (xSetManuale)
+			xTrasfAccumuloInCorso = xTrasfAccumulo;
+		else
+			xTrasfAccumuloInCorso = xAutoTrasfAccumulo;
+
+		HW.Accumulo.xApriValvola->setValue(xTrasfAccumuloInCorso);
+
+		static DelayRiseTimer tStartPompaAccumulo;
+		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumulo);
+		static DelayRiseTimer tDurataPompaAccumulo;
+		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo);
+		HW.Accumulo.xStartPompa->setValue(ok_start_pompa_accumulo && !max_durata_pompa_accumulo);
+		if (max_durata_pompa_accumulo) {
+			xTrasfAccumuloInCorso = false;
+			xAutoTrasfAccumulo = false;
+		}
+
 		if (zona_attiva) {
 			/* auto mode */
 			if (wTemperaturaACS < 450)
@@ -184,15 +223,6 @@ void ControlThread::run()
 		HW.Caldaia.xStartCaldaia->setValue(tStartCaldaia.update(DELAY_SEC(10), xCaldaiaInUso));
 		static DelayFallTimer tStartPompa;
 		HW.Caldaia.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Caldaia.xStartCaldaia->getValue()));
-
-		HW.Accumulo.xApriValvola->setValue(xTrasfAccumulo);
-
-		static DelayRiseTimer tStartPompaAccumulo;
-		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumulo);
-		static DelayRiseTimer tDurataPompaAccumulo;
-		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo);
-		HW.Accumulo.xStartPompa->setValue(ok_start_pompa_accumulo && !max_durata_pompa_accumulo);
-		xTrasfAccumuloInCorso = xTrasfAccumulo && !max_durata_pompa_accumulo;
 
 		mFields.unlock();
 		WriteHardwareOutputs();

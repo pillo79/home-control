@@ -1,7 +1,9 @@
 <RCC>
   <qresource prefix="rc" >
+    <file>rc/storage.png</file>
     <file>rc/cold.png</file>
     <file>rc/hot.png</file>
+    <file>rc/boiler.png</file>
   </qresource>
   <qresource prefix="bg" >
     <file>rc/attic.png</file>
