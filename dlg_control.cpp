@@ -179,10 +179,11 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 	lockMutex();
 	if (checked) {
 		control().xSetManuale = true;
-		ui.pbRiscCaldaia->setChecked(control().xCaldaiaInUso);
-		ui.pbRiscPompaCalore->setChecked(control().xPompaCaloreInUso);
-		ui.pbRiscResistenze->setChecked(control().xResistenzeInUso);
-		ui.pbTrasfAccumulo->setChecked(control().xTrasfAccumuloInCorso);
+		/* recover from current state */
+		ui.pbRiscCaldaia->setChecked(control().xUsaCaldaia = control().xCaldaiaInUso);
+		ui.pbRiscPompaCalore->setChecked(control().xUsaPompaCalore = control().xPompaCaloreInUso);
+		ui.pbRiscResistenze->setChecked(control().xUsaResistenze = control().xResistenzeInUso);
+		ui.pbTrasfAccumulo->setChecked(control().xTrasfAccumulo = control().xTrasfAccumuloInCorso);
 	} else {
 		control().xSetManuale = false;
 		ui.pbRiscCaldaia->setChecked(false);
