@@ -11,7 +11,6 @@
 ControlThread::ControlThread()
 {
 	wVelFanCoil = 20;
-	xUsaPompaCalore = true;
 
 	start();
 }
@@ -160,7 +159,7 @@ void ControlThread::run()
 		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
 
 		bool zona_attiva = false;
-		if (!xPompaCaloreInUso) {
+		if (!xPompaCaloreInUso && (wTemperaturaACS < 550)) {
 			/* caldaia auto */
 			zona_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
