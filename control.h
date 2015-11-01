@@ -47,6 +47,7 @@ class ControlThread : public QThread {
 		int wEnergProdotta;
 		int wEnergConsumata;
 		QTime tTempoAttivo;
+		int wEnergPassivo;
 
 		int wTempGiorno;
 		int wUmidGiorno;

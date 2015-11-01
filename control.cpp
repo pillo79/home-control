@@ -76,6 +76,8 @@ void ControlThread::run()
 			int cons = pcConsumata.getDeltaSteps();
 			if (prod > cons)
 				tTempoAttivo = tTempoAttivo.addSecs(60);
+			else
+				wEnergPassivo += cons-prod;
 
 			if (wPotProdotta > 2000)
 				xAutoPompaCalore = true;
@@ -96,6 +98,7 @@ void ControlThread::run()
 				pcProdotta.resetTotals();
 				pcConsumata.resetTotals();
 				tTempoAttivo.setHMS(0,0,0);
+				wEnergPassivo = 0;
 				break;
 			case 6:
 				// wake up display

@@ -101,9 +101,9 @@ void StatusDlg::updateScreen()
 	sprintf(buf, "%i", control().wPotConsumata);
 	ui.tlPotConsumata->setText(buf);
 
-	sprintf(buf, "%.3f kWh oggi", control().wEnergProdotta/1000.0);
+	sprintf(buf, "%.3f Wh oggi", control().wEnergProdotta/1000.0);
 	ui.tlEnergiaProdotta->setText(buf);
-	sprintf(buf, "%.3f kWh oggi", control().wEnergConsumata/1000.0);
+	sprintf(buf, "%.3f Wh oggi", control().wEnergConsumata/1000.0);
 	ui.tlEnergiaConsumata->setText(buf);
 	if (control().tTempoAttivo.hour()) {
 		sprintf(buf, "%ih%02i in attivo", control().tTempoAttivo.hour(), control().tTempoAttivo.minute());
@@ -112,6 +112,8 @@ void StatusDlg::updateScreen()
 		sprintf(buf, "%imin in attivo", control().tTempoAttivo.minute());
 		ui.tlBilAttivo->setText(buf);
 	}
+	sprintf(buf, "%.3f effettivi", control().wEnergPassivo/1000.0);
+	ui.tlEnergPassivo->setText(buf);
 
 	if (control().xCaldaiaInUso) {
 		setLabelActive(ui.tlStatoCaldaia, QColor(255, 64, 64));
