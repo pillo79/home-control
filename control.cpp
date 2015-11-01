@@ -196,11 +196,11 @@ void ControlThread::run()
 		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumulo);
 		static DelayRiseTimer tDurataPompaAccumulo;
 		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo);
+		if (!xSetManuale)
+			max_durata_pompa_accumulo = false; // non interrompere in automatico
 		HW.Accumulo.xStartPompa->setValue(ok_start_pompa_accumulo && !max_durata_pompa_accumulo);
-		if (max_durata_pompa_accumulo) {
+		if (max_durata_pompa_accumulo)
 			xTrasfAccumuloInCorso = false;
-			xAutoTrasfAccumulo = false;
-		}
 
 		if (zona_attiva) {
 			/* auto mode */
