@@ -193,7 +193,7 @@ void ControlThread::run()
 		HW.Accumulo.xApriValvola->setValue(xTrasfAccumuloInCorso);
 
 		static DelayRiseTimer tStartPompaAccumulo;
-		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumulo);
+		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumuloInCorso);
 		static DelayRiseTimer tDurataPompaAccumulo;
 		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo);
 		if (!xSetManuale)
