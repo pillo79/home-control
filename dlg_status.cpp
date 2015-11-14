@@ -138,4 +138,10 @@ void StatusDlg::updateScreen()
 	} else {
 		setLabelInactive(ui.tlStatoVentilatore);
 	}
+
+	if (control().xRiscaldaNotte || control().xRiscaldaGiorno || control().xRiscaldaSoffitta) {
+		setLabelActive(ui.tlStatoRadiatori, QColor(255, 128, 128));
+	} else {
+		setLabelInactive(ui.tlStatoRadiatori);
+	}
 }
