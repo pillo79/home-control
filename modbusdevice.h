@@ -97,7 +97,7 @@ class Seneca_4RTD : public ModbusDevice {
 
 		virtual int getInputVal(int input);
 	private:
-		uint16_t mInputs[4];
+		int16_t mInputs[4]; // signed (negative temperatures)
 };
 
 class Seneca_4AI : public ModbusDevice {

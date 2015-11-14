@@ -216,7 +216,7 @@ Seneca_4RTD::Seneca_4RTD(int modAddress)
 
 int Seneca_4RTD::updateInputs()
 {
-	return mbReadReg(40003, 4, mInputs);
+	return mbReadReg(40003, 4, (uint16_t*) mInputs);
 }
 
 int Seneca_4RTD::getInputVal(int input)
