@@ -84,11 +84,11 @@ void ControlThread::run()
 			else if (wPotProdotta < 1000)
 				xAutoPompaCalore = false;
 
-			if ((wPotProdotta-wPotConsumata > 2000) && (wTemperaturaACS > 550))
+			if ((wPotProdotta-wPotConsumata > 1500) && (wTemperaturaACS > 550))
 				xAutoResistenze = true;
 		}
 
-		if (wPotProdotta-wPotConsumata < 500)
+		if (wPotProdotta < wPotConsumata)
 			xAutoResistenze = false;
 
 		if (now.hour() != lastTime.hour()) {
