@@ -54,6 +54,11 @@ void PowerCalc::addSample(int now)
 	m_last = now;
 }
 
+int PowerCalc::getCurrentPower25()
+{
+	return m_runningPower_25W*25;
+}
+
 int PowerCalc::getCurrentPower()
 {
 	int next_power = m_runningPower_100W*100;

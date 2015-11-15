@@ -42,7 +42,7 @@ struct Hardware {
 		BitOutput *xStopPompaCalore;
 		BitOutput *xRichiestaCaldo;
 		BitOutput *xRichiestaFreddo;
-		BitOutput *xInserResistenze;
+		BitOutput *xConfigResistenze[5];
 		BitOutput *xForzaValvole;
 		BitOutput *xForza3VieApri;
 		BitOutput *xForza3VieChiudi;

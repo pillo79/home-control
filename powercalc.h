@@ -13,6 +13,7 @@ class PowerCalc {
 		void resetTotals();
 
 		int getCurrentPower();
+		int getCurrentPower25();
 		int getCurrentEnergy();
 		int getDeltaSteps();
 

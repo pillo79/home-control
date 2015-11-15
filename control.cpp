@@ -8,6 +8,23 @@
 #include <QTime>
 #include <stdio.h>
 
+struct TargetPower {
+	 int power;
+	 int min_budget;
+	 int io_map[5];
+};
+
+const TargetPower POWER_LEVEL[] = {
+	{	   0,  -9999,	{ 0, 0, 0, 0, 0 }, },
+	{	1000,	1100,	{ 0, 0, 1, 1, 0 }, },
+	{	1500,	1700,	{ 0, 1, 0, 1, 0 }, },
+	{	2000,	2200,	{ 0, 1, 0, 1, 1 }, },
+	{	3000,	3400,	{ 1, 1, 0, 0, 0 }, },
+	{	4500,	5100,	{ 1, 1, 0, 1, 0 }, },
+	//{	6000,	6500,	{ 1, 1, 0, 0, 1 }, },
+};
+const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
+
 ControlThread::ControlThread()
 {
 	wVelFanCoil = 20;
@@ -20,11 +37,32 @@ ControlThread::~ControlThread()
 
 }
 
-void echo(const char *what, const char *where)
+static void echo(const char *what, const char *where)
 {
 	FILE *f = fopen(where, "w");
 	fprintf(f, "%s", what);
 	fclose(f);
+}
+
+static void setPowerLevel(int level)
+{
+	for (int i=0; i<5; ++i)
+		HW.PompaCalore.xConfigResistenze[i]->setValue(POWER_LEVEL[level].io_map[i]);
+}
+
+static int calcPowerLevel(int power_level, int power_budget)
+{
+	int next_level;
+	for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
+		if (power_budget > POWER_LEVEL[next_level].min_budget)
+			break;
+	}
+
+	if (next_level == power_level)
+		return -1;
+
+	setPowerLevel(0);
+	return next_level;
 }
 
 void ControlThread::run()
@@ -35,10 +73,12 @@ void ControlThread::run()
 	QTime lastTime = QTime::currentTime();
 	int lastSecs = lastTime.hour()*3600 + lastTime.minute()*60 + lastTime.second();
 
-	bool xAutoResistenze = false;
 	bool xAutoCaldaia = false;
 	bool xAutoPompaCalore = false;
 	bool xAutoTrasfAccumulo = false;
+
+	int PowerLevel = 0;
+	int NextPowerLevel = -1;
 
 	while(1) {
 
@@ -84,12 +124,12 @@ void ControlThread::run()
 			else if (wPotProdotta < 1000)
 				xAutoPompaCalore = false;
 
-			if ((wPotProdotta-wPotConsumata > 1500) && (wTemperaturaACS > 550))
-				xAutoResistenze = true;
+			if ((now.minute() % 3) == 0) {
+				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
+				NextPowerLevel = calcPowerLevel(PowerLevel, power_budget);
+			}
 		}
 
-		if (wPotProdotta < wPotConsumata)
-			xAutoResistenze = false;
 
 		if (now.hour() != lastTime.hour()) {
 			switch (now.hour()) {
@@ -132,12 +172,19 @@ void ControlThread::run()
 		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
-		if (xSetManuale)
-			xResistenzeInUso = xUsaResistenze;
-		else
-			xResistenzeInUso = xAutoResistenze;
-		xResistenzeInUso = xResistenzeInUso && (wTemperaturaACS < 800) && (wTemperaturaBoiler < 800);
-		HW.PompaCalore.xInserResistenze->setValue(xResistenzeInUso);
+		static DelayRiseTimer tNuovoLivelloRes;
+		if ((wTemperaturaACS > 800) || (wTemperaturaBoiler > 800)) {
+			// force off
+			setPowerLevel(0);
+			PowerLevel = 0;
+			NextPowerLevel = -1;
+		} else if (tNuovoLivelloRes.update(DELAY_MSEC(500), (NextPowerLevel != -1))) {
+			// update!
+			setPowerLevel(NextPowerLevel);
+			PowerLevel = NextPowerLevel;
+			NextPowerLevel = -1;
+		}
+		xResistenzeInUso = (PowerLevel > 0);
 
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
 		static DelayRiseTimer tStartFanCoil;
