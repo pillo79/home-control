@@ -358,7 +358,7 @@
             </font>
            </property>
            <property name="text">
-            <string>99.999 Wh oggi</string>
+            <string>99.999 kWh oggi</string>
            </property>
            <property name="scaledContents">
             <bool>false</bool>
@@ -439,7 +439,7 @@ Consumo (W)</string>
             </font>
            </property>
            <property name="text">
-            <string>99.999 Wh oggi</string>
+            <string>99.999 kWh oggi</string>
            </property>
            <property name="scaledContents">
             <bool>false</bool>

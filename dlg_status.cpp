@@ -101,9 +101,9 @@ void StatusDlg::updateScreen()
 	sprintf(buf, "%i", control().wPotConsumata);
 	ui.tlPotConsumata->setText(buf);
 
-	sprintf(buf, "%.3f Wh oggi", control().wEnergProdotta/1000.0);
+	sprintf(buf, "%.3f kWh oggi", control().wEnergProdotta/1000.0);
 	ui.tlEnergiaProdotta->setText(buf);
-	sprintf(buf, "%.3f Wh oggi", control().wEnergConsumata/1000.0);
+	sprintf(buf, "%.3f kWh oggi", control().wEnergConsumata/1000.0);
 	ui.tlEnergiaConsumata->setText(buf);
 	if (control().tTempoAttivo.hour()) {
 		sprintf(buf, "%ih%02i in attivo", control().tTempoAttivo.hour(), control().tTempoAttivo.minute());
