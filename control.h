@@ -7,6 +7,7 @@
 
 class ControlThread : public QThread {
 	private:
+		void setPowerLevel(int level);
 		void run();
 	public:
 		ControlThread();
@@ -44,6 +45,7 @@ class ControlThread : public QThread {
 
 		int wPotProdotta;
 		int wPotConsumata;
+		int wPotResistenze;
 		int wEnergProdotta;
 		int wEnergConsumata;
 		QTime tTempoAttivo;

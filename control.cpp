@@ -44,25 +44,13 @@ static void echo(const char *what, const char *where)
 	fclose(f);
 }
 
-static void setPowerLevel(int level)
+void ControlThread::setPowerLevel(int level)
 {
 	for (int i=0; i<5; ++i)
 		HW.PompaCalore.xConfigResistenze[i]->setValue(POWER_LEVEL[level].io_map[i]);
-}
 
-static int calcPowerLevel(int power_level, int power_budget)
-{
-	int next_level;
-	for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
-		if (power_budget > POWER_LEVEL[next_level].min_budget)
-			break;
-	}
-
-	if (next_level == power_level)
-		return -1;
-
-	setPowerLevel(0);
-	return next_level;
+	wPotResistenze = POWER_LEVEL[level].power;
+	xResistenzeInUso = (level > 0);
 }
 
 void ControlThread::run()
@@ -126,10 +114,23 @@ void ControlThread::run()
 
 			if ((now.minute() % 3) == 0) {
 				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
-				NextPowerLevel = calcPowerLevel(PowerLevel, power_budget);
-				printf("%4i+%4i[%i] -%4i = %4i => [%i]\n",
-					pcProdotta.getCurrentPower25(), POWER_LEVEL[PowerLevel].power, PowerLevel, pcConsumata.getCurrentPower25(),
-					power_budget, NextPowerLevel);
+				int next_level;
+				for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
+					if (power_budget > POWER_LEVEL[next_level].min_budget)
+						break;
+				}
+
+				if (next_level != PowerLevel) {
+					NextPowerLevel = next_level;
+					setPowerLevel(0);
+					printf("%4i +%4i[%i] -%4i = %4i => SWITCH TO %4i[%i]\n",
+						pcProdotta.getCurrentPower25(), POWER_LEVEL[PowerLevel].power, PowerLevel, pcConsumata.getCurrentPower25(),
+						power_budget, POWER_LEVEL[NextPowerLevel].power, NextPowerLevel);
+				} else {
+					printf("%4i +%4i[%i] -%4i = %4i => NO CHANGE\n",
+						pcProdotta.getCurrentPower25(), POWER_LEVEL[PowerLevel].power, PowerLevel, pcConsumata.getCurrentPower25(),
+						power_budget);
+				}
 			}
 		}
 
@@ -187,7 +188,6 @@ void ControlThread::run()
 			PowerLevel = NextPowerLevel;
 			NextPowerLevel = -1;
 		}
-		xResistenzeInUso = (PowerLevel > 0);
 
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
 		static DelayRiseTimer tStartFanCoil;

@@ -99,6 +99,8 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 
 void ControlDlg::updateStatoRisc()
 {
+	char buf[256];
+
 	if (ui.pbRiscManuale->isChecked()) {
 		ui.pbRiscManuale->setPalette(QPalette(QColor(255, 64, 64)));
 		ui.pbRiscManuale->setText("Manuale");
@@ -143,12 +145,14 @@ void ControlDlg::updateStatoRisc()
 			// fine ciclo: reset bottone automatico
 			ui.pbRiscResistenze->setChecked(false);
 		} else {
+			sprintf(buf, "Resistenze\n%i W", control().wPotResistenze);
 			ui.pbRiscResistenze->setPalette(QPalette(QColor(255, 64, 64)));
-			ui.pbRiscResistenze->setText("Resistenze\nON");
+			ui.pbRiscResistenze->setText(buf);
 		}
 	} else if (control().xResistenzeInUso) {
+		sprintf(buf, "Resistenze\nauto %i W", control().wPotResistenze);
 		ui.pbRiscResistenze->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscResistenze->setText("Resistenze\nauto ON");
+		ui.pbRiscResistenze->setText(buf);
 	} else {
 		ui.pbRiscResistenze->setPalette(QApplication::palette());
 		ui.pbRiscResistenze->setText("Resistenze\nOFF");
