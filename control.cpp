@@ -16,12 +16,12 @@ struct TargetPower {
 
 const TargetPower POWER_LEVEL[] = {
 	{	   0,  -9999,	{ 0, 0, 0, 0, 0 }, },
-	{	1000,	1100,	{ 0, 0, 1, 1, 0 }, },
-	{	1500,	1700,	{ 0, 1, 0, 1, 0 }, },
-	{	2000,	2200,	{ 0, 1, 0, 1, 1 }, },
-	{	3000,	3400,	{ 1, 1, 0, 0, 0 }, },
-	{	4500,	5100,	{ 1, 1, 0, 1, 0 }, },
-	//{	6000,	6500,	{ 1, 1, 0, 0, 1 }, },
+	{	 900,	1000,	{ 0, 0, 1, 1, 0 }, },
+	{	1400,	1600,	{ 0, 1, 0, 1, 0 }, },
+	{	1800,	2100,	{ 0, 1, 0, 1, 1 }, },
+	{	2500,	2900,	{ 1, 1, 0, 0, 0 }, },
+	{	3800,	4300,	{ 1, 1, 0, 1, 0 }, },
+	//{	6000,	6500,	{ 1, 1, 0, 0, 1 }, },	// ancora da testare!
 };
 const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
 
@@ -127,6 +127,9 @@ void ControlThread::run()
 			if ((now.minute() % 3) == 0) {
 				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
 				NextPowerLevel = calcPowerLevel(PowerLevel, power_budget);
+				printf("%4i+%4i[%i] -%4i = %4i => [%i]\n",
+					pcProdotta.getCurrentPower25(), POWER_LEVEL[PowerLevel].power, PowerLevel, pcConsumata.getCurrentPower25(),
+					power_budget, NextPowerLevel);
 			}
 		}
 
