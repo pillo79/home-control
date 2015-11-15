@@ -177,7 +177,7 @@ void ControlThread::run()
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
 		static DelayRiseTimer tNuovoLivelloRes;
-		if ((wTemperaturaACS > 800) || (wTemperaturaBoiler > 800)) {
+		if ((wTemperaturaACS > 800) || (wTemperaturaBoiler > 800) || (wPotConsumata < 100)) {
 			// force off
 			setPowerLevel(0);
 			PowerLevel = 0;
