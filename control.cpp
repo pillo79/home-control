@@ -107,10 +107,10 @@ void ControlThread::run()
 			else
 				wEnergPassivo += cons-prod;
 
-			if (wPotProdotta > 2000)
-				xAutoPompaCalore = true;
-			else if (wPotProdotta < 1000)
+			if ((wPotProdotta < 1500) || (wPotConsumata > wPotProdotta))
 				xAutoPompaCalore = false;
+			else if (wPotProdotta > 2500)
+				xAutoPompaCalore = true;
 
 			if ((now.minute() % 3) == 0) {
 				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
