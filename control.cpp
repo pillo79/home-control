@@ -64,6 +64,7 @@ void ControlThread::run()
 	bool xAutoCaldaia = false;
 	bool xAutoPompaCalore = false;
 	bool xAutoTrasfAccumulo = false;
+	bool xCaricoAccumuloAttivo = false;
 
 	int PowerLevel = 0;
 	int NextPowerLevel = -1;
@@ -143,6 +144,7 @@ void ControlThread::run()
 				pcConsumata.resetTotals();
 				tTempoAttivo.setHMS(0,0,0);
 				wEnergPassivo = 0;
+				xCaricoAccumuloAttivo = false;
 				break;
 			case 6:
 				// wake up display
@@ -219,23 +221,33 @@ void ControlThread::run()
 		}
 		zona_attiva |= risc_acceso;
 
+		// condizioni HPSU->accumulo ("salvataggio energia")
+		if ((now<QTime(10,0)) || (now>QTime(18,0)))
+			xCaricoAccumuloAttivo = false;
+		else if (wTemperaturaBoiler > 650)
+			xCaricoAccumuloAttivo = true;
+
 		if (zona_attiva) {
+			/* trasf Accumulo->HPSU (uso energia) */
 			if ((wTemperaturaAccumulo > 600) && (wTemperaturaAccumulo > wTemperaturaBoiler+150) && !xCaldaiaInUso) {
-				/* trasf Accumulo->HPSU */
 				xAutoTrasfAccumulo = true;
 			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 500) || (wTemperaturaAccumulo < wTemperaturaBoiler+50)) {
 				xAutoTrasfAccumulo = false;
 			}
 
+			/* trasf Accumulo->HPSU attivo -> no caldaia */
 			if (xAutoTrasfAccumulo)
 				zona_attiva = false;
-		} else {
+		} else if (xCaricoAccumuloAttivo) {
+			/* trasf HPSU->Accumulo (salvataggio energia)*/
 			if ((wTemperaturaBoiler > 500) && (wTemperaturaAccumulo < wTemperaturaBoiler-150) && !xCaldaiaInUso) {
-				/* trasf HPSU->Accumulo */
 				xAutoTrasfAccumulo = true;
 			} else if (xCaldaiaInUso || (wTemperaturaBoiler < 400) || (wTemperaturaAccumulo > wTemperaturaBoiler-50)) {
 				xAutoTrasfAccumulo = false;
 			}
+		} else {
+			/* trasf HPSU->Accumulo non permesso */
+			xAutoTrasfAccumulo = false;
 		}
 
 		if (xSetManuale)
