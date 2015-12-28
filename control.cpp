@@ -255,7 +255,9 @@ void ControlThread::run()
 		else
 			xTrasfAccumuloInCorso = xAutoTrasfAccumulo;
 
-		HW.Accumulo.xApriValvola->setValue(xTrasfAccumuloInCorso);
+//		HW.Accumulo.xApriValvola->setValue(xTrasfAccumuloInCorso);
+		HW.Accumulo.xApriValvola->setValue(true);	// sempre ON per bloccare percorso diretto pannelli->accumulo
+
 
 		static DelayRiseTimer tStartPompaAccumulo;
 		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumuloInCorso);
