@@ -271,9 +271,9 @@ void ControlThread::run()
 
 		if (zona_attiva) {
 			/* auto mode */
-			if (wTemperaturaACS < 450)
+			if (wTemperaturaACS < 500)
 				xAutoCaldaia = true;
-			else if (wTemperaturaACS > 500)
+			else if (wTemperaturaACS > 550)
 				xAutoCaldaia = false;
 		} else {
 			xAutoCaldaia = false;
