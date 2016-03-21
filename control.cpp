@@ -74,7 +74,9 @@ void ControlThread::run()
 		static PowerCalc pcProdotta;
 		static PowerCalc pcConsumata;
 
+		QTime rd_time = QTime::currentTime();
 		ReadHardwareInputs();
+		int rd_ms = rd_time.elapsed();
 
 		mFields.lock();
 
@@ -291,9 +293,17 @@ void ControlThread::run()
 		HW.Caldaia.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Caldaia.xStartCaldaia->getValue()));
 
 		mFields.unlock();
+		int ctrl_ms = now.elapsed();
+		QTime wr_time = QTime::currentTime();
 		WriteHardwareOutputs();
+		int wr_ms = wr_time.elapsed();
+
+		static int cycle = 0;
+		if ((rd_ms >= 100) || (wr_ms >= 100) || !(cycle & 0xff))
+			printf("cycle: %08x rd %4i ctrl %i wr %4i\n", cycle, rd_ms, ctrl_ms, wr_ms);
 		lastTime = now;
 		lastSecs = nowSecs;
+		cycle++;
 	}
 }
 
