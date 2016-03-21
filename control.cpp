@@ -120,6 +120,11 @@ void ControlThread::run()
 			if ((now.minute() % 3) == 0) {
 				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
 				int next_level;
+
+				// never allocate more power than currently produced
+				if (power_budget > pcProdotta.getCurrentPower25())
+					power_budget = pcProdotta.getCurrentPower25();
+
 				for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
 					if (power_budget > POWER_LEVEL[next_level].min_budget)
 						break;
@@ -138,7 +143,6 @@ void ControlThread::run()
 				}
 			}
 		}
-
 
 		if (now.hour() != lastTime.hour()) {
 			switch (now.hour()) {
