@@ -17,6 +17,7 @@ class ModbusDevice {
 
 		virtual int updateInputs() { return 0; };
 		virtual int updateOutputs() { return 0; };
+		bool failing() { return (mFailures > 20); }
 
 		virtual int getDigInput(int input) { UNUSED(input); return -ENOTSUP; }
 		virtual int getDigOutput(int output) { UNUSED(output); return -ENOTSUP; }
@@ -26,6 +27,7 @@ class ModbusDevice {
 		virtual int setOutputVal(int output, int value) { UNUSED(output); UNUSED(value); return -ENOTSUP; }
 	protected:
 		int mAddress;
+		int mFailures;
 		int mbReadReg(int idx, int count, uint16_t *values);
 		int mbWriteReg(int idx, int count, const uint16_t *values);
 };

@@ -2,6 +2,7 @@
 
 #include "control.h"
 #include "hardware.h"
+#include "dlg_alarm.h"
 
 #include <QtGui>
 #include <QApplication>
@@ -11,6 +12,10 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
     , m_controlDlg(controlDlg)
 {
 	ui.setupUi(this);
+
+	m_alarmDlg = new AlarmDlg(this);
+	m_alarmDlg->move(width()-m_alarmDlg->width(), height()-m_alarmDlg->height());
+	m_alarmDlg->hide();
 
 	Qt::WindowFlags flags = windowFlags();
 	flags |= Qt::FramelessWindowHint;
@@ -144,4 +149,9 @@ void StatusDlg::updateScreen()
 	} else {
 		setLabelInactive(ui.tlStatoRadiatori);
 	}
+
+	if ((control().wCommErrorMask != 0) && (QTime::currentTime().msec() < 500))
+		m_alarmDlg->show();
+	else
+		m_alarmDlg->hide();
 }

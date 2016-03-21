@@ -23,6 +23,7 @@ class StatusDlg : public QWidget
 	private:
 		Ui::StatusDlg ui;
 		QWidget *m_controlDlg;
+		QWidget *m_alarmDlg;
 
 		void updateStatoRisc();
 };

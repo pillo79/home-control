@@ -19,3 +19,7 @@ HEADERS += dlg_status.h
 SOURCES += dlg_status.cpp
 FORMS += dlg_status.ui
 
+HEADERS += dlg_alarm.h
+SOURCES += dlg_alarm.cpp
+FORMS += dlg_alarm.ui
+

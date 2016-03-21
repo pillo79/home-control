@@ -59,6 +59,8 @@ class ControlThread : public QThread {
 		int wUmidSoffitta;
 		int wTempEsterno;
 		int wUmidEsterno;
+
+		uint32_t wCommErrorMask;
 };
 
 ControlThread &control();

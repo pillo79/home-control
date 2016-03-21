@@ -1,6 +1,10 @@
 #include <modbus.h>
 #include "modbusdevice.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 static modbus_t *mb = 0;
 
 int ModbusDevice::openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits)
@@ -29,24 +33,37 @@ void ModbusDevice::closeSerial()
 
 ModbusDevice::ModbusDevice(int modAddress)
 	: mAddress (modAddress)
+	, mFailures (0)
 {
 }
 
 int ModbusDevice::mbReadReg(int idx, int count, uint16_t *values)
 {
 	modbus_set_slave(mb, mAddress);
-	if ((idx > 40000) && (idx < 50000))
-		return modbus_read_registers(mb, idx-40001, count, values);
-	else
+	if ((idx > 40000) && (idx < 50000)) {
+		int ret = modbus_read_registers(mb, idx-40001, count, values);
+		if (ret < 0) {
+			if (mFailures < 60) mFailures += 5;
+			fprintf(stderr, "R err %s addr %i\n", strerror(errno), mAddress);
+		} else
+			if (mFailures) --mFailures;
+		return ret;
+	} else
 		return -ENOTSUP;
 }
 
 int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 {
 	modbus_set_slave(mb, mAddress);
-	if ((idx > 40000) && (idx < 50000))
-		return modbus_write_registers(mb, idx-40001, count, values);
-	else
+	if ((idx > 40000) && (idx < 50000)) {
+		int ret = modbus_write_registers(mb, idx-40001, count, values);
+		if (ret < 0) {
+			if (mFailures < 60) mFailures += 5;
+			fprintf(stderr, "W err %s addr %i\n", strerror(errno), mAddress);
+		} else
+			if (mFailures) --mFailures;
+		return ret;
+	} else
 		return -ENOTSUP;
 }
 
@@ -216,7 +233,12 @@ Seneca_4RTD::Seneca_4RTD(int modAddress)
 
 int Seneca_4RTD::updateInputs()
 {
-	return mbReadReg(40003, 4, (uint16_t*) mInputs);
+	int ret = mbReadReg(40003, 4, (uint16_t*) mInputs);
+	if (ret < 0) {
+		uint16_t reset_code = 0xcccc;
+		mbWriteReg(40029, 1, &reset_code);
+	}
+	return ret;
 }
 
 int Seneca_4RTD::getInputVal(int input)

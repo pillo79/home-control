@@ -82,5 +82,6 @@ extern struct Hardware HW;
 int InitHardware();
 void ReadHardwareInputs();
 void WriteHardwareOutputs();
+uint32_t GetCommErrorMask();
 
 #endif /* __HARDWARE_H__ */

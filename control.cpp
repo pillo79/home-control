@@ -80,6 +80,8 @@ void ControlThread::run()
 
 		mFields.lock();
 
+		wCommErrorMask = GetCommErrorMask();
+
 		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
 		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue();
