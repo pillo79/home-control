@@ -20,6 +20,7 @@ const TargetPower POWER_LEVEL[] = {
 	{	1400,	1600,	{ 0, 1, 0, 1, 0 }, },
 	{	1800,	2100,	{ 0, 1, 0, 1, 1 }, },
 	{	2500,	2900,	{ 1, 1, 0, 0, 0 }, },
+//	{	2500,	2900,	{ 0, 1, 1, 1, 0 }, },	// alternativa
 	{	3800,	4300,	{ 1, 1, 0, 1, 0 }, },
 	//{	6000,	6500,	{ 1, 1, 0, 0, 1 }, },	// ancora da testare!
 };
@@ -63,7 +64,8 @@ void ControlThread::run()
 
 	bool xAutoCaldaia = false;
 	bool xAutoPompaCalore = false;
-	bool xAutoTrasfAccumulo = false;
+	bool xAutoTrasfDaAccumulo = false;
+	bool xAutoTrasfVersoAccumulo = false;
 	bool xCaricoAccumuloAttivo = false;
 
 	int PowerLevel = 0;
@@ -230,6 +232,7 @@ void ControlThread::run()
 		zona_attiva |= risc_acceso;
 
 		// condizioni HPSU->accumulo ("salvataggio energia")
+		// abilitato ogni giorno fino alle 18
 		if ((now<QTime(10,0)) || (now>QTime(18,0)))
 			xCaricoAccumuloAttivo = false;
 		else if (wTemperaturaBoiler > 650)
@@ -238,44 +241,50 @@ void ControlThread::run()
 		if (zona_attiva) {
 			/* trasf Accumulo->HPSU (uso energia) */
 			if ((wTemperaturaAccumulo > 600) && (wTemperaturaAccumulo > wTemperaturaBoiler+150) && !xCaldaiaInUso) {
-				xAutoTrasfAccumulo = true;
+				xAutoTrasfDaAccumulo = true;
 			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 500) || (wTemperaturaAccumulo < wTemperaturaBoiler+50)) {
-				xAutoTrasfAccumulo = false;
+				xAutoTrasfDaAccumulo = false;
 			}
 
 			/* trasf Accumulo->HPSU attivo -> no caldaia */
-			if (xAutoTrasfAccumulo)
+			if (xAutoTrasfDaAccumulo)
 				zona_attiva = false;
 		} else if (xCaricoAccumuloAttivo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
 			if ((wTemperaturaBoiler > 500) && (wTemperaturaAccumulo < wTemperaturaBoiler-150) && !xCaldaiaInUso) {
-				xAutoTrasfAccumulo = true;
+				xAutoTrasfVersoAccumulo = true;
 			} else if (xCaldaiaInUso || (wTemperaturaBoiler < 400) || (wTemperaturaAccumulo > wTemperaturaBoiler-50)) {
-				xAutoTrasfAccumulo = false;
+				xAutoTrasfVersoAccumulo = false;
 			}
 		} else {
 			/* trasf HPSU->Accumulo non permesso */
-			xAutoTrasfAccumulo = false;
+			xAutoTrasfDaAccumulo = false;
+			xAutoTrasfVersoAccumulo = false;
 		}
 
-		if (xSetManuale)
-			xTrasfAccumuloInCorso = xTrasfAccumulo;
-		else
-			xTrasfAccumuloInCorso = xAutoTrasfAccumulo;
+		if (xSetManuale) {
+			xTrasfDaAccumuloInCorso = xTrasfDaAccumulo;
+			xTrasfVersoAccumuloInCorso = xTrasfVersoAccumulo;
+		} else {
+			xTrasfDaAccumuloInCorso = xAutoTrasfDaAccumulo;
+			xTrasfVersoAccumuloInCorso = xAutoTrasfVersoAccumulo;
+		}
 
-//		HW.Accumulo.xApriValvola->setValue(xTrasfAccumuloInCorso);
-		HW.Accumulo.xApriValvola->setValue(true);	// sempre ON per bloccare percorso diretto pannelli->accumulo
+		static DelayFallTimer tCambioDirAccumulo;
+		static bool ultimo_trasf_da_accumulo = false;
+		bool cambio_dir_accumulo = tCambioDirAccumulo.update(DELAY_MIN(5), (xTrasfDaAccumuloInCorso != ultimo_trasf_da_accumulo));
+		ultimo_trasf_da_accumulo = xTrasfDaAccumuloInCorso;
 
+		HW.Accumulo.xAcquaDaAccumulo->setValue(xTrasfDaAccumuloInCorso);
 
-		static DelayRiseTimer tStartPompaAccumulo;
-		bool ok_start_pompa_accumulo = tStartPompaAccumulo.update(DELAY_MIN(2), xTrasfAccumuloInCorso);
+		bool ok_start_pompa_accumulo = (xTrasfDaAccumuloInCorso || xTrasfVersoAccumuloInCorso) && !cambio_dir_accumulo;
 		static DelayRiseTimer tDurataPompaAccumulo;
-		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo);
-		if (!xSetManuale)
-			max_durata_pompa_accumulo = false; // non interrompere in automatico
+		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(60), ok_start_pompa_accumulo && xSetManuale);
 		HW.Accumulo.xStartPompa->setValue(ok_start_pompa_accumulo && !max_durata_pompa_accumulo);
-		if (max_durata_pompa_accumulo)
-			xTrasfAccumuloInCorso = false;
+		if (max_durata_pompa_accumulo) {
+			xTrasfDaAccumuloInCorso = false;
+			xTrasfVersoAccumuloInCorso = false;
+		}
 
 		if (zona_attiva) {
 			/* auto mode */

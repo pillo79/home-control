@@ -56,7 +56,7 @@ struct Hardware {
 	struct {
 		// outputs
 		BitOutput *xStartPompa;
-		BitOutput *xApriValvola;
+		BitOutput *xAcquaDaAccumulo;
 		// word inputs
 		WordInput *wTemperatura;
 	} Accumulo;

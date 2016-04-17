@@ -26,7 +26,8 @@ class ControlThread : public QThread {
 		bool xUsaCaldaia;
 		bool xUsaResistenze;
 
-		bool xTrasfAccumulo;
+		bool xTrasfDaAccumulo;
+		bool xTrasfVersoAccumulo;
 		bool xApriCucina;
 		bool xChiudiCucina;
 
@@ -36,7 +37,8 @@ class ControlThread : public QThread {
 		bool xCaldaiaInUso;
 		bool xPompaCaloreInUso;
 		bool xResistenzeInUso;
-		bool xTrasfAccumuloInCorso;
+		bool xTrasfDaAccumuloInCorso;
+		bool xTrasfVersoAccumuloInCorso;
 
 		int wTemperaturaACS;
 		int wTemperaturaBoiler;

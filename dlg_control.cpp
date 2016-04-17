@@ -6,6 +6,12 @@
 #include <QtGui>
 #include <QApplication>
 
+enum TrasfAccumulo {
+	TrasfAccumuloFermo = 0,
+	TrasfDaAccumulo = 1,
+	TrasfVersoAccumulo = 2,
+};
+
 ControlDlg::ControlDlg(QWidget *parent)
     : QWidget(parent)
     , mLockCount(0)
@@ -161,15 +167,27 @@ void ControlDlg::updateStatoRisc()
 
 	static bool ultimoTrasfAccumulo = false;
 	if (ui.pbTrasfAccumulo->isChecked() && ui.pbRiscManuale->isChecked()) {
+		if (control().xTrasfDaAccumuloInCorso) {
+			ui.pbTrasfAccumulo->setPalette(QPalette(QColor(220, 220, 128)));
+			ui.pbTrasfAccumulo->setText("DA\nAccumulo");
+			ultimoTrasfAccumulo = true;
+		}
+		if (control().xTrasfVersoAccumuloInCorso) {
+			ui.pbTrasfAccumulo->setPalette(QPalette(QColor(220, 220, 128)));
+			ui.pbTrasfAccumulo->setText("VERSO\nAccumulo");
+			ultimoTrasfAccumulo = true;
+		}
+	} else if (control().xTrasfDaAccumuloInCorso) {
+		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(255, 64, 64)));
+		ui.pbTrasfAccumulo->setText("DA\nAccumulo");
+	} else if (control().xTrasfVersoAccumuloInCorso) {
 		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(64, 255, 64)));
-		ui.pbTrasfAccumulo->setText("Accumulo\nON");
-		ultimoTrasfAccumulo = true;
-	} else if (control().xTrasfAccumuloInCorso) {
-		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbTrasfAccumulo->setText("Accumulo\nauto ON");
+		ui.pbTrasfAccumulo->setText("VERSO\nAccumulo");
 	} else {
-		if (ultimoTrasfAccumulo)
-			ui.pbTrasfAccumulo->setChecked(false);
+		if (ultimoTrasfAccumulo) {
+			control().xTrasfDaAccumulo = false;
+			control().xTrasfVersoAccumulo = false;
+		}
 		ui.pbTrasfAccumulo->setPalette(QApplication::palette());
 		ui.pbTrasfAccumulo->setText("Accumulo\nOFF");
 		ultimoTrasfAccumulo = false;
@@ -187,7 +205,9 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		ui.pbRiscCaldaia->setChecked(control().xUsaCaldaia = control().xCaldaiaInUso);
 		ui.pbRiscPompaCalore->setChecked(control().xUsaPompaCalore = control().xPompaCaloreInUso);
 		ui.pbRiscResistenze->setChecked(control().xUsaResistenze = control().xResistenzeInUso);
-		ui.pbTrasfAccumulo->setChecked(control().xTrasfAccumulo = control().xTrasfAccumuloInCorso);
+		control().xTrasfDaAccumulo = control().xTrasfDaAccumuloInCorso;
+		control().xTrasfVersoAccumulo = control().xTrasfVersoAccumuloInCorso;
+		ui.pbTrasfAccumulo->setChecked(control().xTrasfDaAccumulo || control().xTrasfVersoAccumulo);
 	} else {
 		control().xSetManuale = false;
 		ui.pbRiscCaldaia->setChecked(false);
@@ -229,6 +249,30 @@ void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
 	unlockMutex();
 }
 
+void ControlDlg::on_pbTrasfAccumulo_clicked()
+{
+	resetCloseTimer();
+
+	lockMutex();
+	if (!control().xTrasfDaAccumulo && !control().xTrasfVersoAccumulo) {
+		// fermo->da
+		control().xTrasfDaAccumulo = true;
+		control().xTrasfVersoAccumulo = false;
+		ui.pbTrasfAccumulo->setChecked(true);
+	} else if (control().xTrasfDaAccumulo && !control().xTrasfVersoAccumulo) {
+		// da->verso
+		control().xTrasfDaAccumulo = false;
+		control().xTrasfVersoAccumulo = true;
+		ui.pbTrasfAccumulo->setChecked(true);
+	} else if (!control().xTrasfDaAccumulo && control().xTrasfVersoAccumulo) {
+		// verso->off
+		control().xTrasfDaAccumulo = false;
+		control().xTrasfVersoAccumulo = false;
+		ui.pbTrasfAccumulo->setChecked(false);
+	}
+	unlockMutex();
+}
+
 void ControlDlg::on_pbVelMinus_clicked()
 {
 	resetCloseTimer();
@@ -259,15 +303,6 @@ void ControlDlg::on_pbVelPlus_clicked()
 	char buf[256];
 	sprintf(buf, "%i%%", control().wVelFanCoil);
 	ui.tlVelFanCoil->setText(buf);
-}
-
-void ControlDlg::on_pbTrasfAccumulo_toggled(bool checked)
-{
-	resetCloseTimer();
-
-	lockMutex();
-	control().xTrasfAccumulo = checked;
-	unlockMutex();
 }
 
 void ControlDlg::on_pbApriCucina_clicked()

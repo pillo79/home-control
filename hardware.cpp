@@ -74,7 +74,7 @@ int InitHardware()
 	INIT(Pannelli.wPotenzaConsumata,		WordInput,	Seneca_16DI_8DO_1, 4);
 	// outputs
 	INIT(Accumulo.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
-	INIT(Accumulo.xApriValvola,			BitOutput,	Seneca_10DO_2, 7);
+	INIT(Accumulo.xAcquaDaAccumulo,			BitOutput,	Seneca_10DO_2, 7);
 	// word inputs
 	INIT(Accumulo.wTemperatura,			WordInput,	Seneca_4RTD_5, 4);
 	// word inputs
