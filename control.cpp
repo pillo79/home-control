@@ -235,14 +235,14 @@ void ControlThread::run()
 		// abilitato ogni giorno fino alle 18
 		if ((now<QTime(10,0)) || (now>QTime(18,0)))
 			xCaricoAccumuloAttivo = false;
-		else if (wTemperaturaBoiler > 650)
+		else if (wTemperaturaBoiler > 600)
 			xCaricoAccumuloAttivo = true;
 
 		if (zona_attiva) {
 			/* trasf Accumulo->HPSU (uso energia) */
-			if ((wTemperaturaAccumulo > 600) && (wTemperaturaAccumulo > wTemperaturaBoiler+150) && !xCaldaiaInUso) {
+			if ((wTemperaturaAccumulo > 550) && (wTemperaturaAccumulo > wTemperaturaACS+100) && !xCaldaiaInUso) {
 				xAutoTrasfDaAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 500) || (wTemperaturaAccumulo < wTemperaturaBoiler+50)) {
+			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 500) || (wTemperaturaAccumulo < wTemperaturaACS+50)) {
 				xAutoTrasfDaAccumulo = false;
 			}
 
@@ -251,9 +251,9 @@ void ControlThread::run()
 				zona_attiva = false;
 		} else if (xCaricoAccumuloAttivo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaBoiler > 500) && (wTemperaturaAccumulo < wTemperaturaBoiler-150) && !xCaldaiaInUso) {
+			if ((wTemperaturaACS > 500) && (wTemperaturaAccumulo < wTemperaturaACS-100) && !xCaldaiaInUso) {
 				xAutoTrasfVersoAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaBoiler < 400) || (wTemperaturaAccumulo > wTemperaturaBoiler-50)) {
+			} else if (xCaldaiaInUso || (wTemperaturaACS < 400) || (wTemperaturaAccumulo > wTemperaturaACS-50)) {
 				xAutoTrasfVersoAccumulo = false;
 			}
 		} else {
