@@ -99,7 +99,7 @@ void ReadHardwareInputs()
 	DUMP(Seneca_10DO_2->updateInputs());
 	DUMP(Seneca_3AO_3->updateInputs());
 	DUMP(Seneca_4RTD_4->updateInputs());
-//	DUMP(Seneca_4RTD_5->updateInputs());
+	DUMP(Seneca_4RTD_5->updateInputs());
 	DUMP(Seneca_24DO_6->updateInputs());
 //	DUMP(Burosoft_Temp_32->updateInputs());
 }
@@ -110,7 +110,7 @@ void WriteHardwareOutputs()
 	DUMP(Seneca_10DO_2->updateOutputs());
 	DUMP(Seneca_3AO_3->updateOutputs());
 	DUMP(Seneca_4RTD_4->updateOutputs());
-//	DUMP(Seneca_4RTD_5->updateOutputs());
+	DUMP(Seneca_4RTD_5->updateOutputs());
 	DUMP(Seneca_24DO_6->updateOutputs());
 //	DUMP(Burosoft_Temp_32->updateOutputs());
 }
@@ -123,7 +123,7 @@ uint32_t GetCommErrorMask()
 	if (Seneca_10DO_2->failing())		mask |= (1 << 2);
 	if (Seneca_3AO_3->failing())		mask |= (1 << 3);
 	if (Seneca_4RTD_4->failing())		mask |= (1 << 4);
-//	if (Seneca_4RTD_5->failing())		mask |= (1 << 5);
+	if (Seneca_4RTD_5->failing())		mask |= (1 << 5);
 	if (Seneca_24DO_6->failing())		mask |= (1 << 6);
 //	if (Burosoft_Temp_32->failing())	mask |= (1 << 7);
 
