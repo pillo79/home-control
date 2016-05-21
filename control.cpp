@@ -251,9 +251,9 @@ void ControlThread::run()
 				zona_attiva = false;
 		} else if (xCaricoAccumuloAttivo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaACS > 500) && (wTemperaturaAccumulo < wTemperaturaACS-100) && !xCaldaiaInUso) {
+			if ((wTemperaturaACS > 500) && (wTemperaturaAccumulo < wTemperaturaACS-60) && !xCaldaiaInUso) {
 				xAutoTrasfVersoAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaACS < 400) || (wTemperaturaAccumulo > wTemperaturaACS-50)) {
+			} else if (xCaldaiaInUso || (wTemperaturaACS < 400) || (wTemperaturaAccumulo > wTemperaturaACS-30)) {
 				xAutoTrasfVersoAccumulo = false;
 			}
 		} else {
