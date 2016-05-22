@@ -78,7 +78,7 @@ int InitHardware()
 	// word inputs
 	INIT(Accumulo.wTemperatura,			WordInput,	Seneca_4RTD_5, 4);
 	// word inputs
-	INIT(Ambiente.wTemperaturaEsterna,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wTemperaturaEsterna,		WordInput,	Seneca_4RTD_5, 1);
 	INIT(Ambiente.wUmiditaEsterna,			WordInput,	Undefined, -1);
 	INIT(Ambiente.wTemperaturaZonaGiorno,		WordInput,	Undefined, -1);
 	INIT(Ambiente.wUmiditaZonaGiorno,		WordInput,	Undefined, -1);

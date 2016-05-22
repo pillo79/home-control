@@ -101,6 +101,9 @@ void StatusDlg::updateScreen()
 	sprintf(buf, "%.1f", control().wUmidSoffitta/10.0);
 	ui.tlUmidSoffitta->setText(buf);
 
+	sprintf(buf, "%.1f", control().wTempEsterno/10.0);
+	ui.tlTempEsterno->setText(buf);
+
 	sprintf(buf, "%i", control().wPotProdotta);
 	ui.tlPotProdotta->setText(buf);
 	sprintf(buf, "%i", control().wPotConsumata);

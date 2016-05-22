@@ -91,6 +91,7 @@ void ControlThread::run()
 
 		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
 		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();
+		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue();
 
 		Timer::tick();
 		QTime now = QTime::currentTime();
