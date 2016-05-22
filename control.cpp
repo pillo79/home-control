@@ -250,6 +250,9 @@ void ControlThread::run()
 			/* trasf Accumulo->HPSU attivo -> no caldaia */
 			if (xAutoTrasfDaAccumulo)
 				zona_attiva = false;
+
+			/* reset condizione opposta */
+			xAutoTrasfVersoAccumulo = false;
 		} else if (xCaricoAccumuloAttivo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
 			if ((wTemperaturaACS > 500) && (wTemperaturaAccumulo < wTemperaturaACS-60) && !xCaldaiaInUso) {
@@ -257,8 +260,11 @@ void ControlThread::run()
 			} else if (xCaldaiaInUso || (wTemperaturaACS < 400) || (wTemperaturaAccumulo > wTemperaturaACS-30)) {
 				xAutoTrasfVersoAccumulo = false;
 			}
+
+			/* reset condizione opposta */
+			xAutoTrasfDaAccumulo = false;
 		} else {
-			/* trasf HPSU->Accumulo non permesso */
+			/* trasf HPSU<->Accumulo non permesso */
 			xAutoTrasfDaAccumulo = false;
 			xAutoTrasfVersoAccumulo = false;
 		}
