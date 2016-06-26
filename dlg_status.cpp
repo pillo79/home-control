@@ -141,13 +141,13 @@ void StatusDlg::updateScreen()
 		setLabelInactive(ui.tlStatoResistenze);
 	}
 
-	if (control().xFanCoil) {
+	if (control().xAttivaFanCoil) {
 		setLabelActive(ui.tlStatoVentilatore, QColor(128, 128, 255));
 	} else {
 		setLabelInactive(ui.tlStatoVentilatore);
 	}
 
-	if (control().xRiscaldaNotte || control().xRiscaldaGiorno || control().xRiscaldaSoffitta) {
+	if (control().xAttivaZonaNotte || control().xAttivaZonaGiorno || control().xAttivaZonaSoffitta) {
 		setLabelActive(ui.tlStatoRadiatori, QColor(255, 128, 128));
 	} else {
 		setLabelInactive(ui.tlStatoRadiatori);

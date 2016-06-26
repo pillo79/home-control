@@ -16,10 +16,11 @@ class ControlThread : public QThread {
 		QMutex mFields;
 
 		/* inputs */
-		bool xRiscaldaNotte;
-		bool xRiscaldaGiorno;
-		bool xRiscaldaSoffitta;
-		bool xFanCoil;
+		bool xModoRiscaldamento;
+		bool xAttivaZonaNotte;
+		bool xAttivaZonaGiorno;
+		bool xAttivaZonaSoffitta;
+		bool xAttivaFanCoil;
 
 		bool xSetManuale;
 		bool xUsaPompaCalore;

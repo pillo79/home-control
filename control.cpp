@@ -168,25 +168,25 @@ void ControlThread::run()
 			}
 		}
 
-		bool risc_acceso = xRiscaldaNotte || xRiscaldaGiorno || xRiscaldaSoffitta;
-		HW.Riscaldamento.xChiudiValvola->setValue(!risc_acceso);
+		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
+		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 		static DelayRiseTimer tStartPompe;
-		bool start_pompe = tStartPompe.update(DELAY_SEC(20), risc_acceso);
-		HW.Riscaldamento.xStartPompaGiorno->setValue(start_pompe && xRiscaldaGiorno);
-		HW.Riscaldamento.xStartPompaNotte->setValue(start_pompe && xRiscaldaNotte);
-		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xRiscaldaSoffitta);
-		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xRiscaldaSoffitta);
-		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xRiscaldaSoffitta);
+		bool start_pompe = tStartPompe.update(DELAY_SEC(20), zone_accese);
+		HW.Riscaldamento.xStartPompaGiorno->setValue(start_pompe && xAttivaZonaGiorno);
+		HW.Riscaldamento.xStartPompaNotte->setValue(start_pompe && xAttivaZonaNotte);
+		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
+		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
+		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 
 		// setup valvole pompa calore
 		static DelayRiseTimer tResetManValvole;
-		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), risc_acceso);
+		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), zone_accese);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
-		HW.PompaCalore.xForzaValvole->setValue(risc_acceso);
-		HW.PompaCalore.xForza3VieApri->setValue(risc_acceso && false);
-		HW.PompaCalore.xForza3VieChiudi->setValue(risc_acceso && true);
-		HW.PompaCalore.xForzaRiscApri->setValue(risc_acceso && !reset_man_finito);
+		HW.PompaCalore.xForzaValvole->setValue(zone_accese);
+		HW.PompaCalore.xForza3VieApri->setValue(zone_accese && false);
+		HW.PompaCalore.xForza3VieChiudi->setValue(zone_accese && true);
+		HW.PompaCalore.xForzaRiscApri->setValue(zone_accese && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
 		static DelayRiseTimer tNuovoLivelloRes;
@@ -202,9 +202,9 @@ void ControlThread::run()
 			NextPowerLevel = -1;
 		}
 
-		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xFanCoil);
+		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xAttivaFanCoil);
 		static DelayRiseTimer tStartFanCoil;
-		HW.FanCoilCorridoio.xStartVentilatore->setValue(tStartFanCoil.update(DELAY_SEC(30), xFanCoil));
+		HW.FanCoilCorridoio.xStartVentilatore->setValue(tStartFanCoil.update(DELAY_SEC(30), xAttivaFanCoil));
 		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(wVelFanCoil*200);
 
 		bool muovi_serranda = xApriCucina || xChiudiCucina;
@@ -222,15 +222,15 @@ void ControlThread::run()
 			xPompaCaloreInUso = xAutoPompaCalore;
 
 		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
-		HW.PompaCalore.xRichiestaCaldo->setValue(risc_acceso || xFanCoil);
+		HW.PompaCalore.xRichiestaCaldo->setValue(zone_accese || xAttivaFanCoil);
 
-		bool zona_attiva = false;
+		bool acs_attiva = false;
 		if (!xPompaCaloreInUso && (wTemperaturaACS < 550)) {
 			/* caldaia auto */
-			zona_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
-			zona_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
+			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
+			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
-		zona_attiva |= risc_acceso;
+		acs_attiva |= zone_accese;
 
 		// condizioni HPSU->accumulo ("salvataggio energia")
 		// abilitato ogni giorno fino alle 18
@@ -239,7 +239,7 @@ void ControlThread::run()
 		else if (wTemperaturaBoiler > 600)
 			xCaricoAccumuloAttivo = true;
 
-		if (zona_attiva) {
+		if (acs_attiva) {
 			/* trasf Accumulo->HPSU (uso energia) */
 			if ((wTemperaturaAccumulo > 550) && (wTemperaturaAccumulo > wTemperaturaACS+100) && !xCaldaiaInUso) {
 				xAutoTrasfDaAccumulo = true;
@@ -249,7 +249,7 @@ void ControlThread::run()
 
 			/* trasf Accumulo->HPSU attivo -> no caldaia */
 			if (xAutoTrasfDaAccumulo)
-				zona_attiva = false;
+				acs_attiva = false;
 
 			/* reset condizione opposta */
 			xAutoTrasfVersoAccumulo = false;
@@ -293,7 +293,7 @@ void ControlThread::run()
 			xTrasfVersoAccumuloInCorso = false;
 		}
 
-		if (zona_attiva) {
+		if (acs_attiva) {
 			/* auto mode */
 			if (wTemperaturaACS < 500)
 				xAutoCaldaia = true;

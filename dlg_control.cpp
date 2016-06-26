@@ -54,7 +54,7 @@ void ControlDlg::on_pbNotte_toggled(bool checked)
 	}
 
 	lockMutex();
-	control().xRiscaldaNotte = checked;
+	control().xAttivaZonaNotte = checked;
 	unlockMutex();
 }
 
@@ -69,7 +69,7 @@ void ControlDlg::on_pbGiorno_toggled(bool checked)
 	}
 
 	lockMutex();
-	control().xRiscaldaGiorno = checked;
+	control().xAttivaZonaGiorno = checked;
 	unlockMutex();
 }
 
@@ -84,7 +84,7 @@ void ControlDlg::on_pbSoffitta_toggled(bool checked)
 	}
 
 	lockMutex();
-	control().xRiscaldaSoffitta = checked;
+	control().xAttivaZonaSoffitta = checked;
 	unlockMutex();
 }
 
@@ -99,7 +99,7 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 	}
 
 	lockMutex();
-	control().xFanCoil = checked;
+	control().xAttivaFanCoil = checked;
 	unlockMutex();
 }
 
