@@ -129,8 +129,10 @@ void StatusDlg::updateScreen()
 		setLabelInactive(ui.tlStatoCaldaia);
 	}
 
-	if (control().xPompaCaloreInUso) {
-		setLabelActive(ui.tlStatoPompaCalore, QColor(64, 255, 64));
+	if (control().xPompaCaloreRiscInUso) {
+		setLabelActive(ui.tlStatoPompaCalore, QColor(255,192,64));
+	} else if (control().xPompaCaloreCondInUso) {
+		setLabelActive(ui.tlStatoPompaCalore, QColor(64,192,255));
 	} else {
 		setLabelInactive(ui.tlStatoPompaCalore);
 	}
@@ -142,13 +144,18 @@ void StatusDlg::updateScreen()
 	}
 
 	if (control().xAttivaFanCoil) {
-		setLabelActive(ui.tlStatoVentilatore, QColor(128, 128, 255));
+		if (control().xPompaCaloreCondInUso)
+			setLabelActive(ui.tlStatoVentilatore, QColor(64,192,255));
+		else
+			setLabelActive(ui.tlStatoVentilatore, QColor(255,192,64));
 	} else {
 		setLabelInactive(ui.tlStatoVentilatore);
 	}
 
-	if (control().xAttivaZonaNotte || control().xAttivaZonaGiorno || control().xAttivaZonaSoffitta) {
-		setLabelActive(ui.tlStatoRadiatori, QColor(255, 128, 128));
+	if (control().xPompaCaloreCondInUso && control().xAttivaZonaSoffitta) {
+		setLabelActive(ui.tlStatoRadiatori, QColor(64,192,255));
+	} else if (control().xAttivaZonaNotte || control().xAttivaZonaGiorno || control().xAttivaZonaSoffitta) {
+		setLabelActive(ui.tlStatoRadiatori, QColor(255, 192, 64));
 	} else {
 		setLabelInactive(ui.tlStatoRadiatori);
 	}

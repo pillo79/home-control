@@ -29,6 +29,7 @@ const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
 ControlThread::ControlThread()
 {
 	wVelFanCoil = 20;
+	xModoRiscaldamento = true;
 
 	start();
 }
@@ -63,7 +64,8 @@ void ControlThread::run()
 	int lastSecs = lastTime.hour()*3600 + lastTime.minute()*60 + lastTime.second();
 
 	bool xAutoCaldaia = false;
-	bool xAutoPompaCalore = false;
+	bool xAutoPompaCaloreRisc = false;
+	bool xAutoPompaCaloreCond = false;
 	bool xAutoTrasfDaAccumulo = false;
 	bool xAutoTrasfVersoAccumulo = false;
 	bool xCaricoAccumuloAttivo = false;
@@ -116,9 +118,9 @@ void ControlThread::run()
 				wEnergPassivo += cons-prod;
 
 			if ((wPotProdotta < 1500) || (wPotConsumata > wPotProdotta) || (wTemperaturaBoiler > 500))
-				xAutoPompaCalore = false;
+				xAutoPompaCaloreRisc = false;
 			else if (wPotProdotta > 2500)
-				xAutoPompaCalore = true;
+				xAutoPompaCaloreRisc = true;
 
 			if ((now.minute() % 3) == 0) {
 				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
@@ -168,6 +170,11 @@ void ControlThread::run()
 			}
 		}
 
+		if (!xModoRiscaldamento) {
+			// ignora richieste zone notte/giorno
+			xAttivaZonaNotte = xAttivaZonaGiorno = false;
+		}
+
 		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 		static DelayRiseTimer tStartPompe;
@@ -178,14 +185,24 @@ void ControlThread::run()
 		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 
+		if (!xModoRiscaldamento && (zone_accese || xAttivaFanCoil)) {
+			// imposta e forza raffreddamento HP
+			xAutoPompaCaloreRisc = false;
+			xAutoPompaCaloreCond = true;
+		} else {
+			xAutoPompaCaloreCond = false;
+		}
+
 		// setup valvole pompa calore
+		// 3Vie (risc o acs) -> chiusa
+		// 3Vie (condiz) -> aperta
 		static DelayRiseTimer tResetManValvole;
 		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), zone_accese);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
 		HW.PompaCalore.xForzaValvole->setValue(zone_accese);
-		HW.PompaCalore.xForza3VieApri->setValue(zone_accese && false);
-		HW.PompaCalore.xForza3VieChiudi->setValue(zone_accese && true);
+		HW.PompaCalore.xForza3VieApri->setValue(zone_accese && xAutoPompaCaloreCond);
+		HW.PompaCalore.xForza3VieChiudi->setValue(zone_accese && !xAutoPompaCaloreCond);
 		HW.PompaCalore.xForzaRiscApri->setValue(zone_accese && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
@@ -216,24 +233,30 @@ void ControlThread::run()
 			xApriCucina = xChiudiCucina = false;
 		}
 
-		if (xSetManuale)
-			xPompaCaloreInUso = xUsaPompaCalore;
-		else
-			xPompaCaloreInUso = xAutoPompaCalore;
+		if (xSetManuale) {
+			xPompaCaloreRiscInUso = xUsaPompaCalore && xModoRiscaldamento;
+			xPompaCaloreCondInUso = xUsaPompaCalore && !xModoRiscaldamento;
+		} else {
+			xPompaCaloreRiscInUso = xAutoPompaCaloreRisc;
+			xPompaCaloreCondInUso = xAutoPompaCaloreCond;
+		}
 
-		HW.PompaCalore.xStopPompaCalore->setValue(!xPompaCaloreInUso);
-		HW.PompaCalore.xRichiestaCaldo->setValue(zone_accese || xAttivaFanCoil);
+		HW.PompaCalore.xStopPompaCalore->setValue(!(xPompaCaloreRiscInUso || xPompaCaloreCondInUso));
+		HW.PompaCalore.xRichiestaCaldo->setValue(xPompaCaloreRiscInUso);
+		HW.PompaCalore.xRichiestaFreddo->setValue(xPompaCaloreCondInUso);
 
 		bool acs_attiva = false;
-		if (!xPompaCaloreInUso && (wTemperaturaACS < 550)) {
+		if (!xPompaCaloreRiscInUso && (wTemperaturaACS < 550)) {
 			/* caldaia auto */
 			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
-		acs_attiva |= zone_accese;
+		if (xModoRiscaldamento)
+			acs_attiva |= zone_accese;
 
 		// condizioni HPSU->accumulo ("salvataggio energia")
-		// abilitato ogni giorno fino alle 18
+		// abilitato quando tBoiler > 60C
+		// disabilitato ogni giorno alle 18
 		if ((now<QTime(10,0)) || (now>QTime(18,0)))
 			xCaricoAccumuloAttivo = false;
 		else if (wTemperaturaBoiler > 600)
