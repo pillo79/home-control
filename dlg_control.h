@@ -43,8 +43,17 @@ class ControlDlg : public QWidget
 		QTimer m_closeTimer;
 		int mLockCount;
 
+		QColor mForcedNormColor, mAutoNormColor;
+		QColor mForcedRiscColor, mAutoRiscColor;
+		QColor mForcedCondColor, mAutoCondColor;
+		QColor mForcedColor, mAutoColor;
+
+		typedef enum { bcNorm, bcRisc, bcCond, bcAuto } ButtonColor;
+		void setBtnStatus(QPushButton *pb, bool state, ButtonColor mode = bcAuto, QString forced="", QString automatic="", QString off="");
+		void setBtnStatus3Way(QPushButton *pb, bool state1, bool state2, ButtonColor mode, QString force1, QString force2, QString auto1, QString auto2, QString off);
+
 		void resetCloseTimer();
-		void updateStatoRisc();
+		void updateBtnStatus();
 		void lockMutex();
 		void unlockMutex();
 };

@@ -27,6 +27,13 @@ ControlDlg::ControlDlg(QWidget *parent)
 	char buf[256];
 	sprintf(buf, "%i%%", control().wVelFanCoil);
 	ui.tlVelFanCoil->setText(buf);
+
+	mForcedNormColor = QColor(220, 220, 64);
+	mAutoNormColor = QColor(255, 255, 128);
+	mForcedRiscColor = QColor(255, 64, 64);
+	mAutoRiscColor = QColor(255, 160, 96);
+	mForcedCondColor = QColor(64, 64, 255);
+	mAutoCondColor = QColor(96, 160, 255);
 }
 
 void ControlDlg::lockMutex()
@@ -48,14 +55,10 @@ void ControlDlg::on_pbModoRisc_toggled(bool checked)
 	resetCloseTimer();
 
 	if (checked) {
-		ui.pbModoRisc->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbModoCondiz->setPalette(QApplication::palette());
 		ui.groupBoxTipo->setTitle("Tipo di riscaldamento");
 		ui.pbGiorno->setEnabled(true);
 		ui.pbNotte->setEnabled(true);
 	} else {
-		ui.pbModoRisc->setPalette(QApplication::palette());
-		ui.pbModoCondiz->setPalette(QPalette(QColor(64, 64, 255)));
 		ui.groupBoxTipo->setTitle("Tipo di condizionamento");
 		ui.pbGiorno->setEnabled(false);
 		ui.pbNotte->setEnabled(false);
@@ -67,6 +70,7 @@ void ControlDlg::on_pbModoRisc_toggled(bool checked)
 		ui.pbGiorno->setChecked(control().xAttivaZonaGiorno = false);
 		ui.pbNotte->setChecked(control().xAttivaZonaNotte = false);
 	}
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -74,14 +78,9 @@ void ControlDlg::on_pbNotte_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	if (checked) {
-		ui.pbNotte->setPalette(QPalette(QColor(255, 64, 64)));
-	} else {
-		ui.pbNotte->setPalette(QApplication::palette());
-	}
-
 	lockMutex();
 	control().xAttivaZonaNotte = checked;
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -89,14 +88,9 @@ void ControlDlg::on_pbGiorno_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	if (checked) {
-		ui.pbGiorno->setPalette(QPalette(QColor(255, 64, 64)));
-	} else {
-		ui.pbGiorno->setPalette(QApplication::palette());
-	}
-
 	lockMutex();
 	control().xAttivaZonaGiorno = checked;
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -104,14 +98,9 @@ void ControlDlg::on_pbSoffitta_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	if (checked) {
-		ui.pbSoffitta->setPalette(QPalette(QColor(255, 64, 64)));
-	} else {
-		ui.pbSoffitta->setPalette(QApplication::palette());
-	}
-
 	lockMutex();
 	control().xAttivaZonaSoffitta = checked;
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -119,107 +108,143 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	if (checked) {
-		ui.pbFanCoil->setPalette(QPalette(QColor(255, 64, 64)));
-	} else {
-		ui.pbFanCoil->setPalette(QApplication::palette());
-	}
-
 	lockMutex();
 	control().xAttivaFanCoil = checked;
+	updateBtnStatus();
 	unlockMutex();
 }
 
-void ControlDlg::updateStatoRisc()
+void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off)
 {
-	char buf[256];
+	if (pb->isChecked()) {
+		if (!forced.isEmpty()) pb->setText(forced);
+		switch(mode) {
+			case bcNorm: pb->setPalette(QPalette(mForcedNormColor)); break;
+			case bcCond: pb->setPalette(QPalette(mForcedCondColor)); break;
+			case bcRisc: pb->setPalette(QPalette(mForcedRiscColor)); break;
+			case bcAuto: pb->setPalette(QPalette(mForcedColor)); break;
+		}
+	} else if (state) {
+		if (!automatic.isEmpty()) pb->setText(automatic);
+		switch(mode) {
+			case bcNorm: pb->setPalette(QPalette(mAutoNormColor)); break;
+			case bcCond: pb->setPalette(QPalette(mAutoCondColor)); break;
+			case bcRisc: pb->setPalette(QPalette(mAutoRiscColor)); break;
+			case bcAuto: pb->setPalette(QPalette(mAutoColor)); break;
+		}
+	} else {
+		if (!off.isEmpty()) pb->setText(off);
+		pb->setPalette(QApplication::palette());
+	}
+}
+
+void ControlDlg::setBtnStatus3Way(QPushButton *pb, bool stateRisc, bool stateCond, ButtonColor mode, QString forceRisc, QString forceCond, QString autoRisc, QString autoCond, QString off)
+{
+	if (pb->isChecked()) {
+		if (stateRisc) {
+			if (!forceRisc.isEmpty()) pb->setText(forceRisc);
+			switch(mode) {
+				case bcNorm: pb->setPalette(QPalette(mForcedNormColor)); break;
+				case bcCond: pb->setPalette(QPalette(mForcedCondColor)); break;
+				case bcRisc: pb->setPalette(QPalette(mForcedRiscColor)); break;
+				case bcAuto: pb->setPalette(QPalette(mForcedRiscColor)); break;
+			}
+		} else if (stateCond) {
+			if (!forceCond.isEmpty()) pb->setText(forceCond);
+			switch(mode) {
+				case bcNorm: pb->setPalette(QPalette(mForcedNormColor)); break;
+				case bcCond: pb->setPalette(QPalette(mForcedCondColor)); break;
+				case bcRisc: pb->setPalette(QPalette(mForcedRiscColor)); break;
+				case bcAuto: pb->setPalette(QPalette(mForcedCondColor)); break;
+			}
+		} else {
+			if (!off.isEmpty()) pb->setText(off);
+			pb->setPalette(QApplication::palette());
+		}
+	} else if (stateRisc) {
+		if (!autoRisc.isEmpty()) pb->setText(autoRisc);
+		switch(mode) {
+			case bcNorm: pb->setPalette(QPalette(mAutoNormColor)); break;
+			case bcCond: pb->setPalette(QPalette(mAutoCondColor)); break;
+			case bcRisc: pb->setPalette(QPalette(mAutoRiscColor)); break;
+			case bcAuto: pb->setPalette(QPalette(mAutoRiscColor)); break;
+		}
+	} else if (stateCond) {
+		if (!autoCond.isEmpty()) pb->setText(autoCond);
+		switch(mode) {
+			case bcNorm: pb->setPalette(QPalette(mAutoNormColor)); break;
+			case bcCond: pb->setPalette(QPalette(mAutoCondColor)); break;
+			case bcRisc: pb->setPalette(QPalette(mAutoRiscColor)); break;
+			case bcAuto: pb->setPalette(QPalette(mAutoCondColor)); break;
+		}
+	} else {
+		if (!off.isEmpty()) pb->setText(off);
+		pb->setPalette(QApplication::palette());
+	}
+}
+
+void ControlDlg::updateBtnStatus()
+{
+	char buf1[256], buf2[256];
+
+	if (ui.pbModoRisc->isChecked()) {
+		mForcedColor = mForcedRiscColor;
+		mAutoColor = mAutoRiscColor;
+	} else {
+		mForcedColor = mForcedCondColor;
+		mAutoColor = mAutoCondColor;
+	}
+
+	setBtnStatus(ui.pbModoRisc, false);
+	setBtnStatus(ui.pbModoCondiz, false);
+
+	setBtnStatus(ui.pbApriCucina, control().xApriCucina, bcNorm);
+	setBtnStatus(ui.pbChiudiCucina, control().xChiudiCucina, bcNorm);
+
+	setBtnStatus(ui.pbNotte, false);
+	setBtnStatus(ui.pbGiorno, false);
+	setBtnStatus(ui.pbSoffitta, false);
+	setBtnStatus(ui.pbFanCoil, false);
+
+	setBtnStatus(ui.pbRiscManuale, false, bcNorm, "Manuale", "", "Automatico");
 
 	if (ui.pbRiscManuale->isChecked()) {
-		ui.pbRiscManuale->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbRiscManuale->setText("Manuale");
 		ui.pbRiscCaldaia->setEnabled(true);
 		ui.pbRiscPompaCalore->setEnabled(true);
 		ui.pbRiscResistenze->setEnabled(true);
 		ui.pbTrasfAccumulo->setEnabled(true);
 	} else {
-		ui.pbRiscManuale->setPalette(QApplication::palette());
-		ui.pbRiscManuale->setText("Automatico");
 		ui.pbRiscCaldaia->setEnabled(false);
 		ui.pbRiscPompaCalore->setEnabled(false);
 		ui.pbRiscResistenze->setEnabled(false);
 		ui.pbTrasfAccumulo->setEnabled(false);
 	}
 
-	if (ui.pbRiscCaldaia->isChecked() && ui.pbRiscManuale->isChecked()) {
-		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbRiscCaldaia->setText("Caldaia\nON");
-	} else if (control().xCaldaiaInUso) {
-		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255,192,64)));
-		ui.pbRiscCaldaia->setText("Caldaia\nauto ON");
-	} else {
-		ui.pbRiscCaldaia->setPalette(QApplication::palette());
-		ui.pbRiscCaldaia->setText("Caldaia\nOFF");
-	}
+	setBtnStatus(ui.pbRiscCaldaia, control().xCaldaiaInUso, bcRisc, "Caldaia\nON", "Caldaia\nauto ON", "Caldaia\nOFF");
+	setBtnStatus3Way(ui.pbRiscPompaCalore, control().xPompaCaloreRiscInUso, control().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF");
 
-	if (ui.pbRiscPompaCalore->isChecked() && ui.pbRiscManuale->isChecked()) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbRiscPompaCalore->setText("HPSU\nON");
-	} else if (control().xPompaCaloreRiscInUso) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(255,192,64)));
-		ui.pbRiscPompaCalore->setText("HPSU\nauto ON");
-	} else if (control().xPompaCaloreRiscInUso) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64,192,255)));
-		ui.pbRiscPompaCalore->setText("HPSU\nauto ON");
-	} else {
-		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
-		ui.pbRiscPompaCalore->setText("HPSU\nOFF");
-	}
+	sprintf(buf1, "Resistenze\n%i W", control().wPotResistenze);
+	sprintf(buf2, "Resistenze\nauto %i W", control().wPotResistenze);
+	setBtnStatus(ui.pbRiscResistenze, control().xResistenzeInUso, bcRisc, buf1, buf2, "Resistenze\nOFF");
+
+	setBtnStatus3Way(ui.pbTrasfAccumulo, control().xTrasfDaAccumuloInCorso, control().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF");
 
 	static bool ultimoResistenzeInUso = false;
-	if (ui.pbRiscResistenze->isChecked() && ui.pbRiscManuale->isChecked()) {
-		if (ultimoResistenzeInUso && !control().xResistenzeInUso) {
-			// fine ciclo: reset bottone automatico
-			ui.pbRiscResistenze->setChecked(false);
-		} else {
-			sprintf(buf, "Resistenze\n%i W", control().wPotResistenze);
-			ui.pbRiscResistenze->setPalette(QPalette(QColor(255, 64, 64)));
-			ui.pbRiscResistenze->setText(buf);
-		}
-	} else if (control().xResistenzeInUso) {
-		sprintf(buf, "Resistenze\nauto %i W", control().wPotResistenze);
-		ui.pbRiscResistenze->setPalette(QPalette(QColor(255,192,64)));
-		ui.pbRiscResistenze->setText(buf);
-	} else {
-		ui.pbRiscResistenze->setPalette(QApplication::palette());
-		ui.pbRiscResistenze->setText("Resistenze\nOFF");
+	if (ui.pbRiscResistenze->isChecked() && ultimoResistenzeInUso && !control().xResistenzeInUso) {
+		// fine ciclo: reset bottone automatico
+		ui.pbRiscResistenze->setChecked(false);
 	}
 	ultimoResistenzeInUso = control().xResistenzeInUso;
 
 	static bool ultimoTrasfAccumulo = false;
-	if (ui.pbTrasfAccumulo->isChecked() && ui.pbRiscManuale->isChecked()) {
-		if (control().xTrasfDaAccumuloInCorso) {
-			ui.pbTrasfAccumulo->setPalette(QPalette(QColor(255,192,64)));
-			ui.pbTrasfAccumulo->setText("DA\nAccumulo");
+	if (control().xTrasfDaAccumuloInCorso || control().xTrasfVersoAccumuloInCorso) {
+		if (ui.pbTrasfAccumulo->isChecked() && ui.pbRiscManuale->isChecked())
 			ultimoTrasfAccumulo = true;
-		}
-		if (control().xTrasfVersoAccumuloInCorso) {
-			ui.pbTrasfAccumulo->setPalette(QPalette(QColor(255,192,64)));
-			ui.pbTrasfAccumulo->setText("VERSO\nAccumulo");
-			ultimoTrasfAccumulo = true;
-		}
-	} else if (control().xTrasfDaAccumuloInCorso) {
-		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbTrasfAccumulo->setText("DA\nAccumulo");
-	} else if (control().xTrasfVersoAccumuloInCorso) {
-		ui.pbTrasfAccumulo->setPalette(QPalette(QColor(64, 255, 64)));
-		ui.pbTrasfAccumulo->setText("VERSO\nAccumulo");
 	} else {
 		if (ultimoTrasfAccumulo) {
 			control().xTrasfDaAccumulo = false;
 			control().xTrasfVersoAccumulo = false;
 		}
-		ui.pbTrasfAccumulo->setPalette(QApplication::palette());
-		ui.pbTrasfAccumulo->setText("Accumulo\nOFF");
 		ultimoTrasfAccumulo = false;
 	}
 }
@@ -245,7 +270,7 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		ui.pbRiscResistenze->setChecked(false);
 		ui.pbTrasfAccumulo->setChecked(false);
 	}
-	updateStatoRisc();
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -255,7 +280,7 @@ void ControlDlg::on_pbRiscCaldaia_toggled(bool checked)
 
 	lockMutex();
 	control().xUsaCaldaia = checked;
-	updateStatoRisc();
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -265,7 +290,7 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 
 	lockMutex();
 	control().xUsaPompaCalore = checked;
-	updateStatoRisc();
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -275,7 +300,7 @@ void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
 
 	lockMutex();
 	control().xUsaResistenze = checked;
-	updateStatoRisc();
+	updateBtnStatus();
 	unlockMutex();
 }
 
@@ -376,23 +401,7 @@ void ControlDlg::updateScreen()
 	sprintf(buf, "%.1f", control().wTemperaturaAccumulo/10.0);
 	ui.tlTempAccumulo->setText(buf);
 
-	if (control().xCaldaiaInUso) {
-		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
-	} else {
-		ui.pbApriCucina->setPalette(QApplication::palette());
-	}
-	if (control().xApriCucina) {
-		ui.pbApriCucina->setPalette(QPalette(QColor(64, 255, 64)));
-	} else {
-		ui.pbApriCucina->setPalette(QApplication::palette());
-	}
-	if (control().xChiudiCucina) {
-		ui.pbChiudiCucina->setPalette(QPalette(QColor(64, 255, 64)));
-	} else {
-		ui.pbChiudiCucina->setPalette(QApplication::palette());
-	}
-
-	updateStatoRisc();
+	updateBtnStatus();
 
 	unlockMutex();
 }
