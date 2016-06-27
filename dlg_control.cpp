@@ -28,6 +28,7 @@ ControlDlg::ControlDlg(QWidget *parent)
 	sprintf(buf, "%i%%", control().wVelFanCoil);
 	ui.tlVelFanCoil->setText(buf);
 
+	mDisabledColor = QColor(96, 96, 96);
 	mForcedNormColor = QColor(220, 220, 64);
 	mAutoNormColor = QColor(255, 255, 128);
 	mForcedRiscColor = QColor(255, 64, 64);
@@ -114,9 +115,12 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 	unlockMutex();
 }
 
-void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off)
+void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off, bool disable, QString disabled)
 {
-	if (pb->isChecked()) {
+	if (disable) {
+		if (!disabled.isEmpty()) pb->setText(disabled);
+		pb->setPalette(QPalette(mDisabledColor));
+	} else if (pb->isChecked()) {
 		if (!forced.isEmpty()) pb->setText(forced);
 		switch(mode) {
 			case bcNorm: pb->setPalette(QPalette(mForcedNormColor)); break;
@@ -138,9 +142,12 @@ void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QSt
 	}
 }
 
-void ControlDlg::setBtnStatus3Way(QPushButton *pb, bool stateRisc, bool stateCond, ButtonColor mode, QString forceRisc, QString forceCond, QString autoRisc, QString autoCond, QString off)
+void ControlDlg::setBtnStatus3Way(QPushButton *pb, bool stateRisc, bool stateCond, ButtonColor mode, QString forceRisc, QString forceCond, QString autoRisc, QString autoCond, QString off, bool disable, QString disabled)
 {
-	if (pb->isChecked()) {
+	if (disable) {
+		if (!disabled.isEmpty()) pb->setText(disabled);
+		pb->setPalette(QPalette(mDisabledColor));
+	} else if (pb->isChecked()) {
 		if (stateRisc) {
 			if (!forceRisc.isEmpty()) pb->setText(forceRisc);
 			switch(mode) {
@@ -187,6 +194,8 @@ void ControlDlg::updateBtnStatus()
 {
 	char buf1[256], buf2[256];
 
+	bool manuale = ui.pbRiscManuale->isChecked();
+
 	if (ui.pbModoRisc->isChecked()) {
 		mForcedColor = mForcedRiscColor;
 		mAutoColor = mAutoRiscColor;
@@ -208,26 +217,14 @@ void ControlDlg::updateBtnStatus()
 
 	setBtnStatus(ui.pbRiscManuale, false, bcNorm, "Manuale", "", "Automatico");
 
-	if (ui.pbRiscManuale->isChecked()) {
-		ui.pbRiscCaldaia->setEnabled(true);
-		ui.pbRiscPompaCalore->setEnabled(true);
-		ui.pbRiscResistenze->setEnabled(true);
-		ui.pbTrasfAccumulo->setEnabled(true);
-	} else {
-		ui.pbRiscCaldaia->setEnabled(false);
-		ui.pbRiscPompaCalore->setEnabled(false);
-		ui.pbRiscResistenze->setEnabled(false);
-		ui.pbTrasfAccumulo->setEnabled(false);
-	}
-
-	setBtnStatus(ui.pbRiscCaldaia, control().xCaldaiaInUso, bcRisc, "Caldaia\nON", "Caldaia\nauto ON", "Caldaia\nOFF");
-	setBtnStatus3Way(ui.pbRiscPompaCalore, control().xPompaCaloreRiscInUso, control().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF");
+	setBtnStatus(ui.pbRiscCaldaia, control().xCaldaiaInUso, bcRisc, "Caldaia\nON", "Caldaia\nauto ON", "Caldaia\nOFF", !manuale && control().xDisabilitaCaldaia, "BLOCCO\nCaldaia");
+	setBtnStatus3Way(ui.pbRiscPompaCalore, control().xPompaCaloreRiscInUso, control().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF", !manuale && control().xDisabilitaPompaCalore, "BLOCCO\nHPSU");
 
 	sprintf(buf1, "Resistenze\n%i W", control().wPotResistenze);
 	sprintf(buf2, "Resistenze\nauto %i W", control().wPotResistenze);
-	setBtnStatus(ui.pbRiscResistenze, control().xResistenzeInUso, bcRisc, buf1, buf2, "Resistenze\nOFF");
+	setBtnStatus(ui.pbRiscResistenze, control().xResistenzeInUso, bcRisc, buf1, buf2, "Resistenze\nOFF", !manuale && control().xDisabilitaResistenze, "BLOCCO\nResistenze");
 
-	setBtnStatus3Way(ui.pbTrasfAccumulo, control().xTrasfDaAccumuloInCorso, control().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF");
+	setBtnStatus3Way(ui.pbTrasfAccumulo, control().xTrasfDaAccumuloInCorso, control().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && control().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
 
 	static bool ultimoResistenzeInUso = false;
 	if (ui.pbRiscResistenze->isChecked() && ultimoResistenzeInUso && !control().xResistenzeInUso) {
@@ -265,10 +262,10 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		ui.pbTrasfAccumulo->setChecked(control().xTrasfDaAccumulo || control().xTrasfVersoAccumulo);
 	} else {
 		control().xSetManuale = false;
-		ui.pbRiscCaldaia->setChecked(false);
-		ui.pbRiscPompaCalore->setChecked(false);
-		ui.pbRiscResistenze->setChecked(false);
-		ui.pbTrasfAccumulo->setChecked(false);
+		ui.pbRiscCaldaia->setChecked(control().xDisabilitaCaldaia);
+		ui.pbRiscPompaCalore->setChecked(control().xDisabilitaPompaCalore);
+		ui.pbRiscResistenze->setChecked(control().xDisabilitaResistenze);
+		ui.pbTrasfAccumulo->setChecked(control().xDisabilitaAccumulo);
 	}
 	updateBtnStatus();
 	unlockMutex();
@@ -279,7 +276,11 @@ void ControlDlg::on_pbRiscCaldaia_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	control().xUsaCaldaia = checked;
+	if (ui.pbRiscManuale->isChecked()) {
+		control().xUsaCaldaia = checked;
+	} else {
+		control().xDisabilitaCaldaia = checked;
+	}
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -289,7 +290,11 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	control().xUsaPompaCalore = checked;
+	if (ui.pbRiscManuale->isChecked()) {
+		control().xUsaPompaCalore = checked;
+	} else {
+		control().xDisabilitaPompaCalore = checked;
+	}
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -299,7 +304,11 @@ void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	control().xUsaResistenze = checked;
+	if (ui.pbRiscManuale->isChecked()) {
+		control().xUsaResistenze = checked;
+	} else {
+		control().xDisabilitaResistenze = checked;
+	}
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -309,21 +318,25 @@ void ControlDlg::on_pbTrasfAccumulo_clicked()
 	resetCloseTimer();
 
 	lockMutex();
-	if (!control().xTrasfDaAccumulo && !control().xTrasfVersoAccumulo) {
-		// fermo->da
-		control().xTrasfDaAccumulo = true;
-		control().xTrasfVersoAccumulo = false;
-		ui.pbTrasfAccumulo->setChecked(true);
-	} else if (control().xTrasfDaAccumulo && !control().xTrasfVersoAccumulo) {
-		// da->verso
-		control().xTrasfDaAccumulo = false;
-		control().xTrasfVersoAccumulo = true;
-		ui.pbTrasfAccumulo->setChecked(true);
-	} else if (!control().xTrasfDaAccumulo && control().xTrasfVersoAccumulo) {
-		// verso->off
-		control().xTrasfDaAccumulo = false;
-		control().xTrasfVersoAccumulo = false;
-		ui.pbTrasfAccumulo->setChecked(false);
+	if (ui.pbRiscManuale->isChecked()) {
+		if (!control().xTrasfDaAccumulo && !control().xTrasfVersoAccumulo) {
+			// fermo->da
+			control().xTrasfDaAccumulo = true;
+			control().xTrasfVersoAccumulo = false;
+			ui.pbTrasfAccumulo->setChecked(true);
+		} else if (control().xTrasfDaAccumulo && !control().xTrasfVersoAccumulo) {
+			// da->verso
+			control().xTrasfDaAccumulo = false;
+			control().xTrasfVersoAccumulo = true;
+			ui.pbTrasfAccumulo->setChecked(true);
+		} else if (!control().xTrasfDaAccumulo && control().xTrasfVersoAccumulo) {
+			// verso->off
+			control().xTrasfDaAccumulo = false;
+			control().xTrasfVersoAccumulo = false;
+			ui.pbTrasfAccumulo->setChecked(false);
+		}
+	} else {
+		control().xDisabilitaAccumulo = ui.pbTrasfAccumulo->isChecked();
 	}
 	unlockMutex();
 }

@@ -208,8 +208,13 @@ void ControlThread::run()
 		HW.PompaCalore.xForzaRiscApri->setValue(zone_accese && !reset_man_finito);
 		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
 
+		if (xDisabilitaPompaCalore) {
+			// disabilita comando a pompa calore ma gestisci valvole
+			xAutoPompaCaloreRisc = xAutoPompaCaloreCond = false;
+		}
+
 		static DelayRiseTimer tNuovoLivelloRes;
-		if ((wTemperaturaACS > 800) || (wTemperaturaBoiler > 800) || (wPotConsumata < 100)) {
+		if (xDisabilitaResistenze || (wTemperaturaACS > 800) || (wTemperaturaBoiler > 800) || (wPotConsumata < 100)) {
 			// force off
 			setPowerLevel(0);
 			PowerLevel = 0;
@@ -264,7 +269,7 @@ void ControlThread::run()
 		else if (wTemperaturaBoiler > 600)
 			xCaricoAccumuloAttivo = true;
 
-		if (acs_attiva) {
+		if (acs_attiva && !xDisabilitaAccumulo) {
 			/* trasf Accumulo->HPSU (uso energia) */
 			if ((wTemperaturaAccumulo > 550) && (wTemperaturaAccumulo > wTemperaturaACS+100) && !xCaldaiaInUso) {
 				xAutoTrasfDaAccumulo = true;
@@ -278,7 +283,7 @@ void ControlThread::run()
 
 			/* reset condizione opposta */
 			xAutoTrasfVersoAccumulo = false;
-		} else if (xCaricoAccumuloAttivo) {
+		} else if (xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
 			if ((wTemperaturaACS > 500) && (wTemperaturaAccumulo < wTemperaturaACS-60) && !xCaldaiaInUso) {
 				xAutoTrasfVersoAccumulo = true;
@@ -318,7 +323,7 @@ void ControlThread::run()
 			xTrasfVersoAccumuloInCorso = false;
 		}
 
-		if (acs_attiva) {
+		if (acs_attiva && !xDisabilitaCaldaia) {
 			/* auto mode */
 			if (wTemperaturaACS < 500)
 				xAutoCaldaia = true;
