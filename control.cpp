@@ -51,7 +51,6 @@ void ControlThread::setPowerLevel(int level)
 	for (int i=0; i<5; ++i)
 		HW.PompaCalore.xConfigResistenze[i]->setValue(POWER_LEVEL[level].io_map[i]);
 
-	wPotResistenze = POWER_LEVEL[level].power;
 	xResistenzeInUso = (level > 0);
 }
 
@@ -77,6 +76,7 @@ void ControlThread::run()
 
 		static PowerCalc pcProdotta;
 		static PowerCalc pcConsumata;
+		static PowerCalc pcResistenze;
 
 		QTime rd_time = QTime::currentTime();
 		ReadHardwareInputs();
@@ -106,6 +106,8 @@ void ControlThread::run()
 			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
 			wPotConsumata = pcConsumata.getCurrentPower();
 			wEnergConsumata = pcConsumata.getCurrentEnergy();
+			pcResistenze.addSample(HW.Pannelli.wPotenzaResistenze->getValue());
+			wPotResistenze = pcResistenze.getCurrentPower25();
 			printf("\n");
 		}
 
@@ -123,7 +125,7 @@ void ControlThread::run()
 				xAutoPompaCaloreRisc = true;
 
 			if ((now.minute() % 3) == 0) {
-				int power_budget = pcProdotta.getCurrentPower25() + POWER_LEVEL[PowerLevel].power - pcConsumata.getCurrentPower25();
+				int power_budget = pcProdotta.getCurrentPower25() + pcResistenze.getCurrentPower25() - pcConsumata.getCurrentPower25();
 				int next_level;
 
 				// never allocate more power than currently produced
@@ -139,11 +141,11 @@ void ControlThread::run()
 					NextPowerLevel = next_level;
 					setPowerLevel(0);
 					printf("%4i +%4i[%i] -%4i = %4i => SWITCH TO %4i[%i]\n",
-						pcProdotta.getCurrentPower25(), POWER_LEVEL[PowerLevel].power, PowerLevel, pcConsumata.getCurrentPower25(),
+						pcProdotta.getCurrentPower25(), pcResistenze.getCurrentPower25(), pcConsumata.getCurrentPower25(),
 						power_budget, POWER_LEVEL[NextPowerLevel].power, NextPowerLevel);
 				} else {
 					printf("%4i +%4i[%i] -%4i = %4i => NO CHANGE\n",
-						pcProdotta.getCurrentPower25(), POWER_LEVEL[PowerLevel].power, PowerLevel, pcConsumata.getCurrentPower25(),
+						pcProdotta.getCurrentPower25(), pcResistenze.getCurrentPower25(), PowerLevel, pcConsumata.getCurrentPower25(),
 						power_budget);
 				}
 			}

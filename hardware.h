@@ -63,6 +63,7 @@ struct Hardware {
 	struct {
 		WordInput *wPotenzaProdotta;
 		WordInput *wPotenzaConsumata;
+		WordInput *wPotenzaResistenze;
 	} Pannelli;
 	struct {
 		// word inputs
