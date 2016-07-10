@@ -285,7 +285,7 @@ void ControlThread::run()
 			xAutoTrasfVersoAccumulo = false;
 		} else if (xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaACS > 500) && (wTemperaturaAccumulo < wTemperaturaACS-60) && !xCaldaiaInUso) {
+			if ((wTemperaturaACS > 500) && ((wTemperaturaAccumulo < wTemperaturaACS-60) || (wTemperaturaACS > 700)) && !xCaldaiaInUso) {
 				xAutoTrasfVersoAccumulo = true;
 			} else if (xCaldaiaInUso || (wTemperaturaACS < 400) || (wTemperaturaAccumulo > wTemperaturaACS-30)) {
 				xAutoTrasfVersoAccumulo = false;
