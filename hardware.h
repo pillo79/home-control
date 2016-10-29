@@ -21,6 +21,7 @@ struct Hardware {
 		BitOutput *xStartPompaSoffitta;
 		BitOutput *xStartFanCoilStanzaSoffitta;
 		BitOutput *xStartFanCoilBagnoSoffitta;
+		BitOutput *xStartPompaCircuito;
 		// inputs
 		BitInput *xValvolaAperta;
 	} Riscaldamento;

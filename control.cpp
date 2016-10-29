@@ -179,6 +179,7 @@ void ControlThread::run()
 
 		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
+
 		static DelayRiseTimer tStartPompe;
 		bool start_pompe = tStartPompe.update(DELAY_SEC(20), zone_accese);
 		HW.Riscaldamento.xStartPompaGiorno->setValue(start_pompe && xAttivaZonaGiorno);
@@ -186,6 +187,7 @@ void ControlThread::run()
 		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
+		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe || xAttivaFanCoil);
 
 		if (!xModoRiscaldamento && (zone_accese || xAttivaFanCoil)) {
 			// imposta e forza raffreddamento HP

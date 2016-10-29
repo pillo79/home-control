@@ -37,6 +37,7 @@ int InitHardware()
 	INIT(Riscaldamento.xStartPompaSoffitta,		BitOutput,	Seneca_16DI_8DO_1, 7);
 	INIT(Riscaldamento.xStartFanCoilStanzaSoffitta,	BitOutput,	Seneca_16DI_8DO_1, 8);
 	INIT(Riscaldamento.xStartFanCoilBagnoSoffitta,	BitOutput,	Seneca_10DO_2, 1);
+	INIT(Riscaldamento.xStartPompaCircuito,		BitOutput,	Seneca_24DO_6, 7);
 	// inputs
 	INIT(Riscaldamento.xValvolaAperta,		BitInput,	Seneca_16DI_8DO_1, 2);
 	// outputs
@@ -65,6 +66,7 @@ int InitHardware()
 	INIT(PompaCalore.xForza3VieChiudi,		BitOutput,	Seneca_24DO_6, 4);
 	INIT(PompaCalore.xForzaRiscApri,		BitOutput,	Seneca_24DO_6, 5);
 	INIT(PompaCalore.xForzaRiscFerma,		BitOutput,	Seneca_24DO_6, 6);
+
 	// word inputs
 	INIT(PompaCalore.wTemperaturaACS,		WordInput,	Seneca_4RTD_4, 3);
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
