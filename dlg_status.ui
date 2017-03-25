@@ -412,6 +412,22 @@
           </widget>
          </item>
          <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>5</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QLabel" name="tlData_15">
            <property name="font">
             <font>
@@ -419,8 +435,7 @@
             </font>
            </property>
            <property name="text">
-            <string>
-Consumo (W)</string>
+            <string>Consumo (W)</string>
            </property>
            <property name="scaledContents">
             <bool>false</bool>
