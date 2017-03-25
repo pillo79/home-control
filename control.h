@@ -70,6 +70,8 @@ class ControlThread : public QThread {
 		int wUmidEsterno;
 
 		uint32_t wCommErrorMask;
+		uint32_t wResetPLCs;
+		QDateTime dtLastResetPLC;
 };
 
 ControlThread &control();

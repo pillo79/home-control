@@ -95,6 +95,9 @@ void ControlThread::run()
 			pcProdotta.restart();
 			pcConsumata.restart();
 			pcResistenze.restart();
+
+			++wResetPLCs;
+			dtLastResetPLC = QDateTime::currentDateTime();
 		}
 		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
 		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);

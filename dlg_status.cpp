@@ -7,6 +7,8 @@
 #include <QtGui>
 #include <QApplication>
 
+const static QDateTime startup = QDateTime::currentDateTime();
+
 StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
     : QWidget(parent)
     , m_controlDlg(controlDlg)
@@ -164,4 +166,22 @@ void StatusDlg::updateScreen()
 		m_alarmDlg->show();
 	else
 		m_alarmDlg->hide();
+
+	QString status;
+
+	quint32 elapsed  = startup.secsTo(QDateTime::currentDateTime())/60;
+	quint32 up_mins  = elapsed % 60; elapsed /= 60;
+	quint32 up_hours = elapsed % 24; elapsed /= 24;
+	quint32 up_days  = elapsed;
+	status += QString("Attivo da %1g %2h %3m, %4 reset")
+					.arg(up_days)
+					.arg(up_hours)
+					.arg(up_mins)
+					.arg(control().wResetPLCs);
+	if (control().wResetPLCs) {
+		status += QString(", ultimo il %5 alle %6")
+					.arg(control().dtLastResetPLC.toString("d/MM"))
+					.arg(control().dtLastResetPLC.toString("h:mm"));
+	}
+	ui.tlSystemStatus->setText(status);
 }
