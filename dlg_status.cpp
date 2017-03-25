@@ -65,6 +65,20 @@ void StatusDlg::updateStatoRisc()
 */
 }
 
+static void setButtonActive(QPushButton *button, QString text, QColor color)
+{
+	QPalette palette = button->palette();
+	palette.setColor(button->backgroundRole(), color);
+	button->setPalette(palette);
+	button->setText(text);
+}
+
+static void setButtonInactive(QPushButton *button, QString text)
+{
+	button->setPalette(QApplication::palette());
+	button->setText(text);
+}
+
 static void setLabelActive(QLabel *label, QColor color)
 {
 	QPalette palette = label->palette();
@@ -160,6 +174,39 @@ void StatusDlg::updateScreen()
 		setLabelActive(ui.tlStatoRadiatori, QColor(255, 192, 64));
 	} else {
 		setLabelInactive(ui.tlStatoRadiatori);
+	}
+
+	QColor onColor;
+	QString onString;
+	if (control().xModoRiscaldamento) {
+		onColor = QColor(255, 64, 64);
+		onString = "caldo";
+		if (control().xAttivaZonaNotte)
+			setButtonActive(ui.pbSetNotte, onString, onColor);
+		else
+			setButtonInactive(ui.pbSetNotte, "spento");
+		if (control().xAttivaZonaGiorno)
+			setButtonActive(ui.pbSetGiorno, onString, onColor);
+		else
+			setButtonInactive(ui.pbSetGiorno, "spento");
+		if (control().xAttivaZonaSoffitta)
+			setButtonActive(ui.pbSetSoffitta, onString, onColor);
+		else
+			setButtonInactive(ui.pbSetSoffitta, "spento");
+	} else {
+		onColor = QColor(64, 192, 255);
+		onString = "freddo";
+		if (control().xPompaCaloreCondInUso && control().xAttivaFanCoil) {
+			setButtonActive(ui.pbSetNotte, onString, onColor);
+			setButtonActive(ui.pbSetGiorno, onString, onColor);
+		} else {
+			setButtonInactive(ui.pbSetNotte, "spento");
+			setButtonInactive(ui.pbSetGiorno, "spento");
+		}
+		if (control().xAttivaZonaSoffitta)
+			setButtonActive(ui.pbSetSoffitta, onString, onColor);
+		else
+			setButtonInactive(ui.pbSetSoffitta, "spento");
 	}
 
 	if ((control().wCommErrorMask != 0) && (QTime::currentTime().msec() < 500))
