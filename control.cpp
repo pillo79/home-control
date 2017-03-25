@@ -69,6 +69,8 @@ void ControlThread::run()
 	bool xAutoTrasfVersoAccumulo = false;
 	bool xCaricoAccumuloAttivo = false;
 
+	bool xRichiestaRestart = false;
+
 	int PowerLevel = 0;
 	int NextPowerLevel = -1;
 
@@ -86,6 +88,19 @@ void ControlThread::run()
 
 		wCommErrorMask = GetCommErrorMask();
 
+		// impulso reset PLC
+		static DelayRiseTimer tRichiestaRestart;
+		if (wCommErrorMask) {
+			xRichiestaRestart = true;
+			pcProdotta.restart();
+			pcConsumata.restart();
+			pcResistenze.restart();
+		}
+		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
+		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);
+		if (xRitardoRichiestaRestart && !wCommErrorMask)
+			xRichiestaRestart = false;
+
 		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
 		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue();
@@ -99,7 +114,7 @@ void ControlThread::run()
 		QTime now = QTime::currentTime();
 		int nowSecs = now.hour()*3600 + now.minute()*60 + now.second();
 
-		if ((nowSecs != lastSecs) && ((nowSecs % SAMPLE_PERIOD_SECS) == 0)) {
+		if ((nowSecs != lastSecs) && ((nowSecs % SAMPLE_PERIOD_SECS) == 0) && !xRichiestaRestart) {
 			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
 			wPotProdotta = pcProdotta.getCurrentPower();
 			wEnergProdotta = pcProdotta.getCurrentEnergy();

@@ -10,6 +10,7 @@ class PowerCalc {
 		~PowerCalc();
 
 		void addSample(int now);
+		void restart();
 		void resetTotals();
 
 		int getCurrentPower();

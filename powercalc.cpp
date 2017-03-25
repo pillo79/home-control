@@ -20,6 +20,11 @@ PowerCalc::~PowerCalc()
 	delete m_samples;
 }
 
+void PowerCalc::restart()
+{
+	m_initLast = true;
+}
+
 void PowerCalc::addSample(int now)
 {
 	if (m_initLast) {

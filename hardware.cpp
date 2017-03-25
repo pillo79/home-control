@@ -24,6 +24,7 @@ int InitHardware()
 	Burosoft_Temp_32 = new Burosoft_Temp(0x20);
 
 #define INIT(var, type, dev, num) HW. var = new type( #var, dev, num)
+	INIT(xResetPLC,					BitOutput,	Seneca_24DO_6, 8);
 	// outputs
 	INIT(Caldaia.xAlimenta,				BitOutput,	Seneca_16DI_8DO_1, 1);
 	INIT(Caldaia.xStartCaldaia,			BitOutput,	Seneca_16DI_8DO_1, 2);

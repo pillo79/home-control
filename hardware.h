@@ -5,6 +5,7 @@
 #include "modbusio.h"
 
 struct Hardware {
+	BitOutput *xResetPLC;
 	struct {
 		// outputs
 		BitOutput *xAlimenta;
