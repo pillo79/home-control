@@ -91,13 +91,14 @@ void ControlThread::run()
 		// impulso reset PLC
 		static DelayRiseTimer tRichiestaRestart;
 		if (wCommErrorMask) {
-			xRichiestaRestart = true;
 			pcProdotta.restart();
 			pcConsumata.restart();
 			pcResistenze.restart();
-
-			++wResetPLCs;
-			dtLastResetPLC = QDateTime::currentDateTime();
+			if (!xRichiestaRestart) {
+				xRichiestaRestart = true;
+				dtLastResetPLC = QDateTime::currentDateTime();
+				++wResetPLCs;
+			}
 		}
 		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
 		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);
