@@ -197,6 +197,7 @@ void ControlThread::run()
 		}
 
 		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
+		bool impianto_acceso = zone_accese || xAttivaFanCoil;
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
 		static DelayRiseTimer tStartPompe;
@@ -206,9 +207,9 @@ void ControlThread::run()
 		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
-		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe || xAttivaFanCoil);
+		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe);
 
-		if (!xModoRiscaldamento && (zone_accese || xAttivaFanCoil)) {
+		if (!xModoRiscaldamento && impianto_acceso) {
 			// imposta e forza raffreddamento HP
 			xAutoPompaCaloreRisc = false;
 			xAutoPompaCaloreCond = true;
@@ -220,14 +221,14 @@ void ControlThread::run()
 		// 3Vie (risc o acs) -> chiusa
 		// 3Vie (condiz) -> aperta
 		static DelayRiseTimer tResetManValvole;
-		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), zone_accese);
+		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), impianto_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
-		HW.PompaCalore.xForzaValvole->setValue(zone_accese);
-		HW.PompaCalore.xForza3VieApri->setValue(zone_accese && xAutoPompaCaloreCond);
-		HW.PompaCalore.xForza3VieChiudi->setValue(zone_accese && !xAutoPompaCaloreCond);
-		HW.PompaCalore.xForzaRiscApri->setValue(zone_accese && !reset_man_finito);
-		HW.PompaCalore.xForzaRiscFerma->setValue(set_pos_uv1_finito);
+		HW.PompaCalore.xForzaValvole->setValue(impianto_acceso);
+		HW.PompaCalore.xForza3VieApri->setValue(impianto_acceso && xAutoPompaCaloreCond);
+		HW.PompaCalore.xForza3VieChiudi->setValue(impianto_acceso && !xAutoPompaCaloreCond);
+		HW.PompaCalore.xForzaRiscApri->setValue(impianto_acceso && xModoRiscaldamento && !reset_man_finito);
+		HW.PompaCalore.xForzaRiscFerma->setValue(xModoRiscaldamento && set_pos_uv1_finito);
 
 		if (xDisabilitaPompaCalore) {
 			// disabilita comando a pompa calore ma gestisci valvole
