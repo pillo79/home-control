@@ -50,6 +50,8 @@ struct Hardware {
 		BitOutput *xForza3VieChiudi;
 		BitOutput *xForzaRiscApri;
 		BitOutput *xForzaRiscFerma;
+		// inputs
+		BitInput *xStatoPompaCalore;
 		// word inputs
 		WordInput *wTemperaturaACS;
 		WordInput *wTemperaturaBoiler;

@@ -51,6 +51,8 @@ int InitHardware()
 	// inputs
 	INIT(FanCoilCorridoio.xValvolaAperta,		BitInput,	Seneca_16DI_8DO_1, 3);
 	INIT(FanCoilCorridoio.wTemperaturaUscitaAria,	WordInput,	Seneca_4RTD_4, 1);
+	// inputs
+	INIT(PompaCalore.xStatoPompaCalore,		BitInput,	Seneca_16DI_8DO_1, 7);
 	// outputs
 	INIT(PompaCalore.xStopPompaCalore,		BitOutput,	Seneca_10DO_2, 10);
 	INIT(PompaCalore.xRichiestaCaldo,		BitOutput,	Seneca_10DO_2, 4);

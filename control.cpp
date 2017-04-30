@@ -220,6 +220,7 @@ void ControlThread::run()
 
 		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
 		bool impianto_acceso = zone_accese || xAttivaFanCoil;
+		bool risc_manuale_solo_hp = xSetManuale && xModoRiscaldamento && xUsaPompaCalore && !xUsaCaldaia;
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
 		static DelayRiseTimer tStartPompe;
@@ -240,17 +241,24 @@ void ControlThread::run()
 		}
 
 		// setup valvole pompa calore
-		// 3Vie (risc o acs) -> chiusa
-		// 3Vie (condiz) -> aperta
+		HW.PompaCalore.xForzaValvole->setValue(impianto_acceso);
+
+		// *** 3UVB (miscelatrice)
+		// 3Vie (risc o acs):	chiusa
+		// 3Vie (condiz):	aperta
+		HW.PompaCalore.xForza3VieApri->setValue(impianto_acceso && xAutoPompaCaloreCond);
+		HW.PompaCalore.xForza3VieChiudi->setValue(impianto_acceso && !xAutoPompaCaloreCond);
+
+		// *** 3UV1 (movimento lungo, quella che si ferma a 3/4)
+		// risc o ACS:			3/4 (non alimentata + burst)
+		// risc solo con pompa calore:	chiusa (non alimentata)
+		// condiz:			chiusa (non alimentata)
 		static DelayRiseTimer tResetManValvole;
 		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), impianto_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
-		HW.PompaCalore.xForzaValvole->setValue(impianto_acceso);
-		HW.PompaCalore.xForza3VieApri->setValue(impianto_acceso && xAutoPompaCaloreCond);
-		HW.PompaCalore.xForza3VieChiudi->setValue(impianto_acceso && !xAutoPompaCaloreCond);
-		HW.PompaCalore.xForzaRiscApri->setValue(impianto_acceso && xModoRiscaldamento && !reset_man_finito);
-		HW.PompaCalore.xForzaRiscFerma->setValue(xModoRiscaldamento && set_pos_uv1_finito);
+		HW.PompaCalore.xForzaRiscApri->setValue(impianto_acceso && xModoRiscaldamento && !reset_man_finito && !risc_manuale_solo_hp);
+		HW.PompaCalore.xForzaRiscFerma->setValue(xModoRiscaldamento && set_pos_uv1_finito && !risc_manuale_solo_hp);
 
 		if (xDisabilitaPompaCalore) {
 			// disabilita comando a pompa calore ma gestisci valvole
@@ -270,9 +278,24 @@ void ControlThread::run()
 			NextPowerLevel = -1;
 		}
 
+		xPompaCaloreAttiva = HW.PompaCalore.xStatoPompaCalore->getValue();
+
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xAttivaFanCoil);
 		static DelayRiseTimer tStartFanCoil;
-		HW.FanCoilCorridoio.xStartVentilatore->setValue(tStartFanCoil.update(DELAY_SEC(30), xAttivaFanCoil));
+		bool valvola_fancoil_chiusa = tStartFanCoil.update(DELAY_SEC(30), xAttivaFanCoil);
+
+		// filtro ventilatore per riscaldamento manuale solo HP
+		static bool ventilatore_in_funzione = false;
+		static DelayRiseTimer tStartVentilatore;
+		bool start_ventilatore = tStartVentilatore.update(DELAY_SEC(60), xPompaCaloreAttiva);
+		static DelayFallTimer tStopVentilatore;
+		bool stop_ventilatore = tStopVentilatore.update(DELAY_SEC(120), xPompaCaloreAttiva);
+		if (start_ventilatore || !risc_manuale_solo_hp)
+			ventilatore_in_funzione = true;
+		else if (!stop_ventilatore)
+			ventilatore_in_funzione = false;
+
+		HW.FanCoilCorridoio.xStartVentilatore->setValue(valvola_fancoil_chiusa && ventilatore_in_funzione);
 		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(wVelFanCoil*200);
 
 		bool muovi_serranda = xApriCucina || xChiudiCucina;
