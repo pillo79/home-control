@@ -19,6 +19,21 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
 	m_alarmDlg->move(width()-m_alarmDlg->width(), height()-m_alarmDlg->height());
 	m_alarmDlg->hide();
 
+	ui.tlPotProdotta->setValue(&control().wPotProdotta, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlPotConsumata->setValue(&control().wPotConsumata, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempAcquaTop->setValue(&control().wTemperaturaACS, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempAcquaBot->setValue(&control().wTemperaturaBoiler, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempPannelli->setValue(&control().wTemperaturaPannelli, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempAccumulo->setValue(&control().wTemperaturaAccumulo, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempGiorno->setValue(&control().wTempGiorno, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidGiorno->setValue(&control().wUmidGiorno, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempNotte->setValue(&control().wTempNotte, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidNotte->setValue(&control().wUmidNotte, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempSoffitta->setValue(&control().wTempSoffitta, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidSoffitta->setValue(&control().wUmidSoffitta, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempEsterno->setValue(&control().wTempEsterno, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidEsterno->setValue(&control().wUmidEsterno, "", QColor(64,192,255), QColor(255,192,64));
+
 	Qt::WindowFlags flags = windowFlags();
 	flags |= Qt::FramelessWindowHint;
 	setWindowFlags(flags);

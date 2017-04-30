@@ -8,7 +8,7 @@
 #include <QTime>
 #include <stdio.h>
 
-#define MAX_PTS 100
+#define MAX_PTS 480 // 60*24/3 (1 day in steps of 3 minutes)
 
 struct TargetPower {
 	 int power;
@@ -189,6 +189,28 @@ void ControlThread::run()
 						pcProdotta.getCurrentPower25(), pcResistenze.getCurrentPower25(), PowerLevel, pcConsumata.getCurrentPower25(),
 						power_budget);
 				}
+
+				// store and advance all tracked values
+				wTemperaturaACS.step();
+				wTemperaturaBoiler.step();
+				wTemperaturaAccumulo.step();
+				wTemperaturaPannelli.step();
+
+				wPotProdotta.step();
+				wPotConsumata.step();
+				wPotResistenze.step();
+				wEnergProdotta.step();
+				wEnergConsumata.step();
+				wEnergPassivo.step();
+
+				wTempGiorno.step();
+				wUmidGiorno.step();
+				wTempNotte.step();
+				wUmidNotte.step();
+				wTempSoffitta.step();
+				wUmidSoffitta.step();
+				wTempEsterno.step();
+				wUmidEsterno.step();
 			}
 		}
 

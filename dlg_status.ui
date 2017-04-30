@@ -85,7 +85,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="tlTempAcquaTop">
+          <widget class="TrendLabel" name="tlTempAcquaTop">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -127,7 +127,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="tlTempAcquaBot">
+          <widget class="TrendLabel" name="tlTempAcquaBot">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -193,7 +193,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlTempPannelli">
+            <widget class="TrendLabel" name="tlTempPannelli">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -254,7 +254,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlTempAccumulo">
+            <widget class="TrendLabel" name="tlTempAccumulo">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -292,7 +292,7 @@
      <x>4</x>
      <y>4</y>
      <width>791</width>
-     <height>241</height>
+     <height>247</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
@@ -350,7 +350,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="tlPotProdotta">
+          <widget class="TrendLabel" name="tlPotProdotta">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -446,7 +446,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="tlPotConsumata">
+          <widget class="TrendLabel" name="tlPotConsumata">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -556,7 +556,7 @@ background-repeat: no-repeat;
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlTempGiorno">
+            <widget class="TrendLabel" name="tlTempGiorno">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -602,7 +602,7 @@ Umidità (%)</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlUmidGiorno">
+            <widget class="TrendLabel" name="tlUmidGiorno">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -682,7 +682,7 @@ background-repeat: no-repeat;
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlTempNotte">
+            <widget class="TrendLabel" name="tlTempNotte">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -728,7 +728,7 @@ Umidità (%)</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlUmidNotte">
+            <widget class="TrendLabel" name="tlUmidNotte">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -808,7 +808,7 @@ background-repeat: no-repeat;
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlTempSoffitta">
+            <widget class="TrendLabel" name="tlTempSoffitta">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -851,7 +851,7 @@ Umidità (%)</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlUmidSoffitta">
+            <widget class="TrendLabel" name="tlUmidSoffitta">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -928,9 +928,9 @@ background-repeat: no-repeat;
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlTempEsterno">
+            <widget class="TrendLabel" name="tlTempEsterno">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -974,7 +974,7 @@ Umidità (%)</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="tlUmidEsterno">
+            <widget class="TrendLabel" name="tlUmidEsterno">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -1337,6 +1337,13 @@ p, li { white-space: pre-wrap; }
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TrendLabel</class>
+   <extends>QLabel</extends>
+   <header>trendlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="control.qrc"/>
  </resources>
