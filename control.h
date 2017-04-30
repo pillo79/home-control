@@ -5,6 +5,8 @@
 #include <QMutex>
 #include <QTime>
 
+#include "trendvalue.h"
+
 class ControlThread : public QThread {
 	private:
 		void setPowerLevel(int level);
@@ -47,27 +49,27 @@ class ControlThread : public QThread {
 		bool xTrasfDaAccumuloInCorso;
 		bool xTrasfVersoAccumuloInCorso;
 
-		int wTemperaturaACS;
-		int wTemperaturaBoiler;
-		int wTemperaturaAccumulo;
-		int wTemperaturaPannelli;
+		TrendValue wTemperaturaACS;
+		TrendValue wTemperaturaBoiler;
+		TrendValue wTemperaturaAccumulo;
+		TrendValue wTemperaturaPannelli;
 
-		int wPotProdotta;
-		int wPotConsumata;
-		int wPotResistenze;
-		int wEnergProdotta;
-		int wEnergConsumata;
+		TrendValue wPotProdotta;
+		TrendValue wPotConsumata;
+		TrendValue wPotResistenze;
+		TrendValue wEnergProdotta;
+		TrendValue wEnergConsumata;
 		QTime tTempoAttivo;
-		int wEnergPassivo;
+		TrendValue wEnergPassivo;
 
-		int wTempGiorno;
-		int wUmidGiorno;
-		int wTempNotte;
-		int wUmidNotte;
-		int wTempSoffitta;
-		int wUmidSoffitta;
-		int wTempEsterno;
-		int wUmidEsterno;
+		TrendValue wTempGiorno;
+		TrendValue wUmidGiorno;
+		TrendValue wTempNotte;
+		TrendValue wUmidNotte;
+		TrendValue wTempSoffitta;
+		TrendValue wUmidSoffitta;
+		TrendValue wTempEsterno;
+		TrendValue wUmidEsterno;
 
 		uint32_t wCommErrorMask;
 		uint32_t wResetPLCs;

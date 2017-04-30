@@ -220,8 +220,8 @@ void ControlDlg::updateBtnStatus()
 	setBtnStatus(ui.pbRiscCaldaia, control().xCaldaiaInUso, bcRisc, "Caldaia\nON", "Caldaia\nauto ON", "Caldaia\nOFF", !manuale && control().xDisabilitaCaldaia, "BLOCCO\nCaldaia");
 	setBtnStatus3Way(ui.pbRiscPompaCalore, control().xPompaCaloreRiscInUso, control().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF", !manuale && control().xDisabilitaPompaCalore, "BLOCCO\nHPSU");
 
-	sprintf(buf1, "Resistenze\n%i W", control().wPotResistenze);
-	sprintf(buf2, "Resistenze\nauto %i W", control().wPotResistenze);
+	sprintf(buf1, "Resistenze\n%.0f W", control().wPotResistenze.value());
+	sprintf(buf2, "Resistenze\nauto %.0f W", control().wPotResistenze.value());
 	setBtnStatus(ui.pbRiscResistenze, control().xResistenzeInUso, bcRisc, buf1, buf2, "Resistenze\nOFF", !manuale && control().xDisabilitaResistenze, "BLOCCO\nResistenze");
 
 	setBtnStatus3Way(ui.pbTrasfAccumulo, control().xTrasfDaAccumuloInCorso, control().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && control().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
@@ -407,11 +407,11 @@ void ControlDlg::updateScreen()
 	char buf[256];
 
 	lockMutex();
-	sprintf(buf, "%.1f", control().wTemperaturaACS/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaACS.value());
 	ui.tlTempAcquaTop->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaBoiler/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaBoiler.value());
 	ui.tlTempAcquaBot->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaAccumulo/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaAccumulo.value());
 	ui.tlTempAccumulo->setText(buf);
 
 	updateBtnStatus();

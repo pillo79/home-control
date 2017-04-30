@@ -103,31 +103,31 @@ void StatusDlg::updateScreen()
 	ui.tlOra->setText(QTime::currentTime().toString("h:mm"));
 
 	QMutexLocker lock(&control().mFields);
-	sprintf(buf, "%.1f", control().wTemperaturaACS/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaACS.value());
 	ui.tlTempAcquaTop->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaBoiler/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaBoiler.value());
 	ui.tlTempAcquaBot->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaAccumulo/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaAccumulo.value());
 	ui.tlTempAccumulo->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaPannelli/10.0);
+	sprintf(buf, "%.1f", control().wTemperaturaPannelli.value());
 	ui.tlTempPannelli->setText(buf);
 
-	sprintf(buf, "%.1f", control().wTempSoffitta/10.0);
+	sprintf(buf, "%.1f", control().wTempSoffitta.value());
 	ui.tlTempSoffitta->setText(buf);
-	sprintf(buf, "%.1f", control().wUmidSoffitta/10.0);
+	sprintf(buf, "%.1f", control().wUmidSoffitta.value());
 	ui.tlUmidSoffitta->setText(buf);
 
-	sprintf(buf, "%.1f", control().wTempEsterno/10.0);
+	sprintf(buf, "%.1f", control().wTempEsterno.value());
 	ui.tlTempEsterno->setText(buf);
 
-	sprintf(buf, "%i", control().wPotProdotta);
+	sprintf(buf, "%.0f", control().wPotProdotta.value());
 	ui.tlPotProdotta->setText(buf);
-	sprintf(buf, "%i", control().wPotConsumata);
+	sprintf(buf, "%.0f", control().wPotConsumata.value());
 	ui.tlPotConsumata->setText(buf);
 
-	sprintf(buf, "%.3f kWh oggi", control().wEnergProdotta/1000.0);
+	sprintf(buf, "%.3f kWh oggi", control().wEnergProdotta.value());
 	ui.tlEnergiaProdotta->setText(buf);
-	sprintf(buf, "%.3f kWh oggi", control().wEnergConsumata/1000.0);
+	sprintf(buf, "%.3f kWh oggi", control().wEnergConsumata.value());
 	ui.tlEnergiaConsumata->setText(buf);
 	if (control().tTempoAttivo.hour()) {
 		sprintf(buf, "%ih%02i in attivo", control().tTempoAttivo.hour(), control().tTempoAttivo.minute());
@@ -136,7 +136,7 @@ void StatusDlg::updateScreen()
 		sprintf(buf, "%imin in attivo", control().tTempoAttivo.minute());
 		ui.tlBilAttivo->setText(buf);
 	}
-	sprintf(buf, "%.3f effettivi", control().wEnergPassivo/1000.0);
+	sprintf(buf, "%.3f effettivi", control().wEnergPassivo.value());
 	ui.tlEnergPassivo->setText(buf);
 
 	if (control().xCaldaiaInUso) {

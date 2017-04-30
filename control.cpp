@@ -8,6 +8,8 @@
 #include <QTime>
 #include <stdio.h>
 
+#define MAX_PTS 100
+
 struct TargetPower {
 	 int power;
 	 int min_budget;
@@ -27,6 +29,26 @@ const TargetPower POWER_LEVEL[] = {
 const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
 
 ControlThread::ControlThread()
+	:  wTemperaturaACS	("°C", MAX_PTS)
+	,  wTemperaturaBoiler	("°C", MAX_PTS)
+	,  wTemperaturaAccumulo	("°C", MAX_PTS)
+	,  wTemperaturaPannelli	("°C", MAX_PTS)
+
+	,  wPotProdotta		("W", MAX_PTS)
+	,  wPotConsumata	("W", MAX_PTS)
+	,  wPotResistenze	("W", MAX_PTS)
+	,  wEnergProdotta	("kWh", MAX_PTS)
+	,  wEnergConsumata	("kWh", MAX_PTS)
+	,  wEnergPassivo	("kWh", MAX_PTS)
+
+	,  wTempGiorno		("°C", MAX_PTS)
+	,  wUmidGiorno		("%", MAX_PTS)
+	,  wTempNotte		("°C", MAX_PTS)
+	,  wUmidNotte		("%", MAX_PTS)
+	,  wTempSoffitta	("°C", MAX_PTS)
+	,  wUmidSoffitta	("%", MAX_PTS)
+	,  wTempEsterno		("°C", MAX_PTS)
+	,  wUmidEsterno		("%", MAX_PTS)
 {
 	wVelFanCoil = 20;
 	xModoRiscaldamento = true;
@@ -105,14 +127,14 @@ void ControlThread::run()
 		if (xRitardoRichiestaRestart && !wCommErrorMask)
 			xRichiestaRestart = false;
 
-		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue();
-		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue();
-		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue();
-		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue();
+		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue() / 10.0;
+		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue() / 10.0;
+		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue() / 10.0;
+		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
 
-		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue();
-		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue();
-		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue();
+		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue() / 10.0;
+		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue() / 10.0;
+		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
 		Timer::tick();
 		QTime now = QTime::currentTime();
@@ -121,10 +143,10 @@ void ControlThread::run()
 		if ((nowSecs != lastSecs) && ((nowSecs % SAMPLE_PERIOD_SECS) == 0) && !xRichiestaRestart) {
 			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
 			wPotProdotta = pcProdotta.getCurrentPower();
-			wEnergProdotta = pcProdotta.getCurrentEnergy();
+			wEnergProdotta = pcProdotta.getCurrentEnergy() / 1000.0;
 			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
 			wPotConsumata = pcConsumata.getCurrentPower();
-			wEnergConsumata = pcConsumata.getCurrentEnergy();
+			wEnergConsumata = pcConsumata.getCurrentEnergy() / 1000.0;
 			pcResistenze.addSample(HW.Pannelli.wPotenzaResistenze->getValue());
 			wPotResistenze = pcResistenze.getCurrentPower25();
 			printf("\n");
@@ -136,9 +158,9 @@ void ControlThread::run()
 			if (prod > cons)
 				tTempoAttivo = tTempoAttivo.addSecs(60);
 			else
-				wEnergPassivo += cons-prod;
+				wEnergPassivo = wEnergPassivo + (cons-prod) / 1000.0;
 
-			if ((wPotProdotta < 1500) || (wPotConsumata > wPotProdotta) || (wTemperaturaBoiler > 500))
+			if ((wPotProdotta < 1500) || (wPotConsumata > wPotProdotta) || (wTemperaturaBoiler > 50))
 				xAutoPompaCaloreRisc = false;
 			else if (wPotProdotta > 2500)
 				xAutoPompaCaloreRisc = true;
@@ -177,7 +199,7 @@ void ControlThread::run()
 				pcProdotta.resetTotals();
 				pcConsumata.resetTotals();
 				tTempoAttivo.setHMS(0,0,0);
-				wEnergPassivo = 0;
+				wEnergPassivo = 0.0;
 				xCaricoAccumuloAttivo = false;
 				break;
 			case 6:
@@ -236,7 +258,7 @@ void ControlThread::run()
 		}
 
 		static DelayRiseTimer tNuovoLivelloRes;
-		if (xDisabilitaResistenze || (wTemperaturaACS > 800) || (wTemperaturaBoiler > 800) || (wPotConsumata < 100)) {
+		if (xDisabilitaResistenze || (wTemperaturaACS > 80) || (wTemperaturaBoiler > 80) || (wPotConsumata < 0.1)) {
 			// force off
 			setPowerLevel(0);
 			PowerLevel = 0;
@@ -275,7 +297,7 @@ void ControlThread::run()
 		HW.PompaCalore.xRichiestaFreddo->setValue(xPompaCaloreCondInUso);
 
 		bool acs_attiva = false;
-		if (!xPompaCaloreRiscInUso && (wTemperaturaACS < 550)) {
+		if (!xPompaCaloreRiscInUso && (wTemperaturaACS < 55)) {
 			/* caldaia auto */
 			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
@@ -288,14 +310,14 @@ void ControlThread::run()
 		// disabilitato ogni giorno alle 18
 		if ((now<QTime(10,0)) || (now>QTime(18,0)))
 			xCaricoAccumuloAttivo = false;
-		else if (wTemperaturaBoiler > 600)
+		else if (wTemperaturaBoiler > 60)
 			xCaricoAccumuloAttivo = true;
 
 		if (acs_attiva && !xDisabilitaAccumulo) {
 			/* trasf Accumulo->HPSU (uso energia) */
-			if ((wTemperaturaAccumulo > 550) && (wTemperaturaAccumulo > wTemperaturaACS+100) && !xCaldaiaInUso) {
+			if ((wTemperaturaAccumulo > 55) && (wTemperaturaAccumulo > wTemperaturaACS+10.0) && !xCaldaiaInUso) {
 				xAutoTrasfDaAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 500) || (wTemperaturaAccumulo < wTemperaturaACS+50)) {
+			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 50) || (wTemperaturaAccumulo < wTemperaturaACS+5)) {
 				xAutoTrasfDaAccumulo = false;
 			}
 
@@ -307,9 +329,9 @@ void ControlThread::run()
 			xAutoTrasfVersoAccumulo = false;
 		} else if (xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaACS > 500) && ((wTemperaturaAccumulo < wTemperaturaACS-60) || (wTemperaturaACS > 700)) && !xCaldaiaInUso) {
+			if ((wTemperaturaACS > 50) && ((wTemperaturaAccumulo < wTemperaturaACS-6) || (wTemperaturaACS > 70)) && !xCaldaiaInUso) {
 				xAutoTrasfVersoAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaACS < 400) || (wTemperaturaAccumulo > wTemperaturaACS-30)) {
+			} else if (xCaldaiaInUso || (wTemperaturaACS < 40) || (wTemperaturaAccumulo > wTemperaturaACS-3)) {
 				xAutoTrasfVersoAccumulo = false;
 			}
 
@@ -347,9 +369,9 @@ void ControlThread::run()
 
 		if (acs_attiva && !xDisabilitaCaldaia) {
 			/* auto mode */
-			if (wTemperaturaACS < 500)
+			if (wTemperaturaACS < 50)
 				xAutoCaldaia = true;
-			else if (wTemperaturaACS > 550)
+			else if (wTemperaturaACS > 55)
 				xAutoCaldaia = false;
 		} else {
 			xAutoCaldaia = false;
