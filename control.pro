@@ -11,6 +11,9 @@ HEADERS += hardware.h modbusdevice.h modbusio.h plc_lib.h powercalc.h control.h
 SOURCES += main.cpp plc_lib.cpp hardware.cpp modbusdevice.cpp modbusio.cpp powercalc.cpp control.cpp
 LIBS += -L../libmodbus/src -lmodbus
 
+HEADERS += trendvalue.h
+SOURCES += trendvalue.cpp
+
 HEADERS += dlg_control.h
 SOURCES += dlg_control.cpp
 FORMS += dlg_control.ui
