@@ -29,26 +29,26 @@ const TargetPower POWER_LEVEL[] = {
 const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
 
 ControlThread::ControlThread()
-	:  wTemperaturaACS	("°C", MAX_PTS)
-	,  wTemperaturaBoiler	("°C", MAX_PTS)
-	,  wTemperaturaAccumulo	("°C", MAX_PTS)
-	,  wTemperaturaPannelli	("°C", MAX_PTS)
+	:  wTemperaturaACS	("°C",	"%.1f", MAX_PTS)
+	,  wTemperaturaBoiler	("°C",	"%.1f", MAX_PTS)
+	,  wTemperaturaAccumulo	("°C",	"%.1f", MAX_PTS)
+	,  wTemperaturaPannelli	("°C",	"%.1f", MAX_PTS)
 
-	,  wPotProdotta		("W", MAX_PTS)
-	,  wPotConsumata	("W", MAX_PTS)
-	,  wPotResistenze	("W", MAX_PTS)
-	,  wEnergProdotta	("kWh", MAX_PTS)
-	,  wEnergConsumata	("kWh", MAX_PTS)
-	,  wEnergPassivo	("kWh", MAX_PTS)
+	,  wPotProdotta		("W",	"%.0f", MAX_PTS)
+	,  wPotConsumata	("W",	"%.0f", MAX_PTS)
+	,  wPotResistenze	("W",	"%.0f", MAX_PTS)
+	,  wEnergProdotta	("kWh",	"%.3f", MAX_PTS)
+	,  wEnergConsumata	("kWh",	"%.3f", MAX_PTS)
+	,  wEnergPassivo	("kWh",	"%.3f", MAX_PTS)
 
-	,  wTempGiorno		("°C", MAX_PTS)
-	,  wUmidGiorno		("%", MAX_PTS)
-	,  wTempNotte		("°C", MAX_PTS)
-	,  wUmidNotte		("%", MAX_PTS)
-	,  wTempSoffitta	("°C", MAX_PTS)
-	,  wUmidSoffitta	("%", MAX_PTS)
-	,  wTempEsterno		("°C", MAX_PTS)
-	,  wUmidEsterno		("%", MAX_PTS)
+	,  wTempGiorno		("°C",	"%.1f", MAX_PTS)
+	,  wUmidGiorno		("%",	"%.1f", MAX_PTS)
+	,  wTempNotte		("°C",	"%.1f", MAX_PTS)
+	,  wUmidNotte		("%",	"%.1f", MAX_PTS)
+	,  wTempSoffitta	("°C",	"%.1f", MAX_PTS)
+	,  wUmidSoffitta	("%",	"%.1f", MAX_PTS)
+	,  wTempEsterno		("°C",	"%.1f", MAX_PTS)
+	,  wUmidEsterno		("%",	"%.1f", MAX_PTS)
 {
 	wVelFanCoil = 20;
 	xModoRiscaldamento = true;
@@ -212,7 +212,7 @@ void ControlThread::run()
 				wUmidSoffitta.step(timecode);
 				wTempEsterno.step(timecode);
 				wUmidEsterno.step(timecode);
-			}
+		}
 		}
 
 		if (now.hour() != lastTime.hour()) {

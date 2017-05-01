@@ -19,20 +19,20 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
 	m_alarmDlg->move(width()-m_alarmDlg->width(), height()-m_alarmDlg->height());
 	m_alarmDlg->hide();
 
-	ui.tlPotProdotta->setValue(&control().wPotProdotta, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlPotConsumata->setValue(&control().wPotConsumata, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempAcquaTop->setValue(&control().wTemperaturaACS, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempAcquaBot->setValue(&control().wTemperaturaBoiler, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempPannelli->setValue(&control().wTemperaturaPannelli, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempAccumulo->setValue(&control().wTemperaturaAccumulo, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempGiorno->setValue(&control().wTempGiorno, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlUmidGiorno->setValue(&control().wUmidGiorno, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempNotte->setValue(&control().wTempNotte, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlUmidNotte->setValue(&control().wUmidNotte, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempSoffitta->setValue(&control().wTempSoffitta, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlUmidSoffitta->setValue(&control().wUmidSoffitta, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlTempEsterno->setValue(&control().wTempEsterno, "", QColor(64,192,255), QColor(255,192,64));
-	ui.tlUmidEsterno->setValue(&control().wUmidEsterno, "", QColor(64,192,255), QColor(255,192,64));
+	ui.tlPotProdotta->setValue(&control().wPotProdotta,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlPotConsumata->setValue(&control().wPotConsumata,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempAcquaTop->setValue(&control().wTemperaturaACS,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempAcquaBot->setValue(&control().wTemperaturaBoiler,	QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempPannelli->setValue(&control().wTemperaturaPannelli,	QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempAccumulo->setValue(&control().wTemperaturaAccumulo,	QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempGiorno->setValue(&control().wTempGiorno,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidGiorno->setValue(&control().wUmidGiorno,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempNotte->setValue(&control().wTempNotte,			QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidNotte->setValue(&control().wUmidNotte,			QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempSoffitta->setValue(&control().wTempSoffitta,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidSoffitta->setValue(&control().wUmidSoffitta,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempEsterno->setValue(&control().wTempEsterno,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlUmidEsterno->setValue(&control().wUmidEsterno,		QColor(64,192,255), QColor(255,192,64));
 
 	Qt::WindowFlags flags = windowFlags();
 	flags |= Qt::FramelessWindowHint;
@@ -118,27 +118,19 @@ void StatusDlg::updateScreen()
 	ui.tlOra->setText(QTime::currentTime().toString("h:mm"));
 
 	QMutexLocker lock(&control().mFields);
-	sprintf(buf, "%.1f", control().wTemperaturaACS.value());
-	ui.tlTempAcquaTop->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaBoiler.value());
-	ui.tlTempAcquaBot->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaAccumulo.value());
-	ui.tlTempAccumulo->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaPannelli.value());
-	ui.tlTempPannelli->setText(buf);
 
-	sprintf(buf, "%.1f", control().wTempSoffitta.value());
-	ui.tlTempSoffitta->setText(buf);
-	sprintf(buf, "%.1f", control().wUmidSoffitta.value());
-	ui.tlUmidSoffitta->setText(buf);
+	ui.tlTempAcquaTop->setText(control().wTemperaturaACS.format());
+	ui.tlTempAcquaBot->setText(control().wTemperaturaBoiler.format());
+	ui.tlTempAccumulo->setText(control().wTemperaturaAccumulo.format());
+	ui.tlTempPannelli->setText(control().wTemperaturaPannelli.format());
 
-	sprintf(buf, "%.1f", control().wTempEsterno.value());
-	ui.tlTempEsterno->setText(buf);
+	ui.tlTempSoffitta->setText(control().wTempSoffitta.format());
+	ui.tlUmidSoffitta->setText(control().wUmidSoffitta.format());
 
-	sprintf(buf, "%.0f", control().wPotProdotta.value());
-	ui.tlPotProdotta->setText(buf);
-	sprintf(buf, "%.0f", control().wPotConsumata.value());
-	ui.tlPotConsumata->setText(buf);
+	ui.tlTempEsterno->setText(control().wTempEsterno.format());
+
+	ui.tlPotProdotta->setText(control().wPotProdotta.format());
+	ui.tlPotConsumata->setText(control().wPotConsumata.format());
 
 	sprintf(buf, "%.3f kWh oggi", control().wEnergProdotta.value());
 	ui.tlEnergiaProdotta->setText(buf);

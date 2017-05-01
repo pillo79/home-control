@@ -1,7 +1,8 @@
 #include "trendvalue.h"
 
-TrendValue::TrendValue(const QString &unit, int maxPoints)
+TrendValue::TrendValue(const QString &unit, const QString &fmt, int maxPoints)
 	: m_unit	(unit)
+	, m_fmt		(fmt)
 	, m_maxPoints	(maxPoints)
 {
 
@@ -31,6 +32,7 @@ void TrendValue::step(int timecode)
 		newPt.mean = mean / m_samples.length();
 	}
 	newPt.timecode = timecode;
+
 	m_dataPts.enqueue(newPt);
 	if (m_dataPts.length() > m_maxPoints)
 		m_dataPts.dequeue();

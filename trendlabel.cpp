@@ -1,20 +1,27 @@
 #include "trendlabel.h"
 
 #include <QPainter>
+#include <cmath>
 
 TrendLabel::TrendLabel(QWidget *parent)
 	: QLabel	(parent)
 	, m_value	(NULL)
+	, m_yGridStep	(0.0)
 {
 
 }
 
-void TrendLabel::setValue(TrendValue *value, const QString &fmt, QColor cold, QColor warm)
+void TrendLabel::setValue(TrendValue *value, QColor cold, QColor warm)
 {
-	m_fmt = fmt;
 	m_value = value;
 	m_cold = cold;
 	m_warm = warm;
+	update();
+}
+
+void TrendLabel::setYGrid(double step)
+{
+	m_yGridStep = step;
 	update();
 }
 
@@ -51,33 +58,73 @@ void TrendLabel::paintEvent(QPaintEvent *event)
 	}
 
 	const QQueue<DataPt> &pts = m_value->dataPts();
-	const QRect geo = geometry();
 
 	QPainter p;
 	p.begin(this);
 
 	int imin, xmin;
-	if (geo.width() > pts.length()) {
+	if (width() > pts.length()) {
 		imin = 0;
-		xmin = geo.width()-pts.length();
+		xmin = width()-pts.length();
 	} else {
-		imin = pts.length()-geo.width();
+		imin = pts.length()-width();
 		xmin = 0;
 	}
 
-	for (int x=xmin, i=imin; x<geo.width(); ++x, ++i) {
-		const DataPt &pt = pts[i];
-		int y_top = scaleY(pt.min, m_value->dataMin(), m_value->dataMax(), geo.height());
-		int y_mean = scaleY(pt.mean, m_value->dataMin(), m_value->dataMax(), geo.height());
-		int y_bot = scaleY(pt.max, m_value->dataMin(), m_value->dataMax(), geo.height());
-
-		// draw x axis step
-		if (!(pt.timecode % 60)) {
-			p.setPen(QColor(0,0,0));
-			p.drawLine(x, height()-5, x, height());
+	if (m_yGridStep) {
+		p.setPen(QColor(96, 96, 96));
+		double y = m_value->dataMin();
+		modf(y/m_yGridStep, &y);
+		y *= m_yGridStep;
+		while (y<m_value->dataMax()) {
+			int y_grid = scaleY(y, m_value->dataMin(), m_value->dataMax(), height());
+			p.drawLine(0, y_grid, width(), y_grid);
+			y += m_yGridStep/2;
+			int y_tick = scaleY(y, m_value->dataMin(), m_value->dataMax(), height());
+			p.drawLine(0, y_tick, 5, y_tick);
+			p.drawLine(width()-5, y_tick, width(), y_tick);
+			y += m_yGridStep/2;
 		}
+	}
 
-		// draw graph
+	// evaluate limits
+	QFont tinyFont = p.font();
+	tinyFont.setPixelSize(10);
+	p.setFont(tinyFont);
+
+	QString yMaxStr = m_value->format(m_value->dataMax());
+	QString yMinStr = m_value->format(m_value->dataMin());
+
+	int yLabelWidth = 0;
+	QSize sz;
+	QFontMetrics fm = p.fontMetrics();
+	sz = fm.size(0, yMaxStr); if (sz.width() > yLabelWidth) yLabelWidth = sz.width();
+	sz = fm.size(0, yMinStr); if (sz.width() > yLabelWidth) yLabelWidth = sz.width();
+	++yLabelWidth;
+
+	// draw y axis limits
+	p.setPen(QColor(96, 96, 96));
+	p.drawText(width()-yLabelWidth, 0, yLabelWidth, 15, Qt::AlignRight | Qt::AlignTop, yMaxStr);
+	p.drawText(width()-yLabelWidth, height()-16, yLabelWidth, 15, Qt::AlignRight | Qt::AlignBottom, yMinStr);
+
+	// draw x axis labels up to a certain point
+	for (int x=xmin, i=imin; x<width(); ++x, ++i) {
+		const DataPt &pt = pts[i];
+		if (!(pt.timecode % 60)) {
+			QString str = QString::number(pt.timecode/60);
+			sz = fm.size(0, str);
+			if (x+sz.width()/2 < width()-yLabelWidth)
+				p.drawText(x-16, height()-16, 30, 15, Qt::AlignHCenter | Qt::AlignBottom, str);
+		}
+	}
+
+	// draw graph
+	for (int x=xmin, i=imin; x<width(); ++x, ++i) {
+		const DataPt &pt = pts[i];
+		int y_top = scaleY(pt.min, m_value->dataMin(), m_value->dataMax(), height());
+		int y_mean = scaleY(pt.mean, m_value->dataMin(), m_value->dataMax(), height());
+		int y_bot = scaleY(pt.max, m_value->dataMin(), m_value->dataMax(), height());
+
 		double r = ratio(pt.mean, m_value->dataMin(), m_value->dataMax());
 		QColor c = mix(r, m_cold, m_warm);
 		p.setPen(c);

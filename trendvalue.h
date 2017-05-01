@@ -11,6 +11,7 @@ typedef struct {
 
 class TrendValue {
 		QString m_unit;
+		QString m_fmt;
 		int m_maxPoints;
 		QQueue<DataPt> m_dataPts;
 		QList<float> m_samples;
@@ -22,7 +23,7 @@ class TrendValue {
 		double m_last;
 
 	public:
-		TrendValue(const QString &unit, int maxPoints);
+		TrendValue(const QString &unit, const QString &fmt, int maxPoints);
 		const QString &unit()		{ return m_unit; }
 		int maxPoints()			{ return m_maxPoints; }
 
@@ -39,6 +40,9 @@ class TrendValue {
 		double dataMax() const		{ return m_dataMax; }
 		double histMin() const		{ return m_histMin; }
 		double histMax() const		{ return m_histMax; }
+
+		QString format(double value)	{ return QString().sprintf(qPrintable(m_fmt), value); }
+		QString format()		{ return format(m_last); }
 };
 
 #endif /* __TRENDVALUE_H__ */
