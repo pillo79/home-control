@@ -10,30 +10,33 @@ TrendValue::TrendValue(const QString &unit, int maxPoints)
 void TrendValue::setValue(double v)
 {
 	m_last = v;
-
-	if (!m_sampleCount) {
-		m_dataPt.min = m_dataPt.max = m_dataPt.mean = v;
-	} else {
-		if (v < m_dataPt.min)	m_dataPt.min = v;
-		if (v > m_dataPt.max)	m_dataPt.max = v;
-		m_dataPt.mean += v;
-	}
-	++m_sampleCount;
+	m_samples.append(v);
 }
 
-void TrendValue::step()
+void TrendValue::step(int timecode)
 {
-	if (!m_sampleCount) {
-		m_dataPt.min = m_dataPt.max = m_dataPt.mean = 0.0;
+	qSort(m_samples);
+	if (!m_samples.isEmpty()) m_samples.removeFirst();
+	if (!m_samples.isEmpty()) m_samples.removeLast();
+
+	DataPt newPt;
+	if (m_samples.isEmpty()) {
+		newPt.min = newPt.max = newPt.mean = 0.0;
 	} else {
-		m_dataPt.mean /= m_sampleCount;
+		newPt.min = m_samples.first();
+		newPt.max = m_samples.last();
+		double mean = 0.0;
+		foreach(double v, m_samples)
+			mean += v;
+		newPt.mean = mean / m_samples.length();
 	}
-	m_dataPts.enqueue(m_dataPt);
+	newPt.timecode = timecode;
+	m_dataPts.enqueue(newPt);
 	if (m_dataPts.length() > m_maxPoints)
 		m_dataPts.dequeue();
 
-	if (m_dataPt.min < m_histMin)	m_histMin = m_dataPt.min;
-	if (m_dataPt.max > m_histMax)	m_histMax = m_dataPt.max;
+	if (newPt.min < m_histMin)	m_histMin = newPt.min;
+	if (newPt.max > m_histMax)	m_histMax = newPt.max;
 
 	bool first = true;
 	foreach (const DataPt &p, m_dataPts) {
@@ -47,5 +50,5 @@ void TrendValue::step()
 		}
 	}
 
-	m_sampleCount = 0;
+	m_samples.clear();
 }

@@ -6,14 +6,14 @@
 
 typedef struct {
 	double min, mean, max;
+	int timecode;
 } DataPt;
 
 class TrendValue {
 		QString m_unit;
 		int m_maxPoints;
 		QQueue<DataPt> m_dataPts;
-		DataPt m_dataPt;
-		int m_sampleCount;
+		QList<float> m_samples;
 
 		double m_histMin;
 		double m_histMax;
@@ -32,7 +32,7 @@ class TrendValue {
 		void setValue(double v);
 		double operator=(double v)	{ setValue(v); return m_last; }
 
-		void step();
+		void step(int timecode);
 
 		const QQueue<DataPt> &dataPts() { return m_dataPts; }
 		double dataMin() const		{ return m_dataMin; }

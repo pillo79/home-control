@@ -25,11 +25,17 @@ inline double ratio(double v, double min, double max)
 
 inline int scaleY(double v, double min, double max, int height)
 {
-	return (int)(height*(1.0-ratio(v, min, max)));
+	return (int)((height-1)*(1.0-ratio(v, min, max)));
 }
 
 inline QColor mix(double r, const QColor &color1, const QColor &color2)
 {
+	if (r < 0.15)
+		r=0.00;
+	else if (r>0.85)
+		r=1.00;
+	else
+		r=(r-0.15)/0.70;
 	return QColor(
 		color1.red()*(1-r) + color2.red()*r,
 		color1.green()*(1-r) + color2.green()*r,
@@ -65,12 +71,19 @@ void TrendLabel::paintEvent(QPaintEvent *event)
 		int y_mean = scaleY(pt.mean, m_value->dataMin(), m_value->dataMax(), geo.height());
 		int y_bot = scaleY(pt.max, m_value->dataMin(), m_value->dataMax(), geo.height());
 
+		// draw x axis step
+		if (!(pt.timecode % 60)) {
+			p.setPen(QColor(0,0,0));
+			p.drawLine(x, height()-5, x, height());
+		}
+
+		// draw graph
 		double r = ratio(pt.mean, m_value->dataMin(), m_value->dataMax());
 		QColor c = mix(r, m_cold, m_warm);
 		p.setPen(c);
 		p.drawLine(x, y_top, x, y_bot);
-		p.setPen(c.darker(200));
-		p.drawPoint(x, y_mean);
+		p.setPen(c.darker(250));
+		p.drawLine(x, y_mean-1, x, y_mean+1);
 	}
 
 	p.end();

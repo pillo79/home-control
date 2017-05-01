@@ -191,26 +191,27 @@ void ControlThread::run()
 				}
 
 				// store and advance all tracked values
-				wTemperaturaACS.step();
-				wTemperaturaBoiler.step();
-				wTemperaturaAccumulo.step();
-				wTemperaturaPannelli.step();
+				int timecode = now.minute()+60*now.hour();
+				wTemperaturaACS.step(timecode);
+				wTemperaturaBoiler.step(timecode);
+				wTemperaturaAccumulo.step(timecode);
+				wTemperaturaPannelli.step(timecode);
 
-				wPotProdotta.step();
-				wPotConsumata.step();
-				wPotResistenze.step();
-				wEnergProdotta.step();
-				wEnergConsumata.step();
-				wEnergPassivo.step();
+				wPotProdotta.step(timecode);
+				wPotConsumata.step(timecode);
+				wPotResistenze.step(timecode);
+				wEnergProdotta.step(timecode);
+				wEnergConsumata.step(timecode);
+				wEnergPassivo.step(timecode);
 
-				wTempGiorno.step();
-				wUmidGiorno.step();
-				wTempNotte.step();
-				wUmidNotte.step();
-				wTempSoffitta.step();
-				wUmidSoffitta.step();
-				wTempEsterno.step();
-				wUmidEsterno.step();
+				wTempGiorno.step(timecode);
+				wUmidGiorno.step(timecode);
+				wTempNotte.step(timecode);
+				wUmidNotte.step(timecode);
+				wTempSoffitta.step(timecode);
+				wUmidSoffitta.step(timecode);
+				wTempEsterno.step(timecode);
+				wUmidEsterno.step(timecode);
 			}
 		}
 
