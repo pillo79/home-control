@@ -246,7 +246,7 @@ void ControlThread::run()
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
 		static DelayRiseTimer tStartPompe;
-		bool start_pompe = tStartPompe.update(DELAY_SEC(20), zone_accese);
+		bool start_pompe = tStartPompe.update(DELAY_SEC(20), impianto_acceso);
 		HW.Riscaldamento.xStartPompaGiorno->setValue(start_pompe && xAttivaZonaGiorno);
 		HW.Riscaldamento.xStartPompaNotte->setValue(start_pompe && xAttivaZonaNotte);
 		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
@@ -347,8 +347,9 @@ void ControlThread::run()
 			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
+
 		if (xModoRiscaldamento)
-			acs_attiva |= zone_accese;
+			acs_attiva |= impianto_acceso && !risc_manuale_solo_hp;
 
 		// condizioni HPSU->accumulo ("salvataggio energia")
 		// abilitato quando tBoiler > 60C
