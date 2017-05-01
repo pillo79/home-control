@@ -268,8 +268,8 @@ void ControlThread::run()
 		// *** 3UVB (miscelatrice)
 		// 3Vie (risc o acs):	chiusa
 		// 3Vie (condiz):	aperta
-		HW.PompaCalore.xForza3VieApri->setValue(impianto_acceso && xAutoPompaCaloreCond);
-		HW.PompaCalore.xForza3VieChiudi->setValue(impianto_acceso && !xAutoPompaCaloreCond);
+		HW.PompaCalore.xForza3VieApri->setValue(impianto_acceso && (xAutoPompaCaloreCond || risc_manuale_solo_hp));
+		HW.PompaCalore.xForza3VieChiudi->setValue(impianto_acceso && !(xAutoPompaCaloreCond || risc_manuale_solo_hp));
 
 		// *** 3UV1 (movimento lungo, quella che si ferma a 3/4)
 		// risc o ACS:			3/4 (non alimentata + burst)
