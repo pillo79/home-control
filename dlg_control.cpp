@@ -414,6 +414,13 @@ void ControlDlg::updateScreen()
 	sprintf(buf, "%.1f", control().wTemperaturaAccumulo.value());
 	ui.tlTempAccumulo->setText(buf);
 
+	static const QTime MIDNIGHT = QTime(0, 0, 10);
+	if (QTime::currentTime() < MIDNIGHT) {
+		// operations to be performed every midnight
+		if (ui.pbRiscManuale->isChecked())
+			ui.pbRiscManuale->setChecked(false);
+	}
+
 	updateBtnStatus();
 
 	unlockMutex();
