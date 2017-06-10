@@ -1,25 +1,39 @@
 #include "trendvalue.h"
 
+#include <math.h>
+
 TrendValue::TrendValue(const QString &unit, const QString &fmt, int maxPoints)
 	: m_unit	(unit)
 	, m_fmt		(fmt)
 	, m_maxPoints	(maxPoints)
+	, m_histMin	(0)
+	, m_histMax	(0)
+	, m_dataMin	(0)
+	, m_dataMax	(0)
+	, m_last	(0)
 {
 
 }
 
 void TrendValue::setValue(double v)
 {
-	m_last = v;
-	m_samples.append(v);
+	double topval = fabs(fmax(m_last, v));
+	if (topval == 0) {
+		// add if meaningful
+		if (v != 0)
+			m_samples.append(v);
+	} else {
+		// add if not so different from previous value
+		int pct = fabs(m_last-v)*100/topval;
+		if ((m_last == 0) || (pct < 10)) {
+			m_last = v;
+			m_samples.append(v);
+		}
+	}
 }
 
 void TrendValue::step(int timecode)
 {
-	qSort(m_samples);
-	if (!m_samples.isEmpty()) m_samples.removeFirst();
-	if (!m_samples.isEmpty()) m_samples.removeLast();
-
 	DataPt newPt;
 	if (m_samples.isEmpty()) {
 		newPt.min = newPt.max = newPt.mean = 0.0;
