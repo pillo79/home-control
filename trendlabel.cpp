@@ -129,7 +129,7 @@ void TrendLabel::paintEvent(QPaintEvent *event)
 		QColor c = mix(r, m_cold, m_warm);
 		p.setPen(c);
 		p.drawLine(x, y_top, x, y_bot);
-		p.setPen(c.darker(250));
+		p.setPen(c.darker(150));
 		p.drawLine(x, y_mean-1, x, y_mean+1);
 	}
 
