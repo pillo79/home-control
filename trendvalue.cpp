@@ -20,11 +20,14 @@ void TrendValue::setValue(double v)
 {
 	double topval = fabs(fmax(m_last, v));
 	if (!m_filter) {
+		m_last = v;
 		m_samples.append(v);
 	} else if (topval == 0) {
 		// add if meaningful
-		if (v != 0)
+		if (v != 0) {
+			m_last = v;
 			m_samples.append(v);
+		}
 	} else {
 		// add if not so different from previous value
 		int pct = fabs(m_last-v)*100/topval;

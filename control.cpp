@@ -212,7 +212,7 @@ void ControlThread::run()
 				wUmidSoffitta.step(timecode);
 				wTempEsterno.step(timecode);
 				wUmidEsterno.step(timecode);
-		}
+			}
 		}
 
 		if (now.hour() != lastTime.hour()) {
