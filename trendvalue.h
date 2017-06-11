@@ -13,6 +13,7 @@ class TrendValue {
 		QString m_unit;
 		QString m_fmt;
 		int m_maxPoints;
+		bool m_filter;
 		QQueue<DataPt> m_dataPts;
 		QList<float> m_samples;
 
@@ -23,7 +24,7 @@ class TrendValue {
 		double m_last;
 
 	public:
-		TrendValue(const QString &unit, const QString &fmt, int maxPoints);
+		TrendValue(const QString &unit, const QString &fmt, int maxPoints, bool filter);
 		const QString &unit()		{ return m_unit; }
 		int maxPoints()			{ return m_maxPoints; }
 

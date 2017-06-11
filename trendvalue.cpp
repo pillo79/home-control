@@ -2,10 +2,11 @@
 
 #include <math.h>
 
-TrendValue::TrendValue(const QString &unit, const QString &fmt, int maxPoints)
+TrendValue::TrendValue(const QString &unit, const QString &fmt, int maxPoints, bool filter)
 	: m_unit	(unit)
 	, m_fmt		(fmt)
 	, m_maxPoints	(maxPoints)
+	, m_filter	(filter)
 	, m_histMin	(0)
 	, m_histMax	(0)
 	, m_dataMin	(0)
@@ -18,7 +19,9 @@ TrendValue::TrendValue(const QString &unit, const QString &fmt, int maxPoints)
 void TrendValue::setValue(double v)
 {
 	double topval = fabs(fmax(m_last, v));
-	if (topval == 0) {
+	if (!m_filter) {
+		m_samples.append(v);
+	} else if (topval == 0) {
 		// add if meaningful
 		if (v != 0)
 			m_samples.append(v);
