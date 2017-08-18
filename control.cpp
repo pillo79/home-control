@@ -4,6 +4,7 @@
 #include "hardware.h"
 #include "plc_lib.h"
 #include "powercalc.h"
+#include "trendbase.h"
 
 #include <QTime>
 #include <stdio.h>
@@ -29,29 +30,31 @@ const TargetPower POWER_LEVEL[] = {
 const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
 
 ControlThread::ControlThread()
-	:  wTemperaturaACS	("°C",	"%.1f", MAX_PTS, true)
-	,  wTemperaturaBoiler	("°C",	"%.1f", MAX_PTS, true)
-	,  wTemperaturaAccumulo	("°C",	"%.1f", MAX_PTS, true)
-	,  wTemperaturaPannelli	("°C",	"%.1f", MAX_PTS, true)
+	: wTemperaturaACS	("TemperaturaACS",	"°C",	"%.1f", MAX_PTS, true)
+	, wTemperaturaBoiler	("TemperaturaBoiler",	"°C",	"%.1f", MAX_PTS, true)
+	, wTemperaturaAccumulo	("TemperaturaAccumulo",	"°C",	"%.1f", MAX_PTS, true)
+	, wTemperaturaPannelli	("TemperaturaPannelli",	"°C",	"%.1f", MAX_PTS, true)
 
-	,  wPotProdotta		("W",	"%.0f", MAX_PTS, false)
-	,  wPotConsumata	("W",	"%.0f", MAX_PTS, false)
-	,  wPotResistenze	("W",	"%.0f", MAX_PTS, false)
-	,  wEnergProdotta	("kWh",	"%.3f", MAX_PTS, false)
-	,  wEnergConsumata	("kWh",	"%.3f", MAX_PTS, false)
-	,  wEnergPassivo	("kWh",	"%.3f", MAX_PTS, false)
+	, wPotProdotta		("PotProdotta",		"W",	"%.0f", MAX_PTS, false)
+	, wPotConsumata		("PotConsumata",	"W",	"%.0f", MAX_PTS, false)
+	, wPotResistenze	("PotResistenze",	"W",	"%.0f", MAX_PTS, false)
+	, wEnergProdotta	("EnergProdotta",	"kWh",	"%.3f", MAX_PTS, false)
+	, wEnergConsumata	("EnergConsumata",	"kWh",	"%.3f", MAX_PTS, false)
+	, wEnergPassivo		("EnergPassivo",	"kWh",	"%.3f", MAX_PTS, false)
 
-	,  wTempGiorno		("°C",	"%.1f", MAX_PTS, true)
-	,  wUmidGiorno		("%",	"%.1f", MAX_PTS, true)
-	,  wTempNotte		("°C",	"%.1f", MAX_PTS, true)
-	,  wUmidNotte		("%",	"%.1f", MAX_PTS, true)
-	,  wTempSoffitta	("°C",	"%.1f", MAX_PTS, true)
-	,  wUmidSoffitta	("%",	"%.1f", MAX_PTS, true)
-	,  wTempEsterno		("°C",	"%.1f", MAX_PTS, true)
-	,  wUmidEsterno		("%",	"%.1f", MAX_PTS, true)
+	, wTempGiorno		("TempGiorno",		"°C",	"%.1f", MAX_PTS, true)
+	, wUmidGiorno		("UmidGiorno",		"%",	"%.1f", MAX_PTS, true)
+	, wTempNotte		("TempNotte",		"°C",	"%.1f", MAX_PTS, true)
+	, wUmidNotte		("UmidNotte",		"%",	"%.1f", MAX_PTS, true)
+	, wTempSoffitta		("TempSoffitta",	"°C",	"%.1f", MAX_PTS, true)
+	, wUmidSoffitta		("UmidSoffitta",	"%",	"%.1f", MAX_PTS, true)
+	, wTempEsterno		("TempEsterno",		"°C",	"%.1f", MAX_PTS, true)
+	, wUmidEsterno		("UmidEsterno",		"%",	"%.1f", MAX_PTS, true)
 {
 	wVelFanCoil = 20;
 	xModoRiscaldamento = true;
+
+	TrendBase::instance()->open();
 
 	start();
 }
@@ -137,7 +140,8 @@ void ControlThread::run()
 		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
 		Timer::tick();
-		QTime now = QTime::currentTime();
+		QDateTime today = QDateTime::currentDateTime();
+		QTime now = today.time();
 		int nowSecs = now.hour()*3600 + now.minute()*60 + now.second();
 
 		if ((nowSecs != lastSecs) && ((nowSecs % SAMPLE_PERIOD_SECS) == 0) && !xRichiestaRestart) {
@@ -189,6 +193,9 @@ void ControlThread::run()
 						pcProdotta.getCurrentPower25(), pcResistenze.getCurrentPower25(), PowerLevel, pcConsumata.getCurrentPower25(),
 						power_budget);
 				}
+
+				// save row on DB
+				TrendBase::instance()->step(today.toTime_t());
 
 				// store and advance all tracked values
 				int timecode = now.minute()+60*now.hour();

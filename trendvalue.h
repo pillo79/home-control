@@ -10,10 +10,13 @@ typedef struct {
 } DataPt;
 
 class TrendValue {
+		QString m_name;
 		QString m_unit;
 		QString m_fmt;
 		int m_maxPoints;
 		bool m_filter;
+
+		DataPt m_lastPt;
 		QQueue<DataPt> m_dataPts;
 		QList<float> m_samples;
 
@@ -24,7 +27,8 @@ class TrendValue {
 		double m_last;
 
 	public:
-		TrendValue(const QString &unit, const QString &fmt, int maxPoints, bool filter);
+		TrendValue(const QString &name, const QString &unit, const QString &fmt, int maxPoints, bool filter);
+		const QString &name()		{ return m_name; }
 		const QString &unit()		{ return m_unit; }
 		int maxPoints()			{ return m_maxPoints; }
 
@@ -37,6 +41,7 @@ class TrendValue {
 		void step(int timecode);
 
 		const QQueue<DataPt> &dataPts() { return m_dataPts; }
+		const DataPt &lastPt() const	{ return m_lastPt; }
 		double dataMin() const		{ return m_dataMin; }
 		double dataMax() const		{ return m_dataMax; }
 		double histMin() const		{ return m_histMin; }
