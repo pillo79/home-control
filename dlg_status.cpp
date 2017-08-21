@@ -166,6 +166,13 @@ void StatusDlg::updateScreen()
 		setLabelInactive(ui.tlStatoResistenze);
 	}
 
+	if (control().xTrasfDaAccumuloInCorso) {
+		ui.groupBox_6->setTitle("DA Accumulo");
+	} else if (control().xTrasfVersoAccumuloInCorso) {
+		ui.groupBox_6->setTitle("VERSO Accumulo");
+	} else
+		ui.groupBox_6->setTitle("Accumulo");
+
 	if (control().xAttivaFanCoil) {
 		if (control().xPompaCaloreCondInUso)
 			setLabelActive(ui.tlStatoVentilatore, QColor(64,192,255));

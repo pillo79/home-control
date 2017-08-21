@@ -809,6 +809,9 @@ background-repeat: no-repeat;
            </item>
            <item>
             <widget class="TrendLabel" name="tlTempSoffitta">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -852,6 +855,9 @@ Umidità (%)</string>
            </item>
            <item>
             <widget class="TrendLabel" name="tlUmidSoffitta">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>

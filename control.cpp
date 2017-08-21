@@ -362,40 +362,50 @@ void ControlThread::run()
 		// condizioni HPSU->accumulo ("salvataggio energia")
 		// abilitato quando tBoiler > 60C
 		// disabilitato ogni giorno alle 18
-		if ((now<QTime(10,0)) || (now>QTime(18,0)))
+		bool orario_carico_accumulo = (now>QTime(10,0)) && (now<QTime(18,0));
+		bool orario_uso_accumulo = (now>QTime(7,0)) && (now<QTime(21,0));
+		bool ferma_accumulo = true;
+
+		if (!orario_carico_accumulo)
 			xCaricoAccumuloAttivo = false;
 		else if (wTemperaturaBoiler > 60)
 			xCaricoAccumuloAttivo = true;
 
-		if (acs_attiva && !xDisabilitaAccumulo) {
+		if (orario_uso_accumulo && !xDisabilitaAccumulo) {
 			/* trasf Accumulo->HPSU (uso energia) */
-			if ((wTemperaturaAccumulo > 55) && (wTemperaturaAccumulo > wTemperaturaACS+10.0) && !xCaldaiaInUso) {
+			if ((wTemperaturaAccumulo > 40) && (wTemperaturaAccumulo > wTemperaturaACS+6.0) && !xCaldaiaInUso) {
 				xAutoTrasfDaAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaAccumulo < 50) || (wTemperaturaAccumulo < wTemperaturaACS+5)) {
-				xAutoTrasfDaAccumulo = false;
-			}
-
-			/* trasf Accumulo->HPSU attivo -> no caldaia */
-			if (xAutoTrasfDaAccumulo)
-				acs_attiva = false;
-
-			/* reset condizione opposta */
-			xAutoTrasfVersoAccumulo = false;
-		} else if (xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
-			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaACS > 50) && ((wTemperaturaAccumulo < wTemperaturaACS-6) || (wTemperaturaACS > 70)) && !xCaldaiaInUso) {
-				xAutoTrasfVersoAccumulo = true;
-			} else if (xCaldaiaInUso || (wTemperaturaACS < 40) || (wTemperaturaAccumulo > wTemperaturaACS-3)) {
 				xAutoTrasfVersoAccumulo = false;
 			}
 
-			/* reset condizione opposta */
+			/* situazione accumulo gestita */
+			ferma_accumulo = false;
+		}
+
+		if (!xAutoTrasfDaAccumulo && xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
+			/* trasf HPSU->Accumulo (salvataggio energia)*/
+			if ((wTemperaturaACS > 50) && ((wTemperaturaAccumulo < wTemperaturaACS-6) || (wTemperaturaACS > 70)) && !xCaldaiaInUso) {
+				xAutoTrasfDaAccumulo = false;
+				xAutoTrasfVersoAccumulo = true;
+			}
+
+			/* situazione accumulo gestita */
+			ferma_accumulo = false;
+		}
+
+		if (ferma_accumulo || xCaldaiaInUso || (wTemperaturaAccumulo < 35) || (wTemperaturaAccumulo < wTemperaturaACS+2)) {
+			/* stop trasf Accumulo->HPSU (uso energia) */
 			xAutoTrasfDaAccumulo = false;
-		} else {
-			/* trasf HPSU<->Accumulo non permesso */
-			xAutoTrasfDaAccumulo = false;
+		}
+
+		if (ferma_accumulo || xCaldaiaInUso || (wTemperaturaACS < 40) || ((wTemperaturaACS < 69) && (wTemperaturaAccumulo > wTemperaturaACS-2))) {
+			/* stop trasf HPSU->Accumulo (salvataggio energia)*/
 			xAutoTrasfVersoAccumulo = false;
 		}
+
+		/* se trasf Accumulo->HPSU attivo -> no caldaia */
+		if (xAutoTrasfDaAccumulo)
+			acs_attiva = false;
 
 		if (xSetManuale) {
 			xTrasfDaAccumuloInCorso = xTrasfDaAccumulo;
