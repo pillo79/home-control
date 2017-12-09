@@ -3,12 +3,12 @@
 
 #include <math.h>
 
-TrendValue::TrendValue(const QString &name, const QString &unit, const QString &fmt, int maxPoints, bool filter)
+TrendValue::TrendValue(const QString &name, const QString &unit, const QString &fmt, int maxPoints, double range)
 	: m_name	(name)
 	, m_unit	(unit)
 	, m_fmt		(fmt)
 	, m_maxPoints	(maxPoints)
-	, m_filter	(filter)
+	, m_range	(range)
 	, m_histMin	(0)
 	, m_histMax	(0)
 	, m_dataMin	(0)
@@ -20,11 +20,11 @@ TrendValue::TrendValue(const QString &name, const QString &unit, const QString &
 
 void TrendValue::setValue(double v)
 {
-	double topval = fabs(fmax(m_last, v));
-	if (!m_filter) {
+	if (m_range == 0.0) {
+		// filter is disabled, add everything
 		m_last = v;
 		m_samples.append(v);
-	} else if (topval == 0) {
+	} else if (m_samples.isEmpty()) {
 		// add if meaningful
 		if (v != 0) {
 			m_last = v;
@@ -32,8 +32,7 @@ void TrendValue::setValue(double v)
 		}
 	} else {
 		// add if not so different from previous value
-		int pct = fabs(m_last-v)*100/topval;
-		if ((m_last == 0) || (pct < 10)) {
+		if (fabs(v-m_last) < m_range) {
 			m_last = v;
 			m_samples.append(v);
 		}
