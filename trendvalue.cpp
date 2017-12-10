@@ -31,10 +31,17 @@ void TrendValue::setValue(double v)
 			m_samples.append(v);
 		}
 	} else {
-		// add if not so different from previous value
+		// filter out bad samples
 		if (fabs(v-m_last) < m_range) {
+			// not so different from previous value, add
 			m_last = v;
 			m_samples.append(v);
+		} else if (v < m_last) {
+			// nudge m_last a bit down, but do not add yet
+			m_last -= m_range/10.0;
+		} else {
+			// nudge m_last a bit up, but do not add yet
+			m_last += m_range/10.0;
 		}
 	}
 }
