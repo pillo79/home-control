@@ -36,10 +36,8 @@ class ControlThread : public QThread {
 		bool xDisabilitaResistenze;
 		bool xDisabilitaAccumulo;
 
-		bool xApriCucina;
-		bool xChiudiCucina;
-
 		int wVelFanCoil;
+		int wApriCucinaPerc;
 
 		/* outputs */
 		bool xCaldaiaInUso;

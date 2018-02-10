@@ -51,6 +51,7 @@ ControlThread::ControlThread()
 	, wTempEsterno		("TempEsterno",		"°C",	"%.1f", MAX_PTS, 0.5)
 	, wUmidEsterno		("UmidEsterno",		"%",	"%.1f", MAX_PTS, 5.0)
 {
+	wApriCucinaPerc = 40;
 	wVelFanCoil = 20;
 	xModoRiscaldamento = true;
 
@@ -328,14 +329,14 @@ void ControlThread::run()
 		HW.FanCoilCorridoio.xStartVentilatore->setValue(valvola_fancoil_chiusa && ventilatore_in_funzione);
 		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(wVelFanCoil*200);
 
-		bool muovi_serranda = xApriCucina || xChiudiCucina;
+		static DelayRiseTimer tApriSerrandaCucina;
+		bool apri_cucina = xAttivaFanCoil && !tApriSerrandaCucina.update(DELAY_SEC(wApriCucinaPerc*25/100), xAttivaFanCoil);
+		static DelayFallTimer tChiudiSerrandaCucina;
+		bool chiudi_cucina = !xAttivaFanCoil && tChiudiSerrandaCucina.update(DELAY_SEC(30), xAttivaFanCoil);
+
+		bool muovi_serranda = apri_cucina || chiudi_cucina;
 		HW.FanCoilCorridoio.xMuoviSerrandaCucina->setValue(muovi_serranda);
-		HW.FanCoilCorridoio.xApriSerrandaCucina->setValue(xApriCucina);
-		static DelayRiseTimer tStopSerrandaCucina;
-		bool stop_serranda = tStopSerrandaCucina.update(xChiudiCucina? DELAY_SEC(30) : DELAY_SEC(13), muovi_serranda);
-		if (stop_serranda)  {
-			xApriCucina = xChiudiCucina = false;
-		}
+		HW.FanCoilCorridoio.xApriSerrandaCucina->setValue(apri_cucina);
 
 		if (xSetManuale) {
 			xPompaCaloreRiscInUso = xUsaPompaCalore && xModoRiscaldamento;

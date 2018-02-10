@@ -207,9 +207,6 @@ void ControlDlg::updateBtnStatus()
 	setBtnStatus(ui.pbModoRisc, false);
 	setBtnStatus(ui.pbModoCondiz, false);
 
-	setBtnStatus(ui.pbApriCucina, control().xApriCucina, bcNorm);
-	setBtnStatus(ui.pbChiudiCucina, control().xChiudiCucina, bcNorm);
-
 	setBtnStatus(ui.pbNotte, false);
 	setBtnStatus(ui.pbGiorno, false);
 	setBtnStatus(ui.pbSoffitta, false);
@@ -373,22 +370,36 @@ void ControlDlg::on_pbVelPlus_clicked()
 	ui.tlVelFanCoil->setText(buf);
 }
 
-void ControlDlg::on_pbApriCucina_clicked()
+void ControlDlg::on_pbApriPlus_clicked()
 {
 	resetCloseTimer();
 
 	lockMutex();
-	control().xApriCucina = true;
+	if (control().wApriCucinaPerc < 90)
+		control().wApriCucinaPerc += 10;
+	else
+		control().wApriCucinaPerc = 100;
 	unlockMutex();
+
+	char buf[256];
+	sprintf(buf, "%i%%", control().wApriCucinaPerc);
+	ui.tlApriCucinaPerc->setText(buf);
 }
 
-void ControlDlg::on_pbChiudiCucina_clicked()
+void ControlDlg::on_pbApriMinus_clicked()
 {
 	resetCloseTimer();
 
 	lockMutex();
-	control().xChiudiCucina = true;
+	if (control().wApriCucinaPerc > 10)
+		control().wApriCucinaPerc -= 10;
+	else
+		control().wApriCucinaPerc = 0;
 	unlockMutex();
+
+	char buf[256];
+	sprintf(buf, "%i%%", control().wApriCucinaPerc);
+	ui.tlApriCucinaPerc->setText(buf);
 }
 
 void ControlDlg::resetCloseTimer()

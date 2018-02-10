@@ -31,10 +31,10 @@ class ControlDlg : public QWidget
 		void on_pbVelMinus_clicked();
 		void on_pbVelPlus_clicked();
 
-		void on_pbTrasfAccumulo_clicked();
+		void on_pbApriMinus_clicked();
+		void on_pbApriPlus_clicked();
 
-		void on_pbApriCucina_clicked();
-		void on_pbChiudiCucina_clicked();
+		void on_pbTrasfAccumulo_clicked();
 
 		void on_pbOK_clicked();
 
