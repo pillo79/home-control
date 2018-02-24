@@ -590,8 +590,8 @@
     <rect>
      <x>0</x>
      <y>340</y>
-     <width>791</width>
-     <height>131</height>
+     <width>740</width>
+     <height>125</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -643,60 +643,80 @@
       <property name="title">
        <string>Apertura serranda cucina</string>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_11">
-       <property name="spacing">
-        <number>16</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QPushButton" name="pbApriMinus">
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QPushButton" name="pbApriMinus">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>-</string>
+           </property>
+           <property name="autoRepeat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="tlApriCucinaPerc">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>28</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>25.0</string>
+           </property>
+           <property name="scaledContents">
+            <bool>false</bool>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pbApriPlus">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+           <property name="autoRepeat">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pbForzaChiudi">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="text">
-          <string>-</string>
+          <string>Mantieni chiusa</string>
          </property>
-         <property name="autoRepeat">
+         <property name="checkable">
           <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="tlApriCucinaPerc">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>28</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>25.0</string>
-         </property>
-         <property name="scaledContents">
-          <bool>false</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pbApriPlus">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>+</string>
          </property>
          <property name="autoRepeat">
           <bool>true</bool>

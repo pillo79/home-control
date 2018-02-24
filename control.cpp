@@ -341,6 +341,11 @@ void ControlThread::run()
 			set_serranda_cucina = true;
 		ultimo_perc_cucina = wApriCucinaPerc;
 
+		static bool ultimo_forza_chiudi = false;
+		if (ultimo_forza_chiudi != xForzaChiudi)
+			set_serranda_cucina = true;
+		ultimo_forza_chiudi = xForzaChiudi;
+
 		static DelayRiseTimer tResetSerrandaCucina;
 		static DelayRiseTimer tApriSerrandaCucina;
 
@@ -348,7 +353,7 @@ void ControlThread::run()
 		bool chiudi_cucina = set_serranda_cucina && !reset_cucina_ok;
 
 		bool cucina_aperta = tApriSerrandaCucina.update(DELAY_SEC((wApriCucinaPerc*25)/100), reset_cucina_ok);
-		bool apri_cucina = reset_cucina_ok && xAttivaFanCoil && !cucina_aperta;
+		bool apri_cucina = reset_cucina_ok && xAttivaFanCoil && !xForzaChiudi && !cucina_aperta;
 
 		bool muovi_serranda = apri_cucina || chiudi_cucina;
 		if (set_serranda_cucina && !muovi_serranda)

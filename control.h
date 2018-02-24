@@ -38,6 +38,7 @@ class ControlThread : public QThread {
 
 		int wVelFanCoil;
 		int wApriCucinaPerc;
+		bool xForzaChiudi;
 
 		/* outputs */
 		bool xCaldaiaInUso;

@@ -6,12 +6,6 @@
 #include <QtGui>
 #include <QApplication>
 
-enum TrasfAccumulo {
-	TrasfAccumuloFermo = 0,
-	TrasfDaAccumulo = 1,
-	TrasfVersoAccumulo = 2,
-};
-
 ControlDlg::ControlDlg(QWidget *parent)
     : QWidget(parent)
     , mLockCount(0)
@@ -113,6 +107,9 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 	control().xAttivaFanCoil = checked;
 	updateBtnStatus();
 	unlockMutex();
+
+	if (!checked && ui.pbForzaChiudi->isChecked())
+		ui.pbForzaChiudi->setChecked(false);
 }
 
 void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off, bool disable, QString disabled)
@@ -220,6 +217,8 @@ void ControlDlg::updateBtnStatus()
 	sprintf(buf1, "Resistenze\n%.0f W", control().wPotResistenze.value());
 	sprintf(buf2, "Resistenze\nauto %.0f W", control().wPotResistenze.value());
 	setBtnStatus(ui.pbRiscResistenze, control().xResistenzeInUso, bcRisc, buf1, buf2, "Resistenze\nOFF", !manuale && control().xDisabilitaResistenze, "BLOCCO\nResistenze");
+
+	setBtnStatus(ui.pbForzaChiudi, false, bcNorm, "Mantieni chiusa", "", "Apri quando serve");
 
 	setBtnStatus3Way(ui.pbTrasfAccumulo, control().xTrasfDaAccumuloInCorso, control().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && control().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
 
@@ -400,6 +399,16 @@ void ControlDlg::on_pbApriMinus_clicked()
 	char buf[256];
 	sprintf(buf, "%i%%", control().wApriCucinaPerc);
 	ui.tlApriCucinaPerc->setText(buf);
+}
+
+void ControlDlg::on_pbForzaChiudi_toggled(bool checked)
+{
+	resetCloseTimer();
+
+	lockMutex();
+	control().xForzaChiudi = checked;
+	updateBtnStatus();
+	unlockMutex();
 }
 
 void ControlDlg::resetCloseTimer()

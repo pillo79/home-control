@@ -33,6 +33,7 @@ class ControlDlg : public QWidget
 
 		void on_pbApriMinus_clicked();
 		void on_pbApriPlus_clicked();
+		void on_pbForzaChiudi_toggled(bool checked);
 
 		void on_pbTrasfAccumulo_clicked();
 
