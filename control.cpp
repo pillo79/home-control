@@ -329,12 +329,31 @@ void ControlThread::run()
 		HW.FanCoilCorridoio.xStartVentilatore->setValue(valvola_fancoil_chiusa && ventilatore_in_funzione);
 		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(wVelFanCoil*200);
 
+		static bool set_serranda_cucina = false;
+
+		static bool ultimo_fancoil = false;
+		if (ultimo_fancoil != xAttivaFanCoil)
+			set_serranda_cucina = true;
+		ultimo_fancoil = xAttivaFanCoil;
+
+		static int ultimo_perc_cucina = 0;
+		if (ultimo_perc_cucina != wApriCucinaPerc)
+			set_serranda_cucina = true;
+		ultimo_perc_cucina = wApriCucinaPerc;
+
+		static DelayRiseTimer tResetSerrandaCucina;
 		static DelayRiseTimer tApriSerrandaCucina;
-		bool apri_cucina = xAttivaFanCoil && !tApriSerrandaCucina.update(DELAY_SEC(wApriCucinaPerc*25/100), xAttivaFanCoil);
-		static DelayFallTimer tChiudiSerrandaCucina;
-		bool chiudi_cucina = !xAttivaFanCoil && tChiudiSerrandaCucina.update(DELAY_SEC(30), xAttivaFanCoil);
+
+		bool reset_cucina_ok = tResetSerrandaCucina.update(DELAY_SEC(30), set_serranda_cucina);
+		bool chiudi_cucina = set_serranda_cucina && !reset_cucina_ok;
+
+		bool cucina_aperta = tApriSerrandaCucina.update(DELAY_SEC((wApriCucinaPerc*25)/100), reset_cucina_ok);
+		bool apri_cucina = reset_cucina_ok && xAttivaFanCoil && !cucina_aperta;
 
 		bool muovi_serranda = apri_cucina || chiudi_cucina;
+		if (set_serranda_cucina && !muovi_serranda)
+			set_serranda_cucina = false;
+
 		HW.FanCoilCorridoio.xMuoviSerrandaCucina->setValue(muovi_serranda);
 		HW.FanCoilCorridoio.xApriSerrandaCucina->setValue(apri_cucina);
 
