@@ -1,6 +1,7 @@
 #ifndef __DLG_CONTROL_H__
 #define __DLG_CONTROL_H__
 
+#include <QSettings>
 #include <QWidget>
 #include <QTimer>
 
@@ -41,6 +42,7 @@ class ControlDlg : public QWidget
 
 	private:
 		Ui::ControlDlg ui;
+		QSettings mSettings;
 		QTimer m_closeTimer;
 		int mLockCount;
 
@@ -53,6 +55,9 @@ class ControlDlg : public QWidget
 		typedef enum { bcNorm, bcRisc, bcCond, bcAuto } ButtonColor;
 		void setBtnStatus(QPushButton *pb, bool state, ButtonColor mode = bcAuto, QString forced="", QString automatic="", QString off="", bool disable=false, QString disabled="");
 		void setBtnStatus3Way(QPushButton *pb, bool state1, bool state2, ButtonColor mode, QString force1, QString force2, QString auto1, QString auto2, QString off, bool disable=false, QString disabled="");
+
+		void loadSettings();
+		void saveSettings();
 
 		void resetCloseTimer();
 		void updateBtnStatus();

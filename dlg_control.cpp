@@ -8,6 +8,7 @@
 
 ControlDlg::ControlDlg(QWidget *parent)
     : QWidget(parent)
+    , mSettings("/media/mmcblk0p2/settings.ini", QSettings::IniFormat)
     , mLockCount(0)
 {
 	ui.setupUi(this);
@@ -29,6 +30,54 @@ ControlDlg::ControlDlg(QWidget *parent)
 	mAutoRiscColor = QColor(255, 160, 96);
 	mForcedCondColor = QColor(64, 64, 255);
 	mAutoCondColor = QColor(96, 160, 255);
+
+	loadSettings();
+}
+
+void ControlDlg::loadSettings()
+{
+	ui.pbModoRisc->setChecked(mSettings.value("pbModoRisc").toBool());
+
+	ui.pbNotte->setChecked(mSettings.value("pbNotte").toBool());
+	ui.pbGiorno->setChecked(mSettings.value("pbGiorno").toBool());
+	ui.pbSoffitta->setChecked(mSettings.value("pbSoffitta").toBool());
+	ui.pbFanCoil->setChecked(mSettings.value("pbFanCoil").toBool());
+
+	ui.pbRiscManuale->setChecked(mSettings.value("pbRiscManuale").toBool());
+	ui.pbRiscCaldaia->setChecked(mSettings.value("pbRiscCaldaia").toBool());
+	ui.pbRiscPompaCalore->setChecked(mSettings.value("pbRiscPompaCalore").toBool());
+	ui.pbRiscResistenze->setChecked(mSettings.value("pbRiscResistenze").toBool());
+
+	ui.pbForzaChiudi->setChecked(mSettings.value("pbForzaChiudi").toBool());
+
+	lockMutex();
+
+	control().wVelFanCoil = mSettings.value("wVelFanCoil").toInt();
+	control().wApriCucinaPerc = mSettings.value("wApriCucinaPerc").toInt();
+
+	updateBtnStatus();
+
+	unlockMutex();
+}
+
+void ControlDlg::saveSettings()
+{
+	mSettings.setValue("pbModoRisc", ui.pbModoRisc->isChecked());
+
+	mSettings.setValue("pbNotte", ui.pbNotte->isChecked());
+	mSettings.setValue("pbGiorno", ui.pbGiorno->isChecked());
+	mSettings.setValue("pbSoffitta", ui.pbSoffitta->isChecked());
+	mSettings.setValue("pbFanCoil", ui.pbFanCoil->isChecked());
+
+	mSettings.setValue("pbRiscManuale", ui.pbRiscManuale->isChecked());
+	mSettings.setValue("pbRiscCaldaia", ui.pbRiscCaldaia->isChecked());
+	mSettings.setValue("pbRiscPompaCalore", ui.pbRiscPompaCalore->isChecked());
+	mSettings.setValue("pbRiscResistenze", ui.pbRiscResistenze->isChecked());
+
+	mSettings.setValue("pbForzaChiudi", ui.pbForzaChiudi->isChecked());
+
+	mSettings.setValue("wVelFanCoil", control().wVelFanCoil);
+	mSettings.setValue("wApriCucinaPerc", control().wApriCucinaPerc);
 }
 
 void ControlDlg::lockMutex()
@@ -240,6 +289,8 @@ void ControlDlg::updateBtnStatus()
 		}
 		ultimoTrasfAccumulo = false;
 	}
+
+	saveSettings();
 }
 
 void ControlDlg::on_pbRiscManuale_toggled(bool checked)
