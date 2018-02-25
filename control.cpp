@@ -165,9 +165,9 @@ void ControlThread::run()
 			else
 				wEnergPassivo = wEnergPassivo + (cons-prod) / 1000.0;
 
-			if ((wPotProdotta < 1500) || (wPotConsumata > wPotProdotta) || (wTemperaturaBoiler > 50))
+			if ((wPotProdotta < 1500) || ((wPotConsumata > wPotProdotta) && !PowerLevel) || (wTemperaturaBoiler > 50))
 				xAutoPompaCaloreRisc = false;
-			else if (wPotProdotta > 2500)
+			else if ((wPotProdotta > 2500) && (wTemperaturaBoiler < 48))
 				xAutoPompaCaloreRisc = true;
 
 			if ((now.minute() % 3) == 0) {
