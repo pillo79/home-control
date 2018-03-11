@@ -6,6 +6,9 @@
 
 #include "trendvalue.h"
 
+typedef QList<DataPt> DataList;
+typedef QMap<QString, DataList> DataMap;
+
 class TrendBase {
 	QList<TrendValue *> m_values;
 
@@ -13,6 +16,8 @@ class TrendBase {
 	sqlite3 *m_sqlite;
 
 	explicit TrendBase();
+
+	DataMap getRecords(int first_code, int last_code, QStringList values = QStringList());
 
 public:
 	void registerValue(TrendValue *val);
