@@ -363,6 +363,10 @@ void ControlThread::run()
 		HW.FanCoilCorridoio.xApriSerrandaCucina->setValue(apri_cucina);
 
 		if (xSetManuale) {
+			// forza pompa off se sovra temp
+			if (xUsaPompaCalore && xModoRiscaldamento && (wTemperaturaACS > 65))
+				xUsaPompaCalore = false;
+
 			xPompaCaloreRiscInUso = xUsaPompaCalore && xModoRiscaldamento;
 			xPompaCaloreCondInUso = xUsaPompaCalore && !xModoRiscaldamento;
 		} else {
