@@ -162,8 +162,11 @@ void StatusDlg::updateScreen()
 
 	if (control().xResistenzeInUso) {
 		setLabelActive(ui.tlStatoResistenze, QColor(255, 64, 64));
+		sprintf(buf, "<b>Resistenze</b><br/>%.0f W", control().wPotResistenze.value());
+		ui.tlStatoResistenze->setText(buf);
 	} else {
 		setLabelInactive(ui.tlStatoResistenze);
+		ui.tlStatoResistenze->setText("<b>Resistenze</b>");
 	}
 
 	if (control().xTrasfDaAccumuloInCorso) {
