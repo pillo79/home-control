@@ -102,9 +102,9 @@ void ControlThread::run()
 
 	while(1) {
 
-		static PowerCalc pcProdotta;
-		static PowerCalc pcConsumata;
-		static PowerCalc pcResistenze;
+		static PowerCalc pcProdotta(1);
+		static PowerCalc pcConsumata(1);
+		static PowerCalc pcResistenze(2);
 
 		QTime rd_time = QTime::currentTime();
 		ReadHardwareInputs();

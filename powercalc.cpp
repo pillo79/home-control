@@ -5,8 +5,9 @@
 
 #define WRAP(x) ((x+SAMPLES_PER_HOUR) % SAMPLES_PER_HOUR)
 
-PowerCalc::PowerCalc()
-	: m_samples(new int[SAMPLES_PER_HOUR])
+PowerCalc::PowerCalc(int wh_per_tick)
+	: m_wh_per_tick(wh_per_tick)
+	, m_samples(new int[SAMPLES_PER_HOUR])
 	, m_initLast(true)
 {
 	bzero(m_samples, SAMPLES_PER_HOUR*sizeof(int));
@@ -61,26 +62,26 @@ void PowerCalc::addSample(int now)
 
 int PowerCalc::getCurrentPower25()
 {
-	return m_runningPower_25W*25;
+	return m_runningPower_25W*25*m_wh_per_tick;
 }
 
 int PowerCalc::getCurrentPower()
 {
-	int next_power = m_runningPower_100W*100;
-	int delta = 2*100;
+	int next_power = m_runningPower_100W*100*m_wh_per_tick;
+	int delta = 2*100*m_wh_per_tick;
 
 	int est_power = next_power;
 
-	next_power = m_runningPower_25W*25;
+	next_power = m_runningPower_25W*25*m_wh_per_tick;
 	if ((next_power > est_power-delta) && (next_power < est_power+delta)) {
 		est_power = next_power;
-		delta = 2*25;
+		delta = 2*25*m_wh_per_tick;
 	}
 
-	next_power = m_runningPower_5W*5;
+	next_power = m_runningPower_5W*5*m_wh_per_tick;
 	if ((next_power > est_power-delta) && (next_power < est_power+delta)) {
 		est_power = next_power;
-		delta = 2*5;
+		delta = 2*5*m_wh_per_tick;
 	}
 
 	return est_power;
@@ -88,14 +89,14 @@ int PowerCalc::getCurrentPower()
 
 int PowerCalc::getCurrentEnergy()
 {
-	return m_runningEnergy;
+	return m_runningEnergy*m_wh_per_tick;
 }
 
 int PowerCalc::getDeltaSteps()
 {
 	int ret = ((1<<16)-m_lastDelta+m_last) & ((1<<16)-1);
 	m_lastDelta = m_last;
-	return ret;
+	return ret*m_wh_per_tick;
 }
 
 void PowerCalc::resetTotals()

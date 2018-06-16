@@ -6,7 +6,7 @@
 
 class PowerCalc {
 	public:
-		PowerCalc();
+		PowerCalc(int wh_per_tick);
 		~PowerCalc();
 
 		void addSample(int now);
@@ -19,6 +19,7 @@ class PowerCalc {
 		int getDeltaSteps();
 
 	private:
+		int m_wh_per_tick;
 		int* m_samples;
 		int m_last_5W[8], m_last_25W[8], m_last_100W[8];
 		int m_sampleIdx;
