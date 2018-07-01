@@ -92,4 +92,20 @@ class WordOutput : public ModbusIO {
 		static ModbusIOPtrList mElements;
 };
 
+class FloatInput : public ModbusIO {
+		int mWordAddr;
+	public:
+		FloatInput(QString name, ModbusDevice *dev, int wordAddr);
+		virtual ~FloatInput() { }
+
+		virtual int getValue() const;
+
+	public:
+		static const ModbusIOPtrList *elements() { return &mElements; }
+	protected:
+		virtual ModbusIOPtrList *objList() { return &mElements; }
+	private:
+		static ModbusIOPtrList mElements;
+};
+
 #endif /* __MODBUSIO_H__ */
