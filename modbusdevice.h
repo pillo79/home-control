@@ -131,6 +131,18 @@ class Seneca_3AO : public ModbusDevice {
 		uint16_t mOutputs[3];
 };
 
+class Eastron_SDM230 : public ModbusDevice {
+	public:
+		Eastron_SDM230(int modAddress);
+		virtual ~Eastron_SDM230() { };
+
+		virtual int updateInputs();
+
+		virtual int getInputVal(int input);
+	private:
+		uint16_t mInputs[4];
+};
+
 class Burosoft_Temp : public ModbusDevice {
 	public:
 		Burosoft_Temp(int modAddress);

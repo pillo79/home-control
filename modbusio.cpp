@@ -6,6 +6,7 @@ ModbusIOPtrList BitInput::mElements;
 ModbusIOPtrList BitOutput::mElements;
 ModbusIOPtrList WordInput::mElements;
 ModbusIOPtrList WordOutput::mElements;
+ModbusIOPtrList FloatInput::mElements;
 
 ModbusIO::ModbusIO(QString name, ModbusDevice *dev)
 {
@@ -73,4 +74,24 @@ int WordOutput::getValue() const
 void WordOutput::setValue(int value)
 {
 	mDev->setOutputVal(mWordAddr, value);
+}
+
+FloatInput::FloatInput(QString name, ModbusDevice *dev, int wordAddr, double scale)
+	: ModbusIO(name, dev)
+	, mScale (scale)
+{
+	mWordAddr = wordAddr;
+}
+
+int FloatInput::getValue() const
+{
+	union {
+		unsigned short words[2];
+		float f;
+	} v;
+
+	v.words[0] = mDev->getInputVal(mWordAddr);
+	v.words[1] = mDev->getInputVal(mWordAddr+1);
+
+	return (int) (v.f * mScale);
 }
