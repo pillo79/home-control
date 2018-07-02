@@ -82,7 +82,7 @@ void ControlThread::setPowerLevel(int level)
 
 void ControlThread::run()
 {
-	ModbusDevice::openSerial("/dev/ttyUSB0", 38400, 'N', 8, 1);
+	ModbusDevice::openSerial("/dev/ttyUSB0");
 	InitHardware();
 
 	QTime lastTime = QTime::currentTime();

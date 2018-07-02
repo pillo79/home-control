@@ -4,14 +4,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <termios.h>
 
 static modbus_t *mb = 0;
+static int busBaudrate;
 
-int ModbusDevice::openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits)
+int ModbusDevice::openSerial(const char *device)
 {
 	int ret = 0;
 	if (!mb) {
-		mb = modbus_new_rtu(device, baudrate, parity, data_bits, stop_bits);
+		busBaudrate = B9600;
+		mb = modbus_new_rtu(device, 9600, 'N', 8, 1);
 		struct timeval tv = { 0, 100000 };
 		modbus_set_response_timeout(mb, &tv);
 //		modbus_set_debug(mb, 1);
@@ -31,15 +34,33 @@ void ModbusDevice::closeSerial()
 	}
 }
 
-ModbusDevice::ModbusDevice(int modAddress)
+ModbusDevice::ModbusDevice(int modAddress, int modBaudrate)
 	: mAddress (modAddress)
+	, mBaudrate (modBaudrate)
 	, mFailures (0)
 {
 }
 
+void ModbusDevice::mbSetBaudrate(int baudrate)
+{
+	if (baudrate != busBaudrate) {
+    		struct termios tios;
+
+		int s = modbus_get_socket(mb);
+		tcgetattr(s, &tios);
+		cfsetispeed(&tios, baudrate);
+		cfsetospeed(&tios, baudrate);
+		tcsetattr(s, TCSANOW, &tios);
+
+		busBaudrate = baudrate;
+	}
+}
+
 int ModbusDevice::mbReadReg(int idx, int count, uint16_t *values)
 {
+	mbSetBaudrate(mBaudrate);
 	modbus_set_slave(mb, mAddress);
+
 	if ((idx > 40000) && (idx < 50000)) {
 		int ret = modbus_read_registers(mb, idx-40001, count, values);
 		if (ret < 0) {
@@ -54,7 +75,9 @@ int ModbusDevice::mbReadReg(int idx, int count, uint16_t *values)
 
 int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 {
+	mbSetBaudrate(mBaudrate);
 	modbus_set_slave(mb, mAddress);
+
 	if ((idx > 40000) && (idx < 50000)) {
 		int ret = modbus_write_registers(mb, idx-40001, count, values);
 		if (ret < 0) {
@@ -62,7 +85,7 @@ int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 			fprintf(stderr, "W err %s addr %i\n", strerror(errno), mAddress);
 		} else
 			if (mFailures) --mFailures;
-		return ret;
+	return ret;
 	} else
 		return -ENOTSUP;
 }
@@ -71,7 +94,7 @@ int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 
 /* Z-10-D-IN */
 Seneca_10DI::Seneca_10DI(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 	, mInputs(0)
 {
 }
@@ -92,7 +115,7 @@ int Seneca_10DI::getDigInput(int input)
 
 /* Z-10-D-OUT */
 Seneca_10DO::Seneca_10DO(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 	, mOutputs(0)
 {
 }
@@ -125,7 +148,7 @@ int Seneca_10DO::setDigOutput(int output, bool value)
 
 /* ZC-24DO */
 Seneca_24DO::Seneca_24DO(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 	, mOutputs(0)
 {
 }
@@ -163,7 +186,7 @@ int Seneca_24DO::setDigOutput(int output, bool value)
 
 /* ZC-16DI-8DO */
 Seneca_16DI_8DO::Seneca_16DI_8DO(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 	, mInputs(0)
 	, mOutputs(0)
 {
@@ -225,7 +248,7 @@ int Seneca_16DI_8DO::getInputVal(int input)
 
 /* Z-4RTD-2 */
 Seneca_4RTD::Seneca_4RTD(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 {
 	for (int i=0; i<4; ++i)
 		mInputs[i] = 0;
@@ -252,7 +275,7 @@ int Seneca_4RTD::getInputVal(int input)
 
 /* Z-4AI */
 Seneca_4AI::Seneca_4AI(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 {
 	for (int i=0; i<4; ++i)
 		mInputs[i] = 0;
@@ -274,7 +297,7 @@ int Seneca_4AI::getInputVal(int input)
 
 /* Z-3AO */
 Seneca_3AO::Seneca_3AO(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 {
 	for (int i=0; i<3; ++i)
 		mOutputs[i] = 0;
@@ -305,7 +328,7 @@ int Seneca_3AO::setOutputVal(int output, int val)
 
 /* Sensore temp/umidita */
 Burosoft_Temp::Burosoft_Temp(int modAddress)
-	: ModbusDevice(modAddress)
+	: ModbusDevice(modAddress, B38400)
 {
 	for (int i=0; i<2; ++i)
 		mInputs[i] = 0;

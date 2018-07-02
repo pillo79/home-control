@@ -9,10 +9,10 @@
 
 class ModbusDevice {
 	public:
-		static int openSerial(const char *device, int baudrate, char parity, int data_bits, int stop_bits);
+		static int openSerial(const char *device);
 		static void closeSerial();
 	public:
-		ModbusDevice(int modAddress);
+		ModbusDevice(int modAddress, int modBaudrate);
 		virtual ~ModbusDevice() { };
 
 		virtual int updateInputs() { return 0; };
@@ -27,9 +27,13 @@ class ModbusDevice {
 		virtual int setOutputVal(int output, int value) { UNUSED(output); UNUSED(value); return -ENOTSUP; }
 	protected:
 		int mAddress;
+		int mBaudrate;
 		int mFailures;
 		int mbReadReg(int idx, int count, uint16_t *values);
 		int mbWriteReg(int idx, int count, const uint16_t *values);
+
+	private:
+		static void mbSetBaudrate(int baudrate);
 };
 
 class Seneca_10DI : public ModbusDevice {

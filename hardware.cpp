@@ -13,7 +13,7 @@ static ModbusDevice *Burosoft_Temp_32;
 
 int InitHardware()
 {
-	Undefined = new ModbusDevice(-1);
+	Undefined = new ModbusDevice(-1, -1);
 
 	Seneca_16DI_8DO_1 = new Seneca_16DI_8DO(1);
 	Seneca_10DO_2 = new Seneca_10DO(2);
