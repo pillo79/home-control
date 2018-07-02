@@ -58,23 +58,32 @@ void ModbusDevice::mbSetBaudrate(int baudrate)
 
 int ModbusDevice::mbReadReg(int idx, int count, uint16_t *values)
 {
+	int ret = -ENOTSUP;
 	mbSetBaudrate(mBaudrate);
 	modbus_set_slave(mb, mAddress);
 
-	if ((idx > 40000) && (idx < 50000)) {
-		int ret = modbus_read_registers(mb, idx-40001, count, values);
+	if ((idx > 30000) && (idx < 40000)) {
+		ret = modbus_read_input_registers(mb, idx-30001, count, values);
 		if (ret < 0) {
 			if (mFailures < 60) mFailures += 5;
 			fprintf(stderr, "R err %s addr %i\n", strerror(errno), mAddress);
 		} else
 			if (mFailures) --mFailures;
-		return ret;
-	} else
-		return -ENOTSUP;
+	} else if ((idx > 40000) && (idx < 50000)) {
+		ret = modbus_read_registers(mb, idx-40001, count, values);
+		if (ret < 0) {
+			if (mFailures < 60) mFailures += 5;
+			fprintf(stderr, "R err %s addr %i\n", strerror(errno), mAddress);
+		} else
+			if (mFailures) --mFailures;
+	}
+
+	return ret;
 }
 
 int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 {
+	int ret = -ENOTSUP;
 	mbSetBaudrate(mBaudrate);
 	modbus_set_slave(mb, mAddress);
 
@@ -85,9 +94,9 @@ int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 			fprintf(stderr, "W err %s addr %i\n", strerror(errno), mAddress);
 		} else
 			if (mFailures) --mFailures;
+	}
+
 	return ret;
-	} else
-		return -ENOTSUP;
 }
 
 
