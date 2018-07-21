@@ -103,7 +103,7 @@ int ModbusDevice::mbWriteReg(int idx, int count, const uint16_t *values)
 
 /* Z-10-D-IN */
 Seneca_10DI::Seneca_10DI(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 	, mInputs(0)
 {
 }
@@ -124,7 +124,7 @@ int Seneca_10DI::getDigInput(int input)
 
 /* Z-10-D-OUT */
 Seneca_10DO::Seneca_10DO(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 	, mOutputs(0)
 {
 }
@@ -157,7 +157,7 @@ int Seneca_10DO::setDigOutput(int output, bool value)
 
 /* ZC-24DO */
 Seneca_24DO::Seneca_24DO(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 	, mOutputs(0)
 {
 }
@@ -195,7 +195,7 @@ int Seneca_24DO::setDigOutput(int output, bool value)
 
 /* ZC-16DI-8DO */
 Seneca_16DI_8DO::Seneca_16DI_8DO(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 	, mInputs(0)
 	, mOutputs(0)
 {
@@ -257,7 +257,7 @@ int Seneca_16DI_8DO::getInputVal(int input)
 
 /* Z-4RTD-2 */
 Seneca_4RTD::Seneca_4RTD(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 {
 	for (int i=0; i<4; ++i)
 		mInputs[i] = 0;
@@ -284,7 +284,7 @@ int Seneca_4RTD::getInputVal(int input)
 
 /* Z-4AI */
 Seneca_4AI::Seneca_4AI(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 {
 	for (int i=0; i<4; ++i)
 		mInputs[i] = 0;
@@ -306,7 +306,7 @@ int Seneca_4AI::getInputVal(int input)
 
 /* Z-3AO */
 Seneca_3AO::Seneca_3AO(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 {
 	for (int i=0; i<3; ++i)
 		mOutputs[i] = 0;
@@ -365,7 +365,7 @@ int Eastron_SDM230::getInputVal(int input)
 
 /* Sensore temp/umidita */
 Burosoft_Temp::Burosoft_Temp(int modAddress)
-	: ModbusDevice(modAddress, B38400)
+	: ModbusDevice(modAddress, B9600)
 {
 	for (int i=0; i<2; ++i)
 		mInputs[i] = 0;

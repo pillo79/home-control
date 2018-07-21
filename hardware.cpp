@@ -1,5 +1,7 @@
 #include "hardware.h"
 
+#include <unistd.h>
+
 struct Hardware HW;
 
 static ModbusDevice *Undefined;
@@ -97,7 +99,7 @@ int InitHardware()
 
 // #define DUMP(x) do { printf("%s: ", #x); int ret = x; if (ret < 0) printf("err %i\n", -errno); else printf("OK\n"); } while (0)
 // #define DUMP(x) do { int ret = x; if (ret < 0) printf("%s err %i\n", #x, -errno); } while (0)
-#define DUMP(x) x
+#define DUMP(x) x ; usleep(10000)
 
 void ReadHardwareInputs()
 {
