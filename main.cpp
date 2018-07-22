@@ -66,8 +66,21 @@ static int openSerial(const char *device, int baudrate, char parity, int data_bi
 
 static int mbReadReg(int address, int idx, int count, uint16_t *values)
 {
+	int ret = -1;
+
 	modbus_set_slave(mb, address);
-	return modbus_read_registers(mb, idx, count, values);
+
+	if ((idx > 30000) && (idx < 40000)) {
+		ret = modbus_read_input_registers(mb, idx-30001, count, values);
+		if (ret < 0)
+			fprintf(stderr, "R err %s addr %i\n", strerror(errno), address);
+	} else if ((idx > 40000) && (idx < 50000)) {
+		ret = modbus_read_registers(mb, idx-40001, count, values);
+		if (ret < 0)
+			fprintf(stderr, "R err %s addr %i\n", strerror(errno), address);
+	}
+
+	return ret;
 }
 
 int main(int argc, char *argv[])
@@ -84,7 +97,7 @@ int main(int argc, char *argv[])
 	int count = atoi(argv[3]);
 	uint16_t values[256];
 
-	ret = openSerial("/dev/ttyUSB0", 38400, 'N', 8, 1);
+	ret = openSerial("/dev/ttyUSB0", 9600, 'N', 8, 1);
 	if (ret) {
 		perror("Cannot open serial");
 		return ret;
