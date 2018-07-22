@@ -346,7 +346,7 @@ Eastron_SDM230::Eastron_SDM230(int modAddress)
 int Eastron_SDM230::updateInputs()
 {
 	int ret = mbReadReg(30013, 2, mInputs);
-	if (ret) return ret;
+	if (ret < 2) return ret;
 	return mbReadReg(30343, 2, mInputs+2);
 }
 

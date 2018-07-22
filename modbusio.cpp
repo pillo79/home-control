@@ -1,4 +1,5 @@
 #include <modbusio.h>
+#include <math.h>
 
 #include "modbusdevice.h"
 
@@ -86,12 +87,11 @@ FloatInput::FloatInput(QString name, ModbusDevice *dev, int wordAddr, double sca
 int FloatInput::getValue() const
 {
 	union {
-		unsigned short words[2];
+		unsigned long l;
 		float f;
 	} v;
 
-	v.words[0] = mDev->getInputVal(mWordAddr);
-	v.words[1] = mDev->getInputVal(mWordAddr+1);
-
-	return (int) (v.f * mScale);
+	v.l = (mDev->getInputVal(mWordAddr) << 16) | mDev->getInputVal(mWordAddr+1);
+//	printf("%32s %04x: %08x %10f\n", qPrintable(mName), mWordAddr, v.l, (double)v.f);
+	return (int) fabs(v.f * mScale);
 }

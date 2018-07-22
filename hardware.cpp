@@ -84,10 +84,10 @@ int InitHardware()
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
 	INIT(PompaCalore.wTemperaturaPannelli,		WordInput,	Seneca_4RTD_5, 2);
 	// float inputs
-	INIT(Pannelli.wEnergiaProdotta,			FloatInput,	Eastron_SDM230_10, 30343, 1000.0);
-	INIT(Pannelli.wPotenzaProdotta,			FloatInput,	Eastron_SDM230_10, 30013, 1.0);
-	INIT(Pannelli.wEnergiaConsumata,		FloatInput,	Eastron_SDM230_11, 30343, 1000.0);
-	INIT(Pannelli.wPotenzaConsumata,		FloatInput,	Eastron_SDM230_11, 30013, 1.0);
+	INIT(Pannelli.wEnergiaProdotta,			FloatInput,	Eastron_SDM230_11, 30343, 1000.0);
+	INIT(Pannelli.wPotenzaProdotta,			FloatInput,	Eastron_SDM230_11, 30013, 1.0);
+	INIT(Pannelli.wEnergiaConsumata,		FloatInput,	Eastron_SDM230_10, 30343, 1000.0);
+	INIT(Pannelli.wPotenzaConsumata,		FloatInput,	Eastron_SDM230_10, 30013, 1.0);
 	INIT(Pannelli.wPotenzaResistenze,		FloatInput,	Eastron_SDM230_12, 30013, 1.0);
 	// outputs
 	INIT(Accumulo.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
