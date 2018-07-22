@@ -65,9 +65,11 @@ struct Hardware {
 		WordInput *wTemperatura;
 	} Accumulo;
 	struct {
-		WordInput *wPotenzaProdotta;
-		WordInput *wPotenzaConsumata;
-		WordInput *wPotenzaResistenze;
+		FloatInput *wEnergiaProdotta;
+		FloatInput *wPotenzaProdotta;
+		FloatInput *wEnergiaConsumata;
+		FloatInput *wPotenzaConsumata;
+		FloatInput *wPotenzaResistenze;
 	} Pannelli;
 	struct {
 		// word inputs

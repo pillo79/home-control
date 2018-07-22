@@ -9,8 +9,12 @@ static ModbusDevice *Undefined;
 static ModbusDevice *Seneca_16DI_8DO_1;
 static ModbusDevice *Seneca_10DO_2;
 static ModbusDevice *Seneca_3AO_3;
-static ModbusDevice *Seneca_4RTD_4, *Seneca_4RTD_5;
+static ModbusDevice *Seneca_4RTD_4;
+static ModbusDevice *Seneca_4RTD_5;
 static ModbusDevice *Seneca_24DO_6;
+static ModbusDevice *Eastron_SDM230_10;
+static ModbusDevice *Eastron_SDM230_11;
+static ModbusDevice *Eastron_SDM230_12;
 static ModbusDevice *Burosoft_Temp_32;
 
 int InitHardware()
@@ -23,9 +27,12 @@ int InitHardware()
 	Seneca_4RTD_4 = new Seneca_4RTD(4);
 	Seneca_4RTD_5 = new Seneca_4RTD(5);
 	Seneca_24DO_6 = new Seneca_24DO(6);
+	Eastron_SDM230_10 = new Eastron_SDM230(10);
+	Eastron_SDM230_11 = new Eastron_SDM230(11);
+	Eastron_SDM230_12 = new Eastron_SDM230(12);
 	Burosoft_Temp_32 = new Burosoft_Temp(0x20);
 
-#define INIT(var, type, dev, num) HW. var = new type( #var, dev, num)
+#define INIT(var, type, dev, num...) HW. var = new type( #var, dev, num)
 	INIT(xResetPLC,					BitOutput,	Seneca_24DO_6, 8);
 	// outputs
 	INIT(Caldaia.xAlimenta,				BitOutput,	Seneca_16DI_8DO_1, 1);
@@ -76,10 +83,12 @@ int InitHardware()
 	INIT(PompaCalore.wTemperaturaACS,		WordInput,	Seneca_4RTD_4, 3);
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
 	INIT(PompaCalore.wTemperaturaPannelli,		WordInput,	Seneca_4RTD_5, 2);
-	// word inputs
-	INIT(Pannelli.wPotenzaProdotta,			WordInput,	Seneca_16DI_8DO_1, 5);
-	INIT(Pannelli.wPotenzaConsumata,		WordInput,	Seneca_16DI_8DO_1, 4);
-	INIT(Pannelli.wPotenzaResistenze,		WordInput,	Seneca_16DI_8DO_1, 6);
+	// float inputs
+	INIT(Pannelli.wEnergiaProdotta,			FloatInput,	Eastron_SDM230_10, 30343, 1000.0);
+	INIT(Pannelli.wPotenzaProdotta,			FloatInput,	Eastron_SDM230_10, 30013, 1.0);
+	INIT(Pannelli.wEnergiaConsumata,		FloatInput,	Eastron_SDM230_11, 30343, 1000.0);
+	INIT(Pannelli.wPotenzaConsumata,		FloatInput,	Eastron_SDM230_11, 30013, 1.0);
+	INIT(Pannelli.wPotenzaResistenze,		FloatInput,	Eastron_SDM230_12, 30013, 1.0);
 	// outputs
 	INIT(Accumulo.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
 	INIT(Accumulo.xAcquaDaAccumulo,			BitOutput,	Seneca_10DO_2, 7);
@@ -109,6 +118,9 @@ void ReadHardwareInputs()
 	DUMP(Seneca_4RTD_4->updateInputs());
 	DUMP(Seneca_4RTD_5->updateInputs());
 	DUMP(Seneca_24DO_6->updateInputs());
+	DUMP(Eastron_SDM230_10->updateInputs());
+	DUMP(Eastron_SDM230_11->updateInputs());
+	DUMP(Eastron_SDM230_12->updateInputs());
 //	DUMP(Burosoft_Temp_32->updateInputs());
 }
 
@@ -125,7 +137,7 @@ void WriteHardwareOutputs()
 
 uint32_t GetCommErrorMask()
 {
-	int mask = 0;
+	uint32_t mask = 0;
 
 	if (Seneca_16DI_8DO_1->failing())	mask |= (1 << 1);
 	if (Seneca_10DO_2->failing())		mask |= (1 << 2);
@@ -133,6 +145,9 @@ uint32_t GetCommErrorMask()
 	if (Seneca_4RTD_4->failing())		mask |= (1 << 4);
 	if (Seneca_4RTD_5->failing())		mask |= (1 << 5);
 	if (Seneca_24DO_6->failing())		mask |= (1 << 6);
+	if (Eastron_SDM230_10->failing())	mask |= (1 << 10);
+	if (Eastron_SDM230_11->failing())	mask |= (1 << 11);
+	if (Eastron_SDM230_12->failing())	mask |= (1 << 12);
 //	if (Burosoft_Temp_32->failing())	mask |= (1 << 7);
 
 	return mask;

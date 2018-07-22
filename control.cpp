@@ -102,10 +102,6 @@ void ControlThread::run()
 
 	while(1) {
 
-		static PowerCalc pcProdotta(1);
-		static PowerCalc pcConsumata(1);
-		static PowerCalc pcResistenze(2);
-
 		QTime rd_time = QTime::currentTime();
 		ReadHardwareInputs();
 		int rd_ms = rd_time.elapsed();
@@ -117,9 +113,6 @@ void ControlThread::run()
 		// impulso reset PLC
 		static DelayRiseTimer tRichiestaRestart;
 		if (wCommErrorMask) {
-			pcProdotta.restart();
-			pcConsumata.restart();
-			pcResistenze.restart();
 			if (!xRichiestaRestart) {
 				xRichiestaRestart = true;
 				dtLastResetPLC = QDateTime::currentDateTime();
@@ -145,25 +138,21 @@ void ControlThread::run()
 		QTime now = today.time();
 		int nowSecs = now.hour()*3600 + now.minute()*60 + now.second();
 
-		if ((nowSecs != lastSecs) && ((nowSecs % SAMPLE_PERIOD_SECS) == 0) && !xRichiestaRestart) {
-			pcProdotta.addSample(HW.Pannelli.wPotenzaProdotta->getValue());
-			wPotProdotta = pcProdotta.getCurrentPower();
-			wEnergProdotta = pcProdotta.getCurrentEnergy() / 1000.0;
-			pcConsumata.addSample(HW.Pannelli.wPotenzaConsumata->getValue());
-			wPotConsumata = pcConsumata.getCurrentPower();
-			wEnergConsumata = pcConsumata.getCurrentEnergy() / 1000.0;
-			pcResistenze.addSample(HW.Pannelli.wPotenzaResistenze->getValue());
-			wPotResistenze = pcResistenze.getCurrentPower25();
-			printf("\n");
-		}
+		wPotProdotta = HW.Pannelli.wPotenzaProdotta->getValue();
+		wEnergProdotta = HW.Pannelli.wEnergiaProdotta->getValue() / 1000.0;
+
+		wPotConsumata = HW.Pannelli.wPotenzaConsumata->getValue();
+		wEnergConsumata = HW.Pannelli.wEnergiaConsumata->getValue() / 1000.0;
+
+		wPotResistenze = HW.Pannelli.wPotenzaResistenze->getValue();
 
 		if (now.minute() != lastTime.minute()) {
-			int prod = pcProdotta.getDeltaSteps();
-			int cons = pcConsumata.getDeltaSteps();
-			if (prod > cons)
-				tTempoAttivo = tTempoAttivo.addSecs(60);
-			else
-				wEnergPassivo = wEnergPassivo + (cons-prod) / 1000.0;
+//			int prod = pcProdotta.getDeltaSteps();
+//			int cons = pcConsumata.getDeltaSteps();
+//			if (prod > cons)
+//				tTempoAttivo = tTempoAttivo.addSecs(60);
+//			else
+//				wEnergPassivo = wEnergPassivo + (cons-prod) / 1000.0;
 
 			if ((wPotProdotta < 1500) || ((wPotConsumata > wPotProdotta) && !PowerLevel) || (wTemperaturaBoiler > 55))
 				xAutoPompaCaloreRisc = false;
@@ -171,12 +160,12 @@ void ControlThread::run()
 				xAutoPompaCaloreRisc = true;
 
 			if ((now.minute() % 3) == 0) {
-				int power_budget = pcProdotta.getCurrentPower25() + pcResistenze.getCurrentPower25() - pcConsumata.getCurrentPower25();
+				int power_budget = wPotProdotta + wPotResistenze - wPotConsumata;
 				int next_level;
 
 				// never allocate more power than currently produced
-				if (power_budget > pcProdotta.getCurrentPower25())
-					power_budget = pcProdotta.getCurrentPower25();
+				if (power_budget > wPotProdotta)
+					power_budget = wPotProdotta;
 
 				for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
 					if (power_budget > POWER_LEVEL[next_level].min_budget)
@@ -186,12 +175,12 @@ void ControlThread::run()
 				if (next_level != PowerLevel) {
 					NextPowerLevel = next_level;
 					setPowerLevel(0);
-					printf("%4i +%4i[%i] -%4i = %4i => SWITCH TO %4i[%i]\n",
-						pcProdotta.getCurrentPower25(), pcResistenze.getCurrentPower25(), PowerLevel, pcConsumata.getCurrentPower25(),
+					printf("%4.0f +%4.0f[%i] -%4.0f = %4i => SWITCH TO %4i[%i]\n",
+						wPotProdotta.value(), wPotResistenze.value(), PowerLevel, wPotConsumata.value(),
 						power_budget, POWER_LEVEL[NextPowerLevel].power, NextPowerLevel);
 				} else {
-					printf("%4i +%4i[%i] -%4i = %4i => NO CHANGE\n",
-						pcProdotta.getCurrentPower25(), pcResistenze.getCurrentPower25(), PowerLevel, pcConsumata.getCurrentPower25(),
+					printf("%4.0f +%4.0f[%i] -%4.0f = %4i => NO CHANGE\n",
+						wPotProdotta.value(), wPotResistenze.value(), PowerLevel, wPotConsumata.value(),
 						power_budget);
 				}
 
@@ -227,8 +216,6 @@ void ControlThread::run()
 			switch (now.hour()) {
 			case 0:
 				// NEXT DAY!
-				pcProdotta.resetTotals();
-				pcConsumata.resetTotals();
 				tTempoAttivo.setHMS(0,0,0);
 				wEnergPassivo = 0.0;
 				xCaricoAccumuloAttivo = false;
