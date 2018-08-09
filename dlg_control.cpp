@@ -36,7 +36,11 @@ ControlDlg::ControlDlg(QWidget *parent)
 
 void ControlDlg::loadSettings()
 {
-	ui.pbModoRisc->setChecked(mSettings.value("pbModoRisc").toBool());
+	if (mSettings.value("pbModoRisc").toBool()) {
+		ui.pbModoRisc->setChecked(true);
+	} else {
+		ui.pbModoCondiz->setChecked(true);
+	}
 
 	ui.pbNotte->setChecked(mSettings.value("pbNotte").toBool());
 	ui.pbGiorno->setChecked(mSettings.value("pbGiorno").toBool());
