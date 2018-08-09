@@ -72,6 +72,13 @@ static void echo(const char *what, const char *where)
 	fclose(f);
 }
 
+static void append(const char *what, const char *where)
+{
+	FILE *f = fopen(where, "w+");
+	fprintf(f, "%s", what);
+	fclose(f);
+}
+
 void ControlThread::setPowerLevel(int level)
 {
 	for (int i=0; i<5; ++i)
@@ -116,6 +123,7 @@ void ControlThread::run()
 			if (!xRichiestaRestart) {
 				xRichiestaRestart = true;
 				dtLastResetPLC = QDateTime::currentDateTime();
+				append(qPrintable(QString("%1 %2\n").arg(dtLastResetPLC.toString("yyyy-MM-dd hh:mm")).arg(wCommErrorMask, 4, 16, QChar('0'))), "/media/mmcblk0p2/reset.log");
 				++wResetPLCs;
 			}
 		}
