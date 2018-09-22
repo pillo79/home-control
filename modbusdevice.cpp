@@ -17,7 +17,7 @@ int ModbusDevice::openSerial(const char *device)
 		mb = modbus_new_rtu(device, 9600, 'N', 8, 1);
 		struct timeval tv = { 0, 100000 };
 		modbus_set_response_timeout(mb, &tv);
-//		modbus_set_debug(mb, 1);
+		modbus_set_debug(mb, 1);
 		ret = modbus_connect(mb);
 		if (ret < 0)
 			closeSerial();
@@ -208,9 +208,10 @@ int Seneca_16DI_8DO::updateInputs()
 	// read digital inputs
 	ret = mbReadReg(40301, 1, &mInputs);
 	if (ret < 1) return ret;
-
+#if 0	// disabled to optimize speed
 	// read counters
 	ret = mbReadReg(40009, 16, mCounters);
+#endif
 	return ret;
 }
 
@@ -246,11 +247,15 @@ int Seneca_16DI_8DO::setDigOutput(int output, bool value)
 
 int Seneca_16DI_8DO::getInputVal(int input)
 {
+#if 0	// disabled to optimize speed
 	if (input < 1) return -ENOTSUP;
 	if (input > 8) return -ENOTSUP;
 
 	input = (input-1) << 1;
 	return (mCounters[input] << 16) | mCounters[input+1];
+#else
+	return -ENOTSUP;
+#endif
 }
 
 

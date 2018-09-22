@@ -74,7 +74,7 @@ static void echo(const char *what, const char *where)
 
 static void append(const char *what, const char *where)
 {
-	FILE *f = fopen(where, "w+");
+	FILE *f = fopen(where, "a");
 	fprintf(f, "%s", what);
 	fclose(f);
 }
