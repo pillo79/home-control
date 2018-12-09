@@ -117,7 +117,11 @@ static int mbWriteReg(int argc, const char *argv[])
 	if ((idx < 40000) || (idx > 50000))
 		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 40000, 50000);
 
-	ret = modbus_write_registers(mb, idx-40001, count, values);
+	if (count == 1)
+		ret = modbus_write_register(mb, idx-40001, values[0]);
+	else
+		ret = modbus_write_registers(mb, idx-40001, count, values);
+
 	if (ret < 0)
 		fprintf(stderr, "R err %s addr %i\n", strerror(errno), address);
 

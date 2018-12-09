@@ -17,7 +17,6 @@ int ModbusDevice::openSerial(const char *device)
 		mb = modbus_new_rtu(device, 9600, 'N', 8, 1);
 		struct timeval tv = { 0, 100000 };
 		modbus_set_response_timeout(mb, &tv);
-		modbus_set_debug(mb, 1);
 		ret = modbus_connect(mb);
 		if (ret < 0)
 			closeSerial();
