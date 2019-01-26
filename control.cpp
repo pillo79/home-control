@@ -127,10 +127,10 @@ void ControlThread::run()
 				++wResetPLCs;
 			}
 		}
-		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
-		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);
-		if (xRitardoRichiestaRestart && !wCommErrorMask)
-			xRichiestaRestart = false;
+//		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
+//		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);
+//		if (xRitardoRichiestaRestart && !wCommErrorMask)
+//			xRichiestaRestart = false;
 
 		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue() / 10.0;
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue() / 10.0;
