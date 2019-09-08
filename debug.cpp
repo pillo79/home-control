@@ -39,7 +39,7 @@ static void dump(uint16_t *values, int idx, int count)
 		if (i%2)
 			printf("%6i: %04x %5i\n", i+idx, values[i], values[i]);
 		else {
-			union {
+			volatile union {
 				unsigned long l;
 				float f;
 			} v;
@@ -62,12 +62,14 @@ static int mbReadInput(int argc, const char *argv[])
 
 	modbus_set_slave(mb, address);
 
-	if ((idx < 30000) || (idx > 40000))
-		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 30000, 40000);
+	if ((idx < 30001) || (idx > 40000))
+		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 30001, 40000);
 
 	ret = modbus_read_input_registers(mb, idx-30001, count, values);
-	if (ret < 0)
+	if (ret < 0) {
 		fprintf(stderr, "R err %s addr %i\n", strerror(errno), address);
+		return ret;
+	}
 
 	printf("Reading %i input registers from device %i from index %i:\n", count, address, idx);
 	dump(values, idx, count);
@@ -87,12 +89,14 @@ static int mbReadReg(int argc, const char *argv[])
 
 	modbus_set_slave(mb, address);
 
-	if ((idx < 40000) || (idx > 50000))
-		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 40000, 50000);
+	if ((idx < 40001) || (idx > 50000))
+		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 40001, 50000);
 
 	ret = modbus_read_registers(mb, idx-40001, count, values);
-	if (ret < 0)
+	if (ret < 0) {
 		fprintf(stderr, "R err %s addr %i\n", strerror(errno), address);
+		return ret;
+	}
 
 	printf("Reading %i holding registers from device %i from index %i:\n", count, address, idx);
 	dump(values, idx, count);
@@ -114,16 +118,18 @@ static int mbWriteReg(int argc, const char *argv[])
 
 	modbus_set_slave(mb, address);
 
-	if ((idx < 40000) || (idx > 50000))
-		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 40000, 50000);
+	if ((idx < 40001) || (idx > 50000))
+		printf("Warning: accessing %i but expecting the range %i...%i\n", idx, 40001, 50000);
 
 	if (count == 1)
 		ret = modbus_write_register(mb, idx-40001, values[0]);
 	else
 		ret = modbus_write_registers(mb, idx-40001, count, values);
 
-	if (ret < 0)
-		fprintf(stderr, "R err %s addr %i\n", strerror(errno), address);
+	if (ret < 0) {
+		fprintf(stderr, "W err %s addr %i\n", strerror(errno), address);
+		return ret;
+	}
 
 	printf("Written %i holding registers to device %i from index %i with:\n", count, address, idx);
 	dump(values, idx, count);
@@ -162,6 +168,41 @@ static int mbWriteReg(int argc, const char *argv[])
 //
 // 	return ret;
 // }
+static int mbFloat2Reg(int argc, const char *argv[])
+{
+	int ret = -1;
+
+	volatile union {
+		unsigned long l;
+		float f;
+	} v;
+
+	v.f = strtof(argv[0], NULL);
+	int regh = (v.l >> 16);
+	int regl = (v.l & 0xffff);
+
+	printf("%10.3hf => %5i %5i (0x%04x 0x%04x)\n", v.f, regh, regl, regh, regl);
+
+	return ret;
+}
+
+static int mbReg2Float(int argc, const char *argv[])
+{
+	int ret = -1;
+
+	volatile union {
+		unsigned long l;
+		float f;
+	} v;
+
+	int regh = strtol(argv[0], NULL, 0);
+	int regl = strtol(argv[1], NULL, 0);
+	v.l = (regh << 16) | regl;
+
+	printf("%5i %5i (0x%04x 0x%04x) => %10.3hf\n", regh, regl, regh, regl, v.f);
+
+	return ret;
+}
 
 static const struct AppType {
 	const char *name;
@@ -173,12 +214,19 @@ static const struct AppType {
 	{ "mbreadreg", mbReadReg, 3, "addr idx count" },
 	{ "mbwritereg", mbWriteReg, -3, "addr idx val..." },
 //	{ "mbwriteout", mbWriteOutput, -3, "addr idx val..." },
+	{ "mbfloat2reg", mbFloat2Reg, 1, "float" },
+	{ "mbreg2float", mbReg2Float, 2, "regh regl" },
 	{ NULL }
 };
 
 static void fail(const struct AppType *at)
 {
-	fprintf(stderr, "Usage: %s %s\n", at->name, at->help);
+	fprintf(stderr, "Usage: %s [opts] %s\n", at->name, at->help);
+	fprintf(stderr, "Options:  -d device\n");
+	fprintf(stderr, "          -s speed\n");
+	fprintf(stderr, "          -B data bits (7/8)\n");
+	fprintf(stderr, "          -p parity (N/E/O)\n");
+	fprintf(stderr, "          -b stop bits (1/2)\n");
 	exit(1);
 }
 
@@ -188,8 +236,11 @@ int main(int argc, char *argv[])
 
 	const struct AppType *at = NULL;
 
-	int speed = 9600;
 	const char *device = "/dev/ttyUSB0";
+	int speed = 9600;
+	int data_bits = 8;
+	char parity = 'N';
+	char stop_bits = 1;
 
 	for (int i=0; APP_TYPES[i].name; ++i)
 		if (!strcmp(argv[0], APP_TYPES[i].name))
@@ -204,25 +255,33 @@ int main(int argc, char *argv[])
 	}
 
 	int c;
-	while ((c = getopt (argc, argv, "s:d:D:")) != -1)
+	while ((c = getopt (argc, argv, "s:p:B:b:d:D:")) != -1)
 		switch (c)
 		{
 			case 's':
 				speed = strtol(optarg, NULL, 0);
+				break;
+			case 'p':
+				parity = *optarg;
+				break;
+			case 'B':
+				data_bits = strtol(optarg, NULL, 0);
+				break;
+			case 'b':
+				stop_bits = strtol(optarg, NULL, 0);
 				break;
 			case 'd':
 			case 'D':
 				device = strdup(optarg);
 				break;
 			case '?':
-				if ((optopt == 's') || (optopt == 'd') || (optopt == 'D'))
+				if ((optopt == 's') || (optopt == 'd') || (optopt == 'D') || (optopt == 'b') || (optopt == 'B') || (optopt == 'p'))
 					fprintf (stderr, "Option -%c requires an argument.\n", optopt);
 				else
 					fprintf (stderr, "Unknown option `-%c'.\n", optopt);
 				fail(at);
 		}
 
-	printf("%i %i %i\n", optind, argc, at->args);
 	if (at->args < 0) {
 		if ((argc-optind) < -at->args)
 			fail(at);
@@ -231,10 +290,10 @@ int main(int argc, char *argv[])
 			fail(at);
 	}
 
-	ret = openSerial(device, speed, 'N', 8, 1);
+	ret = openSerial(device, speed, parity, data_bits, stop_bits);
 	if (ret) {
 		char buf[256];
-		sprintf(buf, "Opening %s at %i", device, speed);
+		sprintf(buf, "Opening %s at %i %i%c%i", device, speed, data_bits, parity, stop_bits);
 		perror(buf);
 		return ret;
 	}
