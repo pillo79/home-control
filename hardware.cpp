@@ -12,10 +12,9 @@ static ModbusDevice *Seneca_3AO_3;
 static ModbusDevice *Seneca_4RTD_4;
 static ModbusDevice *Seneca_4RTD_5;
 static ModbusDevice *Seneca_24DO_6;
-static ModbusDevice *Eastron_SDM230_10;
-static ModbusDevice *Eastron_SDM230_11;
-static ModbusDevice *Eastron_SDM230_12;
-static ModbusDevice *Burosoft_Temp_32;
+static ModbusDevice *Eastron_SDM120CT_10;
+static ModbusDevice *Eastron_SDM120CT_11;
+static ModbusDevice *Eastron_SDM120CT_12;
 
 int InitHardware()
 {
@@ -30,7 +29,6 @@ int InitHardware()
 	Eastron_SDM230_10 = new Eastron_SDM230(10);
 	Eastron_SDM230_11 = new Eastron_SDM230(11);
 	Eastron_SDM230_12 = new Eastron_SDM230(12);
-	Burosoft_Temp_32 = new Burosoft_Temp(0x20);
 
 #define INIT(var, type, dev, num...) HW. var = new type( #var, dev, num)
 	INIT(xResetPLC,					BitOutput,	Seneca_24DO_6, 8);
@@ -84,11 +82,11 @@ int InitHardware()
 	INIT(PompaCalore.wTemperaturaBoiler,		WordInput,	Seneca_4RTD_4, 4);
 	INIT(PompaCalore.wTemperaturaPannelli,		WordInput,	Seneca_4RTD_5, 2);
 	// float inputs
-	INIT(Pannelli.wEnergiaProdotta,			FloatInput,	Eastron_SDM230_11, 30343, 1000.0);
-	INIT(Pannelli.wPotenzaProdotta,			FloatInput,	Eastron_SDM230_11, 30013, 1.0);
-	INIT(Pannelli.wEnergiaConsumata,		FloatInput,	Eastron_SDM230_10, 30343, 1000.0);
-	INIT(Pannelli.wPotenzaConsumata,		FloatInput,	Eastron_SDM230_10, 30013, 1.0);
-	INIT(Pannelli.wPotenzaResistenze,		FloatInput,	Eastron_SDM230_12, 30013, 1.0);
+	INIT(Pannelli.wEnergiaProdotta,			FloatInput,	Eastron_SDM120CT_11, 30343, 1000.0);
+	INIT(Pannelli.wPotenzaProdotta,			FloatInput,	Eastron_SDM120CT_11, 30013, 1.0);
+	INIT(Pannelli.wEnergiaConsumata,		FloatInput,	Eastron_SDM120CT_10, 30343, 1000.0);
+	INIT(Pannelli.wPotenzaConsumata,		FloatInput,	Eastron_SDM120CT_10, 30013, 1.0);
+	INIT(Pannelli.wPotenzaResistenze,		FloatInput,	Eastron_SDM120CT_12, 30013, 1.0);
 	// outputs
 	INIT(Accumulo.xStartPompa,			BitOutput,	Seneca_10DO_2, 6);
 	INIT(Accumulo.xAcquaDaAccumulo,			BitOutput,	Seneca_10DO_2, 7);
@@ -118,10 +116,9 @@ void ReadHardwareInputs()
 	DUMP(Seneca_4RTD_4->updateInputs());
 	DUMP(Seneca_4RTD_5->updateInputs());
 	DUMP(Seneca_24DO_6->updateInputs());
-	DUMP(Eastron_SDM230_10->updateInputs());
-	DUMP(Eastron_SDM230_11->updateInputs());
-	DUMP(Eastron_SDM230_12->updateInputs());
-//	DUMP(Burosoft_Temp_32->updateInputs());
+	DUMP(Eastron_SDM120CT_10->updateInputs());
+	DUMP(Eastron_SDM120CT_11->updateInputs());
+	DUMP(Eastron_SDM120CT_12->updateInputs());
 }
 
 void WriteHardwareOutputs()
@@ -132,7 +129,6 @@ void WriteHardwareOutputs()
 	DUMP(Seneca_4RTD_4->updateOutputs());
 	DUMP(Seneca_4RTD_5->updateOutputs());
 	DUMP(Seneca_24DO_6->updateOutputs());
-//	DUMP(Burosoft_Temp_32->updateOutputs());
 }
 
 uint32_t GetCommErrorMask()
@@ -145,10 +141,9 @@ uint32_t GetCommErrorMask()
 	if (Seneca_4RTD_4->failing())		mask |= (1 << 4);
 	if (Seneca_4RTD_5->failing())		mask |= (1 << 5);
 	if (Seneca_24DO_6->failing())		mask |= (1 << 6);
-	if (Eastron_SDM230_10->failing())	mask |= (1 << 10);
-	if (Eastron_SDM230_11->failing())	mask |= (1 << 11);
-	if (Eastron_SDM230_12->failing())	mask |= (1 << 12);
-//	if (Burosoft_Temp_32->failing())	mask |= (1 << 7);
+	if (Eastron_SDM120CT_10->failing())	mask |= (1 << 10);
+	if (Eastron_SDM120CT_11->failing())	mask |= (1 << 11);
+	if (Eastron_SDM120CT_12->failing())	mask |= (1 << 12);
 
 	return mask;
 }

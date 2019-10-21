@@ -143,6 +143,18 @@ class Eastron_SDM230 : public ModbusDevice {
 		uint16_t mInputs[4];
 };
 
+class Eastron_SDM120CT : public ModbusDevice {
+	public:
+		Eastron_SDM120CT(int modAddress);
+		virtual ~Eastron_SDM120CT() { };
+
+		virtual int updateInputs();
+
+		virtual int getInputVal(int input);
+	private:
+		uint16_t mInputs[4];
+};
+
 class Burosoft_Temp : public ModbusDevice {
 	public:
 		Burosoft_Temp(int modAddress);

@@ -367,6 +367,34 @@ int Eastron_SDM230::getInputVal(int input)
 
 
 
+/* Sensore potenza con CT */
+Eastron_SDM120CT::Eastron_SDM120CT(int modAddress)
+	: ModbusDevice(modAddress, B9600)
+{
+	for (int i=0; i<4; ++i)
+		mInputs[i] = 0;
+}
+
+int Eastron_SDM120CT::updateInputs()
+{
+	int ret = mbReadReg(30013, 2, mInputs);
+	if (ret < 2) return ret;
+	return mbReadReg(30343, 2, mInputs+2);
+}
+
+int Eastron_SDM120CT::getInputVal(int input)
+{
+	switch (input) {
+		case 30013:	return mInputs[0];
+		case 30014:	return mInputs[1];
+		case 30343:	return mInputs[2];
+		case 30344:	return mInputs[3];
+		default:	return -ENOTSUP;
+	}
+}
+
+
+
 /* Sensore temp/umidita */
 Burosoft_Temp::Burosoft_Temp(int modAddress)
 	: ModbusDevice(modAddress, B9600)
