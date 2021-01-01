@@ -124,8 +124,8 @@ void StatusDlg::updateScreen()
 	ui.tlTempAccumulo->setText(control().wTemperaturaAccumulo.format());
 	ui.tlTempPannelli->setText(control().wTemperaturaPannelli.format());
 
-	ui.tlTempSoffitta->setText(control().wTempSoffitta.format());
-	ui.tlUmidSoffitta->setText(control().wUmidSoffitta.format());
+//	ui.tlTempSoffitta->setText(control().wTempSoffitta.format());
+//	ui.tlUmidSoffitta->setText(control().wUmidSoffitta.format());
 
 	ui.tlTempEsterno->setText(control().wTempEsterno.format());
 

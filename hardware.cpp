@@ -26,9 +26,9 @@ int InitHardware()
 	Seneca_4RTD_4 = new Seneca_4RTD(4);
 	Seneca_4RTD_5 = new Seneca_4RTD(5);
 	Seneca_24DO_6 = new Seneca_24DO(6);
-	Eastron_SDM230_10 = new Eastron_SDM230(10);
-	Eastron_SDM230_11 = new Eastron_SDM230(11);
-	Eastron_SDM230_12 = new Eastron_SDM230(12);
+	Eastron_SDM120CT_10 = new Eastron_SDM120CT(10);
+	Eastron_SDM120CT_11 = new Eastron_SDM120CT(11);
+	Eastron_SDM120CT_12 = new Eastron_SDM120CT(12);
 
 #define INIT(var, type, dev, num...) HW. var = new type( #var, dev, num)
 	INIT(xResetPLC,					BitOutput,	Seneca_24DO_6, 8);
@@ -99,8 +99,8 @@ int InitHardware()
 	INIT(Ambiente.wUmiditaZonaGiorno,		WordInput,	Undefined, -1);
 	INIT(Ambiente.wTemperaturaZonaNotte,		WordInput,	Undefined, -1);
 	INIT(Ambiente.wUmiditaZonaNotte,		WordInput,	Undefined, -1);
-	INIT(Ambiente.wTemperaturaSoffitta,		WordInput,	Burosoft_Temp_32, 1);
-	INIT(Ambiente.wUmiditaSoffitta,			WordInput,	Burosoft_Temp_32, 2);
+	INIT(Ambiente.wTemperaturaSoffitta,		WordInput,	Undefined, -1);
+	INIT(Ambiente.wUmiditaSoffitta,			WordInput,	Undefined, -1);
 	return 0;
 }
 
