@@ -107,6 +107,14 @@ void ControlThread::run()
 	int PowerLevel = 0;
 	int NextPowerLevel = -1;
 
+	bool initGiorEnergia = true;
+	double giorEnergProdotta = 0.0;
+	double giorEnergConsumata = 0.0;
+
+	bool initMinEnergia = true;
+	double minEnergProdotta = 0.0;
+	double minEnergConsumata = 0.0;
+
 	while(1) {
 
 		QTime rd_time = QTime::currentTime();
@@ -147,20 +155,34 @@ void ControlThread::run()
 		int nowSecs = now.hour()*3600 + now.minute()*60 + now.second();
 
 		wPotProdotta = HW.Pannelli.wPotenzaProdotta->getValue();
-		wEnergProdotta = HW.Pannelli.wEnergiaProdotta->getValue() / 1000.0;
-
 		wPotConsumata = HW.Pannelli.wPotenzaConsumata->getValue();
-		wEnergConsumata = HW.Pannelli.wEnergiaConsumata->getValue() / 1000.0;
+
+		double curEnergProdotta = HW.Pannelli.wEnergiaProdotta->getValue() / 1000.0;
+		double curEnergConsumata = HW.Pannelli.wEnergiaConsumata->getValue() / 1000.0;
+		if (initGiorEnergia) {
+			giorEnergProdotta = curEnergProdotta;
+			giorEnergConsumata = curEnergConsumata;
+			initGiorEnergia = false;
+		}
+		wEnergProdotta = curEnergProdotta - giorEnergProdotta;
+		wEnergConsumata = curEnergConsumata - giorEnergConsumata;
 
 		wPotResistenze = HW.Pannelli.wPotenzaResistenze->getValue();
 
 		if (now.minute() != lastTime.minute()) {
-//			int prod = pcProdotta.getDeltaSteps();
-//			int cons = pcConsumata.getDeltaSteps();
-//			if (prod > cons)
-//				tTempoAttivo = tTempoAttivo.addSecs(60);
-//			else
-//				wEnergPassivo = wEnergPassivo + (cons-prod) / 1000.0;
+			if (initMinEnergia) {
+				// do not add data for first cycle
+				initMinEnergia = false;
+			}  else {
+				double prod = curEnergProdotta - minEnergProdotta;
+				double cons = curEnergConsumata - minEnergConsumata;
+				if (prod > cons)
+					tTempoAttivo = tTempoAttivo.addSecs(60);
+				else
+					wEnergPassivo = wEnergPassivo + (cons-prod);
+			}
+			minEnergProdotta = curEnergProdotta;
+			minEnergConsumata = curEnergConsumata;
 
 			if ((wPotProdotta < 1500) || ((wPotConsumata > wPotProdotta) && !PowerLevel) || (wTemperaturaBoiler > 55))
 				xAutoPompaCaloreRisc = false;
@@ -226,6 +248,7 @@ void ControlThread::run()
 				// NEXT DAY!
 				tTempoAttivo.setHMS(0,0,0);
 				wEnergPassivo = 0.0;
+				initGiorEnergia = true;
 				xCaricoAccumuloAttivo = false;
 				break;
 			case 6:
