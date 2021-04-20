@@ -281,6 +281,24 @@ void ControlThread::run()
 		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe);
 
+		bool acs_attiva = false;
+		if (wTemperaturaACS < 55) {
+			/* orari ACS auto */
+			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
+			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
+		}
+
+		if (xModoRiscaldamento)
+			acs_attiva |= impianto_acceso;
+
+		if (acs_attiva && xDisabilitaCaldaia) {
+			// HP deve scaldare ACS anche se potenza non sufficiente
+			if (wTemperaturaACS < 50)
+				xAutoPompaCaloreRisc = true;
+			else if (wTemperaturaACS > 55)
+				xAutoPompaCaloreRisc = false;
+		}
+
 		if (!xModoRiscaldamento && impianto_acceso) {
 			// imposta e forza raffreddamento HP
 			xAutoPompaCaloreRisc = false;
@@ -396,16 +414,6 @@ void ControlThread::run()
 		HW.PompaCalore.xRichiestaCaldo->setValue(xPompaCaloreRiscInUso);
 		HW.PompaCalore.xRichiestaFreddo->setValue(xPompaCaloreCondInUso);
 
-		bool acs_attiva = false;
-		if (!xPompaCaloreRiscInUso && (wTemperaturaACS < 55)) {
-			/* caldaia auto */
-			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
-			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
-		}
-
-		if (xModoRiscaldamento)
-			acs_attiva |= impianto_acceso && !risc_manuale_solo_hp;
-
 		// condizioni HPSU->accumulo ("salvataggio energia")
 		// abilitato quando tBoiler > 60C
 		// disabilitato ogni giorno alle 18
@@ -478,12 +486,12 @@ void ControlThread::run()
 			xTrasfVersoAccumuloInCorso = false;
 		}
 
-		if (acs_attiva && !xDisabilitaCaldaia) {
+		if (acs_attiva && !xPompaCaloreRiscInUso && !xDisabilitaCaldaia) {
 			/* auto mode */
 			if (wTemperaturaACS < 50)
 				xAutoCaldaia = true;
-			else if (wTemperaturaACS > 55)
-				xAutoCaldaia = false;
+		else if (wTemperaturaACS > 55)
+			xAutoCaldaia = false;
 		} else {
 			xAutoCaldaia = false;
 		}
