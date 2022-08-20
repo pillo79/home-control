@@ -33,11 +33,11 @@ int InitHardware()
 #define INIT(var, type, dev, num...) HW. var = new type( #var, dev, num)
 	INIT(xResetPLC,					BitOutput,	Seneca_24DO_6, 8);
 	// outputs
-	INIT(Caldaia.xAlimenta,				BitOutput,	Seneca_16DI_8DO_1, 1);
-	INIT(Caldaia.xStartCaldaia,			BitOutput,	Seneca_16DI_8DO_1, 2);
-	INIT(Caldaia.xStartPompa,			BitOutput,	Seneca_16DI_8DO_1, 3);
+	INIT(Gas.xAlimenta,				BitOutput,	Seneca_16DI_8DO_1, 1);
+	INIT(Gas.xStartCaldaia,				BitOutput,	Seneca_16DI_8DO_1, 2);
+	INIT(Gas.xStartPompa,				BitOutput,	Seneca_16DI_8DO_1, 3);
 	// inputs
-	INIT(Caldaia.xFiammaAccesa,			BitInput,	Seneca_16DI_8DO_1, 1);
+	INIT(Gas.xFiammaAccesa,				BitInput,	Seneca_16DI_8DO_1, 1);
 	// outputs
 	INIT(Riscaldamento.xChiudiValvola,		BitOutput,	Seneca_16DI_8DO_1, 4);
 	INIT(Riscaldamento.xStartPompaGiorno,		BitOutput,	Seneca_16DI_8DO_1, 5);

@@ -13,7 +13,7 @@ struct Hardware {
 		BitOutput *xStartPompa;
 		// inputs
 		BitInput *xFiammaAccesa;
-	} Caldaia;
+	} Gas;
 	struct {
 		// outputs
 		BitOutput *xChiudiValvola;

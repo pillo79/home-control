@@ -95,7 +95,7 @@ void ControlThread::run()
 	QTime lastTime = QTime::currentTime();
 	int lastSecs = lastTime.hour()*3600 + lastTime.minute()*60 + lastTime.second();
 
-	bool xAutoCaldaia = false;
+	bool xAutoGas = false;
 	bool xAutoPompaCaloreRisc = false;
 	bool xAutoPompaCaloreCond = false;
 	bool xAutoTrasfDaAccumulo = false;
@@ -269,7 +269,7 @@ void ControlThread::run()
 
 		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
 		bool impianto_acceso = zone_accese || xAttivaFanCoil;
-		bool risc_manuale_solo_hp = xSetManuale && xModoRiscaldamento && xUsaPompaCalore && !xUsaCaldaia;
+		bool risc_manuale_solo_hp = xSetManuale && xModoRiscaldamento && xUsaPompaCalore && !xUsaGas;
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
 		static DelayRiseTimer tStartPompe;
@@ -291,7 +291,7 @@ void ControlThread::run()
 		if (xModoRiscaldamento)
 			acs_attiva |= impianto_acceso;
 
-		if (acs_attiva && xDisabilitaCaldaia) {
+		if (acs_attiva && xDisabilitaGas) {
 			// HP deve scaldare ACS anche se potenza non sufficiente
 			if (wTemperaturaACS < 50)
 				xAutoPompaCaloreRisc = true;
@@ -428,7 +428,7 @@ void ControlThread::run()
 
 		if (orario_uso_accumulo && !xDisabilitaAccumulo) {
 			/* trasf Accumulo->HPSU (uso energia) */
-			if ((wTemperaturaAccumulo > 40) && (wTemperaturaAccumulo > wTemperaturaACS+6.0) && !xCaldaiaInUso) {
+			if ((wTemperaturaAccumulo > 40) && (wTemperaturaAccumulo > wTemperaturaACS+6.0) && !xGasInUso) {
 				xAutoTrasfDaAccumulo = true;
 				xAutoTrasfVersoAccumulo = false;
 			}
@@ -439,7 +439,7 @@ void ControlThread::run()
 
 		if (!xAutoTrasfDaAccumulo && xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaACS > 50) && ((wTemperaturaAccumulo < wTemperaturaACS-6) || (wTemperaturaACS > 70)) && !xCaldaiaInUso) {
+			if ((wTemperaturaACS > 50) && ((wTemperaturaAccumulo < wTemperaturaACS-6) || (wTemperaturaACS > 70)) && !xGasInUso) {
 				xAutoTrasfDaAccumulo = false;
 				xAutoTrasfVersoAccumulo = true;
 			}
@@ -448,12 +448,12 @@ void ControlThread::run()
 			ferma_accumulo = false;
 		}
 
-		if (ferma_accumulo || xCaldaiaInUso || (wTemperaturaAccumulo < 35) || (wTemperaturaAccumulo < wTemperaturaACS+2)) {
+		if (ferma_accumulo || xGasInUso || (wTemperaturaAccumulo < 35) || (wTemperaturaAccumulo < wTemperaturaACS+2)) {
 			/* stop trasf Accumulo->HPSU (uso energia) */
 			xAutoTrasfDaAccumulo = false;
 		}
 
-		if (ferma_accumulo || xCaldaiaInUso || (wTemperaturaACS < 40) || ((wTemperaturaACS < 69) && (wTemperaturaAccumulo > wTemperaturaACS-2))) {
+		if (ferma_accumulo || xGasInUso || (wTemperaturaACS < 40) || ((wTemperaturaACS < 69) && (wTemperaturaAccumulo > wTemperaturaACS-2))) {
 			/* stop trasf HPSU->Accumulo (salvataggio energia)*/
 			xAutoTrasfVersoAccumulo = false;
 		}
@@ -486,26 +486,26 @@ void ControlThread::run()
 			xTrasfVersoAccumuloInCorso = false;
 		}
 
-		if (acs_attiva && !xPompaCaloreRiscInUso && !xDisabilitaCaldaia) {
+		if (acs_attiva && !xPompaCaloreRiscInUso && !xDisabilitaGas) {
 			/* auto mode */
 			if (wTemperaturaACS < 50)
-				xAutoCaldaia = true;
+				xAutoGas = true;
 		else if (wTemperaturaACS > 55)
-			xAutoCaldaia = false;
+			xAutoGas = false;
 		} else {
-			xAutoCaldaia = false;
+			xAutoGas = false;
 		}
 
 		if (xSetManuale)
-			xCaldaiaInUso = xUsaCaldaia;
+			xGasInUso = xUsaGas;
 		else
-			xCaldaiaInUso = xAutoCaldaia;
+			xGasInUso = xAutoGas;
 
-		HW.Caldaia.xAlimenta->setValue(xCaldaiaInUso);
-		static DelayRiseTimer tStartCaldaia;
-		HW.Caldaia.xStartCaldaia->setValue(tStartCaldaia.update(DELAY_SEC(10), xCaldaiaInUso));
+		HW.Gas.xAlimenta->setValue(xGasInUso);
+		static DelayRiseTimer tStartGas;
+		HW.Gas.xStartCaldaia->setValue(tStartGas.update(DELAY_SEC(10), xGasInUso));
 		static DelayFallTimer tStartPompa;
-		HW.Caldaia.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Caldaia.xStartCaldaia->getValue()));
+		HW.Gas.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Gas.xStartCaldaia->getValue()));
 
 		mFields.unlock();
 		int ctrl_ms = now.elapsed();

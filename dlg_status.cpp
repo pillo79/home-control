@@ -56,15 +56,15 @@ void StatusDlg::on_pbSetSoffitta_toggled(bool checked)
 
 void StatusDlg::updateStatoRisc()
 {
-/*	if (ui.pbRiscCaldaia->isChecked()) {
-		ui.pbRiscCaldaia->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbRiscCaldaia->setText("Caldaia ON");
-	} else if (control().xCaldaiaInUso) {
-		ui.pbRiscCaldaia->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscCaldaia->setText("Caldaia auto ON");
+/*	if (ui.pbRiscGas->isChecked()) {
+		ui.pbRiscGas->setPalette(QPalette(QColor(255, 64, 64)));
+		ui.pbRiscGas->setText("Gas ON");
+	} else if (control().xGasInUso) {
+		ui.pbRiscGas->setPalette(QPalette(QColor(220,220,128)));
+		ui.pbRiscGas->setText("Gas auto ON");
 	} else {
-		ui.pbRiscCaldaia->setPalette(QApplication::palette());
-		ui.pbRiscCaldaia->setText("Caldaia OFF");
+		ui.pbRiscGas->setPalette(QApplication::palette());
+		ui.pbRiscGas->setText("Gas OFF");
 	}
 
 	if (ui.pbRiscPompaCalore->isChecked()) {
@@ -146,10 +146,10 @@ void StatusDlg::updateScreen()
 	sprintf(buf, "%.3f effettivi", control().wEnergPassivo.value());
 	ui.tlEnergPassivo->setText(buf);
 
-	if (control().xCaldaiaInUso) {
-		setLabelActive(ui.tlStatoCaldaia, QColor(255, 64, 64));
+	if (control().xGasInUso) {
+		setLabelActive(ui.tlStatoGas, QColor(255, 64, 64));
 	} else {
-		setLabelInactive(ui.tlStatoCaldaia);
+		setLabelInactive(ui.tlStatoGas);
 	}
 
 	if (control().xPompaCaloreRiscInUso) {

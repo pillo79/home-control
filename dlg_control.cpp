@@ -48,7 +48,7 @@ void ControlDlg::loadSettings()
 	ui.pbFanCoil->setChecked(mSettings.value("pbFanCoil").toBool());
 
 	ui.pbRiscManuale->setChecked(mSettings.value("pbRiscManuale").toBool());
-	ui.pbRiscCaldaia->setChecked(mSettings.value("pbRiscCaldaia").toBool());
+	ui.pbRiscGas->setChecked(mSettings.value("pbRiscGas").toBool());
 	ui.pbRiscPompaCalore->setChecked(mSettings.value("pbRiscPompaCalore").toBool());
 	ui.pbRiscResistenze->setChecked(mSettings.value("pbRiscResistenze").toBool());
 
@@ -74,7 +74,7 @@ void ControlDlg::saveSettings()
 	mSettings.setValue("pbFanCoil", ui.pbFanCoil->isChecked());
 
 	mSettings.setValue("pbRiscManuale", ui.pbRiscManuale->isChecked());
-	mSettings.setValue("pbRiscCaldaia", ui.pbRiscCaldaia->isChecked());
+	mSettings.setValue("pbRiscGas", ui.pbRiscGas->isChecked());
 	mSettings.setValue("pbRiscPompaCalore", ui.pbRiscPompaCalore->isChecked());
 	mSettings.setValue("pbRiscResistenze", ui.pbRiscResistenze->isChecked());
 
@@ -264,7 +264,7 @@ void ControlDlg::updateBtnStatus()
 
 	setBtnStatus(ui.pbRiscManuale, false, bcNorm, "Manuale", "", "Automatico");
 
-	setBtnStatus(ui.pbRiscCaldaia, control().xCaldaiaInUso, bcRisc, "Caldaia\nON", "Caldaia\nauto ON", "Caldaia\nOFF", !manuale && control().xDisabilitaCaldaia, "BLOCCO\nCaldaia");
+	setBtnStatus(ui.pbRiscGas, control().xGasInUso, bcRisc, "Gas\nON", "Gas\nauto ON", "Gas\nOFF", !manuale && control().xDisabilitaGas, "BLOCCO\nGas");
 	setBtnStatus3Way(ui.pbRiscPompaCalore, control().xPompaCaloreRiscInUso, control().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF", !manuale && control().xDisabilitaPompaCalore, "BLOCCO\nHPSU");
 
 	sprintf(buf1, "Resistenze\n%.0f W", control().wPotResistenze.value());
@@ -305,7 +305,7 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 	if (checked) {
 		control().xSetManuale = true;
 		/* recover from current state */
-		ui.pbRiscCaldaia->setChecked(control().xUsaCaldaia = control().xCaldaiaInUso);
+		ui.pbRiscGas->setChecked(control().xUsaGas = control().xGasInUso);
 		ui.pbRiscPompaCalore->setChecked(control().xUsaPompaCalore = (control().xPompaCaloreRiscInUso || control().xPompaCaloreCondInUso));
 		ui.pbRiscResistenze->setChecked(control().xUsaResistenze = control().xResistenzeInUso);
 		control().xTrasfDaAccumulo = control().xTrasfDaAccumuloInCorso;
@@ -313,7 +313,7 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		ui.pbTrasfAccumulo->setChecked(control().xTrasfDaAccumulo || control().xTrasfVersoAccumulo);
 	} else {
 		control().xSetManuale = false;
-		ui.pbRiscCaldaia->setChecked(control().xDisabilitaCaldaia);
+		ui.pbRiscGas->setChecked(control().xDisabilitaGas);
 		ui.pbRiscPompaCalore->setChecked(control().xDisabilitaPompaCalore);
 		ui.pbRiscResistenze->setChecked(control().xDisabilitaResistenze);
 		ui.pbTrasfAccumulo->setChecked(control().xDisabilitaAccumulo);
@@ -322,15 +322,15 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 	unlockMutex();
 }
 
-void ControlDlg::on_pbRiscCaldaia_toggled(bool checked)
+void ControlDlg::on_pbRiscGas_toggled(bool checked)
 {
 	resetCloseTimer();
 
 	lockMutex();
 	if (ui.pbRiscManuale->isChecked()) {
-		control().xUsaCaldaia = checked;
+		control().xUsaGas = checked;
 	} else {
-		control().xDisabilitaCaldaia = checked;
+		control().xDisabilitaGas = checked;
 	}
 	updateBtnStatus();
 	unlockMutex();

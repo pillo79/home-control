@@ -24,7 +24,7 @@ class ControlDlg : public QWidget
 		void on_pbFanCoil_toggled(bool checked);
 
 		void on_pbModoRisc_toggled(bool checked);
-		void on_pbRiscCaldaia_toggled(bool checked);
+		void on_pbRiscGas_toggled(bool checked);
 		void on_pbRiscPompaCalore_toggled(bool checked);
 		void on_pbRiscResistenze_toggled(bool checked);
 		void on_pbRiscManuale_toggled(bool checked);

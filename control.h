@@ -26,13 +26,13 @@ class ControlThread : public QThread {
 
 		bool xSetManuale;
 		bool xUsaPompaCalore;
-		bool xUsaCaldaia;
+		bool xUsaGas;
 		bool xUsaResistenze;
 		bool xTrasfDaAccumulo;
 		bool xTrasfVersoAccumulo;
 
 		bool xDisabilitaPompaCalore;
-		bool xDisabilitaCaldaia;
+		bool xDisabilitaGas;
 		bool xDisabilitaResistenze;
 		bool xDisabilitaAccumulo;
 
@@ -41,7 +41,7 @@ class ControlThread : public QThread {
 		bool xForzaChiudi;
 
 		/* outputs */
-		bool xCaldaiaInUso;
+		bool xGasInUso;
 		bool xPompaCaloreRiscInUso;
 		bool xPompaCaloreCondInUso;
 		bool xPompaCaloreAttiva;
