@@ -39,6 +39,14 @@ int InitHardware()
 	// inputs
 	INIT(Gas.xFiammaAccesa,				BitInput,	Seneca_16DI_8DO_1, 1);
 	// outputs
+	INIT(Legna.xStartP2Scambiatore,			BitOutput,	Seneca_24DO_6, 14);
+	INIT(Legna.xStartP4RicircoloEstate,		BitOutput,	Seneca_24DO_6, 15);
+	// inputs
+	INIT(Legna.xCaldaiaAccesa,			BitInput,	Seneca_16DI_8DO_1, 9);
+	INIT(Legna.xCaldaiaInScambio,			BitInput,	Seneca_16DI_8DO_1, 10);
+	INIT(Legna.wTemperaturaPufferH,			WordInput,	Seneca_4RTD_4, 2);
+	INIT(Legna.wTemperaturaPufferL,			WordInput,	Seneca_4RTD_5, 3);
+	// outputs
 	INIT(Riscaldamento.xChiudiValvola,		BitOutput,	Seneca_16DI_8DO_1, 4);
 	INIT(Riscaldamento.xStartPompaGiorno,		BitOutput,	Seneca_16DI_8DO_1, 5);
 	INIT(Riscaldamento.xStartPompaNotte,		BitOutput,	Seneca_16DI_8DO_1, 6);
