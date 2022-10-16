@@ -34,6 +34,8 @@ ControlThread::ControlThread()
 	, wTemperaturaBoiler	("TemperaturaBoiler",	"°C",	"%.1f", MAX_PTS, 0.5)
 	, wTemperaturaAccumulo	("TemperaturaAccumulo",	"°C",	"%.1f", MAX_PTS, 0.5)
 	, wTemperaturaPannelli	("TemperaturaPannelli",	"°C",	"%.1f", MAX_PTS, 0.5)
+	, wTempLegnaH		("TempGiorno",		"°C",	"%.1f", MAX_PTS, 0.5)
+	, wTempLegnaL		("TempNotte",		"°C",	"%.1f", MAX_PTS, 0.5)
 
 	, wPotProdotta		("PotProdotta",		"W",	"%.0f", MAX_PTS, 0.0)
 	, wPotConsumata		("PotConsumata",	"W",	"%.0f", MAX_PTS, 0.0)
@@ -137,6 +139,8 @@ void ControlThread::run()
 		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue() / 10.0;
 		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue() / 10.0;
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
+		wTempLegnaH = HW.Legna.wTemperaturaPufferH->getValue() / 10.0;
+		wTempLegnaL = HW.Legna.wTemperaturaPufferL->getValue() / 10.0;
 
 		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
@@ -483,6 +487,8 @@ void ControlThread::run()
 		HW.Gas.xStartCaldaia->setValue(tStartGas.update(DELAY_SEC(10), xGasInUso));
 		static DelayFallTimer tStartPompa;
 		HW.Gas.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Gas.xStartCaldaia->getValue()));
+
+		xLegnaInUso = HW.Legna.xCaldaiaAccesa->getValue();
 
 		mFields.unlock();
 		int ctrl_ms = now.elapsed();

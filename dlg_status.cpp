@@ -23,6 +23,8 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
 	ui.tlPotConsumata->setValue(&control().wPotConsumata,		QColor(64,192,255), QColor(255,192,64));
 	ui.tlTempAcquaTop->setValue(&control().wTemperaturaACS,		QColor(64,192,255), QColor(255,192,64));
 	ui.tlTempAcquaBot->setValue(&control().wTemperaturaBoiler,	QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempCantinaTop->setValue(&control().wTempLegnaH,		QColor(64,192,255), QColor(255,192,64));
+	ui.tlTempCantinaBot->setValue(&control().wTempLegnaL,		QColor(64,192,255), QColor(255,192,64));
 	ui.tlTempPannelli->setValue(&control().wTemperaturaPannelli,	QColor(64,192,255), QColor(255,192,64));
 	ui.tlTempAccumulo->setValue(&control().wTemperaturaAccumulo,	QColor(64,192,255), QColor(255,192,64));
 	ui.tlTempEsterno->setValue(&control().wTempEsterno,		QColor(64,192,255), QColor(255,192,64));
@@ -114,6 +116,8 @@ void StatusDlg::updateScreen()
 
 	ui.tlTempAcquaTop->setText(control().wTemperaturaACS.format());
 	ui.tlTempAcquaBot->setText(control().wTemperaturaBoiler.format());
+	ui.tlTempCantinaTop->setText(control().wTempLegnaH.format());
+	ui.tlTempCantinaBot->setText(control().wTempLegnaL.format());
 	ui.tlTempAccumulo->setText(control().wTemperaturaAccumulo.format());
 	ui.tlTempPannelli->setText(control().wTemperaturaPannelli.format());
 
@@ -143,6 +147,12 @@ void StatusDlg::updateScreen()
 		setLabelActive(ui.tlStatoGas, QColor(255, 64, 64));
 	} else {
 		setLabelInactive(ui.tlStatoGas);
+	}
+
+	if (control().xLegnaInUso) {
+		setLabelActive(ui.tlStatoLegna, QColor(255, 64, 64));
+	} else {
+		setLabelInactive(ui.tlStatoLegna);
 	}
 
 	if (control().xPompaCaloreRiscInUso) {

@@ -42,6 +42,7 @@ class ControlThread : public QThread {
 
 		/* outputs */
 		bool xGasInUso;
+		bool xLegnaInUso;
 		bool xPompaCaloreRiscInUso;
 		bool xPompaCaloreCondInUso;
 		bool xPompaCaloreAttiva;
@@ -53,6 +54,8 @@ class ControlThread : public QThread {
 		TrendValue wTemperaturaBoiler;
 		TrendValue wTemperaturaAccumulo;
 		TrendValue wTemperaturaPannelli;
+		TrendValue wTempLegnaH;
+		TrendValue wTempLegnaL;
 
 		TrendValue wPotProdotta;
 		TrendValue wPotConsumata;
