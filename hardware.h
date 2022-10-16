@@ -70,7 +70,6 @@ struct Hardware {
 	struct {
 		// outputs
 		BitOutput *xStartPompa;
-		BitOutput *xAcquaDaAccumulo;
 		// word inputs
 		WordInput *wTemperatura;
 	} Accumulo;

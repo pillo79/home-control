@@ -470,17 +470,10 @@ void ControlThread::run()
 			xTrasfVersoAccumuloInCorso = xAutoTrasfVersoAccumulo;
 		}
 
-		static DelayFallTimer tCambioDirAccumulo;
-		static bool ultimo_trasf_da_accumulo = false;
-		bool cambio_dir_accumulo = tCambioDirAccumulo.update(DELAY_MIN(5), (xTrasfDaAccumuloInCorso != ultimo_trasf_da_accumulo));
-		ultimo_trasf_da_accumulo = xTrasfDaAccumuloInCorso;
-
-		HW.Accumulo.xAcquaDaAccumulo->setValue(xTrasfDaAccumuloInCorso);
-
-		bool ok_start_pompa_accumulo = (xTrasfDaAccumuloInCorso || xTrasfVersoAccumuloInCorso) && !cambio_dir_accumulo;
+		bool start_pompa_accumulo = (xTrasfDaAccumuloInCorso || xTrasfVersoAccumuloInCorso);
 		static DelayRiseTimer tDurataPompaAccumulo;
-		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(120), ok_start_pompa_accumulo && xSetManuale);
-		HW.Accumulo.xStartPompa->setValue(ok_start_pompa_accumulo && !max_durata_pompa_accumulo);
+		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(120), start_pompa_accumulo && xSetManuale);
+		HW.Accumulo.xStartPompa->setValue(start_pompa_accumulo && !max_durata_pompa_accumulo);
 		if (max_durata_pompa_accumulo) {
 			xTrasfDaAccumuloInCorso = false;
 			xTrasfVersoAccumuloInCorso = false;
