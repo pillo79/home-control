@@ -42,14 +42,7 @@ ControlThread::ControlThread()
 	, wEnergConsumata	("EnergConsumata",	"kWh",	"%.3f", MAX_PTS, 0.0)
 	, wEnergPassivo		("EnergPassivo",	"kWh",	"%.3f", MAX_PTS, 0.0)
 
-	, wTempGiorno		("TempGiorno",		"°C",	"%.1f", MAX_PTS, 0.5)
-	, wUmidGiorno		("UmidGiorno",		"%",	"%.1f", MAX_PTS, 5.0)
-	, wTempNotte		("TempNotte",		"°C",	"%.1f", MAX_PTS, 0.5)
-	, wUmidNotte		("UmidNotte",		"%",	"%.1f", MAX_PTS, 5.0)
-	, wTempSoffitta		("TempSoffitta",	"°C",	"%.1f", MAX_PTS, 0.5)
-	, wUmidSoffitta		("UmidSoffitta",	"%",	"%.1f", MAX_PTS, 5.0)
 	, wTempEsterno		("TempEsterno",		"°C",	"%.1f", MAX_PTS, 0.5)
-	, wUmidEsterno		("UmidEsterno",		"%",	"%.1f", MAX_PTS, 5.0)
 {
 	wApriCucinaPerc = 40;
 	wVelFanCoil = 20;
@@ -145,8 +138,6 @@ void ControlThread::run()
 		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue() / 10.0;
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
 
-		wTempSoffitta = HW.Ambiente.wTemperaturaSoffitta->getValue() / 10.0;
-		wUmidSoffitta = HW.Ambiente.wUmiditaSoffitta->getValue() / 10.0;
 		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
 		Timer::tick();
@@ -231,14 +222,7 @@ void ControlThread::run()
 				wEnergConsumata.step(timecode);
 				wEnergPassivo.step(timecode);
 
-				wTempGiorno.step(timecode);
-				wUmidGiorno.step(timecode);
-				wTempNotte.step(timecode);
-				wUmidNotte.step(timecode);
-				wTempSoffitta.step(timecode);
-				wUmidSoffitta.step(timecode);
 				wTempEsterno.step(timecode);
-				wUmidEsterno.step(timecode);
 			}
 		}
 

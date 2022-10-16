@@ -62,14 +62,7 @@ class ControlThread : public QThread {
 		QTime tTempoAttivo;
 		TrendValue wEnergPassivo;
 
-		TrendValue wTempGiorno;
-		TrendValue wUmidGiorno;
-		TrendValue wTempNotte;
-		TrendValue wUmidNotte;
-		TrendValue wTempSoffitta;
-		TrendValue wUmidSoffitta;
 		TrendValue wTempEsterno;
-		TrendValue wUmidEsterno;
 
 		uint32_t wCommErrorMask;
 		uint32_t wResetPLCs;
