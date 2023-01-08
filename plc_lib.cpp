@@ -14,8 +14,8 @@ void Timer::tick()
 
 DelayRiseTimer::DelayRiseTimer()
 	: Timer()
-	, m_lastInput(true)
-	, m_lastEdge(m_now)
+	, m_lastInput(false)
+	, m_lastEdge(0)
 {
 
 }
@@ -59,7 +59,7 @@ bool DelayFallTimer::update(unsigned delayus, bool input)
 PeriodicTimer::PeriodicTimer()
 	: Timer()
 	, m_lastInput(false)
-	, m_lastEdge(m_now)
+	, m_lastEdge(0)
 {
 
 }
