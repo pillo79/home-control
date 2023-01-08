@@ -121,7 +121,6 @@ void ControlThread::run()
 		wCommErrorMask = GetCommErrorMask();
 
 		// impulso reset PLC
-		static DelayRiseTimer tRichiestaRestart;
 		if (wCommErrorMask) {
 			if (!xRichiestaRestart) {
 				xRichiestaRestart = true;
@@ -130,6 +129,8 @@ void ControlThread::run()
 				++wResetPLCs;
 			}
 		}
+
+//		static DelayRiseTimer tRichiestaRestart;
 //		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
 //		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);
 //		if (xRitardoRichiestaRestart && !wCommErrorMask)
@@ -292,8 +293,12 @@ void ControlThread::run()
 		// risc o ACS:			3/4 (non alimentata + burst)
 		// risc solo con pompa calore:	chiusa (non alimentata)
 		// condiz:			chiusa (non alimentata)
+
+		// 20 secondi = 8 secondi di tempo per riportare a fondo scala
+		// moltiplicato 2.5* per permettere al motore di andare
+		// *dall'altra parte* se aveva iniziato la fase di chiusura
 		static DelayRiseTimer tResetManValvole;
-		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(8), impianto_acceso);
+		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(20), impianto_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
 		HW.PompaCalore.xForzaRiscApri->setValue(impianto_acceso && xModoRiscaldamento && !reset_man_finito && !risc_manuale_solo_hp);
