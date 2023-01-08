@@ -209,24 +209,8 @@ void ControlThread::run()
 						power_budget);
 				}
 
-				// save row on DB
+				// advance TrendValues and save row on DB
 				TrendBase::instance()->step(today.toTime_t());
-
-				// store and advance all tracked values
-				int timecode = now.minute()+60*now.hour();
-				wTemperaturaACS.step(timecode);
-				wTemperaturaBoiler.step(timecode);
-				wTemperaturaAccumulo.step(timecode);
-				wTemperaturaPannelli.step(timecode);
-
-				wPotProdotta.step(timecode);
-				wPotConsumata.step(timecode);
-				wPotResistenze.step(timecode);
-				wEnergProdotta.step(timecode);
-				wEnergConsumata.step(timecode);
-				wEnergPassivo.step(timecode);
-
-				wTempEsterno.step(timecode);
 			}
 		}
 

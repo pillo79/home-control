@@ -42,10 +42,15 @@ int TrendBase::open()
 	return rc;
 }
 
-int TrendBase::step(int timecode)
+int TrendBase::step(int epoch)
 {
 	QString names = "'timecode'";
-	QString values = QString::number(timecode);
+	QString values = QString::number(epoch);
+
+	int timecode = epoch/60;
+	foreach(TrendValue *v, m_values) {
+		v->step(timecode);
+	}
 
 	foreach(TrendValue *v, m_values) {
 		const DataPt &d = v->lastPt();
@@ -91,7 +96,7 @@ static int getRecords_callback(void *ptr, int ncols, char **values, char **names
 	{
 		QString col = QString(names[i]);
 		if (col == "timecode") {
-			timecode = QString(values[i]).toInt();
+			timecode = QString(values[i]).toInt()/60;
 		} else {
 			QString t = col.left(3);
 			QString n = col.mid(5);

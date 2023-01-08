@@ -111,10 +111,10 @@ void TrendLabel::paintEvent(QPaintEvent *event)
 	for (int x=xmin, i=imin; x<width(); ++x, ++i) {
 		const DataPt &pt = pts[i];
 		if (!(pt.timecode % 60)) {
-			QString str = QString::number(pt.timecode/60);
-			sz = fm.size(0, str);
+			QString hour = QString::number((pt.timecode/60) % 24);
+			sz = fm.size(0, hour);
 			if (x+sz.width()/2 < width()-yLabelWidth)
-				p.drawText(x-16, height()-16, 30, 15, Qt::AlignHCenter | Qt::AlignBottom, str);
+				p.drawText(x-16, height()-16, 30, 15, Qt::AlignHCenter | Qt::AlignBottom, hour);
 		}
 	}
 

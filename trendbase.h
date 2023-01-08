@@ -22,7 +22,7 @@ class TrendBase {
 public:
 	void registerValue(TrendValue *val);
 	int open();
-	int step(int timecode);
+	int step(int epoch);
 public:
 	static TrendBase *instance();
 };
