@@ -23,6 +23,7 @@ class ControlThread : public QThread {
 		bool xAttivaZonaGiorno;
 		bool xAttivaZonaSoffitta;
 		bool xAttivaFanCoil;
+		bool xAttivaProg;
 
 		bool xSetManuale;
 		bool xUsaPompaCalore;
@@ -43,6 +44,7 @@ class ControlThread : public QThread {
 		/* outputs */
 		bool xGasInUso;
 		bool xLegnaInUso;
+		bool xImpiantoAttivo;
 		bool xPompaCaloreRiscInUso;
 		bool xPompaCaloreCondInUso;
 		bool xPompaCaloreAttiva;

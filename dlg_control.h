@@ -2,6 +2,7 @@
 #define __DLG_CONTROL_H__
 
 #include <QSettings>
+#include <QPushButton>
 #include <QWidget>
 #include <QTimer>
 
@@ -22,6 +23,7 @@ class ControlDlg : public QWidget
 		void on_pbGiorno_toggled(bool checked);
 		void on_pbSoffitta_toggled(bool checked);
 		void on_pbFanCoil_toggled(bool checked);
+		void on_pbProg_toggled(bool checked);
 
 		void on_pbModoRisc_toggled(bool checked);
 		void on_pbRiscGas_toggled(bool checked);
@@ -44,6 +46,7 @@ class ControlDlg : public QWidget
 		Ui::ControlDlg ui;
 		QSettings mSettings;
 		QTimer m_closeTimer;
+	//	QPushButton *mProgEn[24];
 		int mLockCount;
 
 		QColor mDisabledColor;

@@ -34,17 +34,17 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
 	setWindowFlags(flags);
 }
 
-void StatusDlg::on_pbSetNotte_toggled(bool checked)
+void StatusDlg::on_pbSetNotte_toggled(bool)
 {
 	m_controlDlg->show();
 }
 
-void StatusDlg::on_pbSetGiorno_toggled(bool checked)
+void StatusDlg::on_pbSetGiorno_toggled(bool)
 {
 	m_controlDlg->show();
 }
 
-void StatusDlg::on_pbSetSoffitta_toggled(bool checked)
+void StatusDlg::on_pbSetSoffitta_toggled(bool)
 {
 	m_controlDlg->show();
 }
@@ -190,41 +190,42 @@ void StatusDlg::updateScreen()
 
 	if (control().xPompaCaloreCondInUso && control().xAttivaZonaSoffitta) {
 		setLabelActive(ui.tlStatoRadiatori, QColor(64,192,255));
-	} else if (control().xAttivaZonaNotte || control().xAttivaZonaGiorno || control().xAttivaZonaSoffitta) {
+	} else if (control().xImpiantoAttivo && (control().xAttivaZonaNotte || control().xAttivaZonaGiorno || control().xAttivaZonaSoffitta)) {
 		setLabelActive(ui.tlStatoRadiatori, QColor(255, 192, 64));
 	} else {
 		setLabelInactive(ui.tlStatoRadiatori);
 	}
 
 	QColor onColor;
+	QColor autoColor = QColor(255, 255, 128);
 	QString onString;
 	if (control().xModoRiscaldamento) {
 		onColor = QColor(255, 64, 64);
 		onString = "caldo";
 		if (control().xAttivaZonaNotte)
-			setButtonActive(ui.pbSetNotte, onString, onColor);
+			setButtonActive(ui.pbSetNotte, onString, control().xImpiantoAttivo? onColor : autoColor);
 		else
 			setButtonInactive(ui.pbSetNotte, "spento");
 		if (control().xAttivaZonaGiorno)
-			setButtonActive(ui.pbSetGiorno, onString, onColor);
+			setButtonActive(ui.pbSetGiorno, onString, control().xImpiantoAttivo? onColor : autoColor);
 		else
 			setButtonInactive(ui.pbSetGiorno, "spento");
 		if (control().xAttivaZonaSoffitta)
-			setButtonActive(ui.pbSetSoffitta, onString, onColor);
+			setButtonActive(ui.pbSetSoffitta, onString, control().xImpiantoAttivo? onColor : autoColor);
 		else
 			setButtonInactive(ui.pbSetSoffitta, "spento");
 	} else {
 		onColor = QColor(64, 192, 255);
 		onString = "freddo";
 		if (control().xPompaCaloreCondInUso && control().xAttivaFanCoil) {
-			setButtonActive(ui.pbSetNotte, onString, onColor);
-			setButtonActive(ui.pbSetGiorno, onString, onColor);
+			setButtonActive(ui.pbSetNotte, onString, control().xImpiantoAttivo? onColor : autoColor);
+			setButtonActive(ui.pbSetGiorno, onString, control().xImpiantoAttivo? onColor : autoColor);
 		} else {
 			setButtonInactive(ui.pbSetNotte, "spento");
 			setButtonInactive(ui.pbSetGiorno, "spento");
 		}
 		if (control().xAttivaZonaSoffitta)
-			setButtonActive(ui.pbSetSoffitta, onString, onColor);
+			setButtonActive(ui.pbSetSoffitta, onString, control().xImpiantoAttivo? onColor : autoColor);
 		else
 			setButtonInactive(ui.pbSetSoffitta, "spento");
 	}

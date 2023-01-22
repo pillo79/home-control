@@ -240,9 +240,19 @@ void ControlThread::run()
 			xAttivaZonaNotte = xAttivaZonaGiorno = false;
 		}
 
-		bool zone_accese = xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta;
-		bool impianto_acceso = zone_accese || xAttivaFanCoil;
+		bool richieste_valide = false;
+		if (xAttivaProg) {
+			richieste_valide |= ((now>QTime(11,0)) && (now<QTime(14,0)));
+			richieste_valide |= ((now>QTime(18,0)) && (now<QTime(21,0)));
+		} else {
+			richieste_valide = true;
+		}
+
+		bool zone_accese = richieste_valide && (xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta);
+		bool impianto_acceso = richieste_valide && (zone_accese || xAttivaFanCoil);
 		bool risc_manuale_solo_hp = xSetManuale && xModoRiscaldamento && xUsaPompaCalore && !xUsaGas;
+		xImpiantoAttivo = impianto_acceso;
+
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
 		static DelayRiseTimer tStartPompe;

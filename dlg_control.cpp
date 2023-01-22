@@ -12,6 +12,18 @@ ControlDlg::ControlDlg(QWidget *parent)
     , mLockCount(0)
 {
 	ui.setupUi(this);
+	/*
+	for (int t=0; t<3; t++) {
+		for (int hr=0; hr<8; ++hr) {
+			ui.progGridLayout->addWidget(new QLabel(QString::number(hr+t*8)), hr, t*3);
+			QPushButton *pb = new QPushButton();
+			pb->setCheckable(true);
+			pb->setAutoExclusive(false);
+			ui.progGridLayout->addWidget(pb, hr, t*3+1, 1, 2);
+			mProgEn[hr+t*8] = pb;
+		}
+	}
+	*/
 
 	Qt::WindowFlags flags = windowFlags();
 	flags |= Qt::FramelessWindowHint;
@@ -165,6 +177,14 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 		ui.pbForzaChiudi->setChecked(false);
 }
 
+void ControlDlg::on_pbProg_toggled(bool checked)
+{
+	lockMutex();
+	control().xAttivaProg = checked;
+	updateBtnStatus();
+	unlockMutex();
+}
+
 void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off, bool disable, QString disabled)
 {
 	if (disable) {
@@ -245,22 +265,26 @@ void ControlDlg::updateBtnStatus()
 	char buf1[256], buf2[256];
 
 	bool manuale = ui.pbRiscManuale->isChecked();
+	ButtonColor mode;
 
 	if (ui.pbModoRisc->isChecked()) {
 		mForcedColor = mForcedRiscColor;
 		mAutoColor = mAutoRiscColor;
+		mode = bcRisc;
 	} else {
 		mForcedColor = mForcedCondColor;
 		mAutoColor = mAutoCondColor;
+		mode = bcCond;
 	}
 
 	setBtnStatus(ui.pbModoRisc, false);
 	setBtnStatus(ui.pbModoCondiz, false);
 
-	setBtnStatus(ui.pbNotte, false);
-	setBtnStatus(ui.pbGiorno, false);
-	setBtnStatus(ui.pbSoffitta, false);
-	setBtnStatus(ui.pbFanCoil, false);
+	setBtnStatus(ui.pbNotte, false, control().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbGiorno, false, control().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbSoffitta, false, control().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbFanCoil, false, control().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbProg, false, bcNorm, "Attivo", "", "Non attivo");
 
 	setBtnStatus(ui.pbRiscManuale, false, bcNorm, "Manuale", "", "Automatico");
 
@@ -479,15 +503,7 @@ void ControlDlg::on_pbOK_clicked()
 
 void ControlDlg::updateScreen()
 {
-	char buf[256];
-
 	lockMutex();
-	sprintf(buf, "%.1f", control().wTemperaturaACS.value());
-	ui.tlTempAcquaTop->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaBoiler.value());
-	ui.tlTempAcquaBot->setText(buf);
-	sprintf(buf, "%.1f", control().wTemperaturaAccumulo.value());
-	ui.tlTempAccumulo->setText(buf);
 
 	static const QTime MIDNIGHT = QTime(0, 0, 10);
 	if (QTime::currentTime() < MIDNIGHT) {
