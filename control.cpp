@@ -405,7 +405,7 @@ void ControlThread::run()
 		// abilitato quando tBoiler > 60C
 		// disabilitato ogni giorno alle 18
 		bool orario_carico_accumulo = (now>QTime(10,0)) && (now<QTime(18,0));
-		bool orario_uso_accumulo = (now>QTime(7,0)) && (now<QTime(21,0));
+		bool orario_uso_accumulo = (now>QTime(7,0)) && (now<QTime(22,0));
 		bool ferma_accumulo = true;
 
 		if (!orario_carico_accumulo)
@@ -413,7 +413,7 @@ void ControlThread::run()
 		else if (wTemperaturaBoiler > 60)
 			xCaricoAccumuloAttivo = true;
 
-		if (orario_uso_accumulo && !xDisabilitaAccumulo) {
+		if ((orario_uso_accumulo || acs_attiva) && !xDisabilitaAccumulo) {
 			/* trasf Accumulo->HPSU (uso energia) */
 			if ((wTemperaturaAccumulo > 40) && (wTemperaturaAccumulo > wTemperaturaACS+6.0) && !xGasInUso) {
 				xAutoTrasfDaAccumulo = true;
@@ -440,7 +440,7 @@ void ControlThread::run()
 			xAutoTrasfDaAccumulo = false;
 		}
 
-		if (ferma_accumulo || xGasInUso || (wTemperaturaACS < 40) || ((wTemperaturaACS < 69) && (wTemperaturaAccumulo > wTemperaturaACS-2))) {
+		if (ferma_accumulo || xGasInUso || (wTemperaturaACS < 45) || ((wTemperaturaACS < 69) && (wTemperaturaAccumulo > wTemperaturaACS-2))) {
 			/* stop trasf HPSU->Accumulo (salvataggio energia)*/
 			xAutoTrasfVersoAccumulo = false;
 		}
