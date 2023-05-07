@@ -16,8 +16,9 @@ struct Hardware {
 	} Gas;
 	struct {
 		// outputs
-		BitOutput *xStartP2Scambiatore;
+		BitOutput *xForzaP2Scambiatore;
 		BitOutput *xStartP4RicircoloEstate;
+		BitOutput *xStartP2Scambiatore;
 		// inputs
 		BitInput *xCaldaiaAccesa;
 		BitInput *xCaldaiaInScambio;

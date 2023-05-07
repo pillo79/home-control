@@ -142,6 +142,7 @@ void ControlThread::run()
 		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
 		wTempLegnaH = HW.Legna.wTemperaturaPufferH->getValue() / 10.0;
 		wTempLegnaL = HW.Legna.wTemperaturaPufferL->getValue() / 10.0;
+		xLegnaInUso = HW.Legna.xCaldaiaAccesa->getValue();
 
 		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
@@ -401,6 +402,22 @@ void ControlThread::run()
 		HW.PompaCalore.xRichiestaCaldo->setValue(xPompaCaloreRiscInUso);
 		HW.PompaCalore.xRichiestaFreddo->setValue(xPompaCaloreCondInUso);
 
+		// condizioni HPSU->cantina ("troppo caldo")
+		static bool forzaTrasfHPSUVersoLegna = false;
+		if ((wTemperaturaACS > 70) && (wTemperaturaACS > wTempLegnaH+10.0)) {
+			forzaTrasfHPSUVersoLegna = true;
+		} else if ((wTemperaturaACS < 65) || (wTemperaturaACS < wTempLegnaH+6.0)) {
+			forzaTrasfHPSUVersoLegna = false;
+		}
+		static bool equilibraLegna = false;
+		if ((wTempLegnaH < wTempLegnaL+5.0) || !forzaTrasfHPSUVersoLegna)
+			equilibraLegna = false;
+		else if (wTempLegnaH > wTempLegnaL+20.0)
+			equilibraLegna = true;
+		HW.Legna.xForzaP2Scambiatore->setValue(forzaTrasfHPSUVersoLegna);
+		HW.Legna.xStartP2Scambiatore->setValue(forzaTrasfHPSUVersoLegna);
+		HW.Legna.xStartP4RicircoloEstate->setValue(equilibraLegna);
+
 		// condizioni HPSU->accumulo ("salvataggio energia")
 		// abilitato quando tBoiler > 60C
 		// disabilitato ogni giorno alle 18
@@ -486,8 +503,6 @@ void ControlThread::run()
 		HW.Gas.xStartCaldaia->setValue(tStartGas.update(DELAY_SEC(10), xGasInUso));
 		static DelayFallTimer tStartPompa;
 		HW.Gas.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Gas.xStartCaldaia->getValue()));
-
-		xLegnaInUso = HW.Legna.xCaldaiaAccesa->getValue();
 
 		mFields.unlock();
 		int ctrl_ms = now.elapsed();
