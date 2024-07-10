@@ -263,7 +263,7 @@ void ControlThread::run()
 		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
 		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
-		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe);
+		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe && xModoRiscaldamento);
 
 		bool acs_attiva = false;
 		if (wTemperaturaACS < 55) {
