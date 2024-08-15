@@ -12,6 +12,11 @@ void TrendBase::registerValue(TrendValue *val)
 	m_values.append(val);
 }
 
+void TrendBase::registerCtrl(TrendCtrl *val)
+{
+	m_ctrls.append(val);
+}
+
 int TrendBase::open()
 {
 	m_filename = QString(DB_PATH "/%1.db").arg(QDate::currentDate().year());
@@ -47,6 +52,9 @@ int TrendBase::step(int epoch)
 	QString names = "'timecode'";
 	QString values = QString::number(epoch);
 
+	QString json_vals = QString("timecode: %1").arg(epoch);
+	QString json_ctrls = QString("timecode: %1").arg(epoch);
+
 	int timecode = epoch/60;
 	foreach(TrendValue *v, m_values) {
 		v->step(timecode);
@@ -54,12 +62,21 @@ int TrendBase::step(int epoch)
 
 	foreach(TrendValue *v, m_values) {
 		const DataPt &d = v->lastPt();
+
 		names += QString(", 'min_%1'").arg(v->name());
 		values += QString(", %1").arg(d.min, 0, 'e', 6);
 		names += QString(", 'val_%1'").arg(v->name());
 		values += QString(", %1").arg(d.mean, 0, 'e', 6);
 		names += QString(", 'max_%1'").arg(v->name());
 		values += QString(", %1").arg(d.max, 0, 'e', 6);
+
+		json_vals += QString(", %1: [%2, %3, %4]").arg(v->name())
+							  .arg(d.min, 0, 'e', 6)
+							  .arg(d.mean, 0, 'e', 6)
+							  .arg(d.max, 0, 'e', 6);
+	}
+	foreach(TrendCtrl *c, m_ctrls) {
+		json_ctrls += QString(", %1: %2").arg(c->name()).arg(c->format());
 	}
 
 	QString q = QString("INSERT INTO 'data' (%1) VALUES (%2)").arg(names, values);
@@ -68,6 +85,8 @@ int TrendBase::step(int epoch)
 		fprintf(stderr, "Can't insert in database: %s\n", sqlite3_errmsg(m_sqlite));
 		return rc;
 	}
+
+	QString json = QString("{ values: { %1 }, ctrls: { %2 } }").arg(json_vals, json_ctrls);
 
 	return rc;
 }

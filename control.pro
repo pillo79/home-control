@@ -13,8 +13,8 @@ HEADERS += hardware.h modbusdevice.h modbusio.h plc_lib.h powercalc.h control.h
 SOURCES += main.cpp plc_lib.cpp hardware.cpp modbusdevice.cpp modbusio.cpp powercalc.cpp control.cpp
 LIBS += -L../libmodbus/src -lmodbus
 
-HEADERS += trendlabel.h trendvalue.h trendbase.h
-SOURCES += trendlabel.cpp trendvalue.cpp trendbase.cpp
+HEADERS += trendlabel.h trendvalue.h trendctrl.h trendbase.h
+SOURCES += trendlabel.cpp trendvalue.cpp trendctrl.cpp trendbase.cpp
 SOURCES += sqlite3.c
 
 HEADERS += dlg_control.h

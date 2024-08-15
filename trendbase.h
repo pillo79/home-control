@@ -5,12 +5,14 @@
 #include "sqlite3.h"
 
 #include "trendvalue.h"
+#include "trendctrl.h"
 
 typedef QList<DataPt> DataList;
 typedef QMap<QString, DataList> DataMap;
 
 class TrendBase {
 	QList<TrendValue *> m_values;
+	QList<TrendCtrl *> m_ctrls;
 
 	QString m_filename;
 	sqlite3 *m_sqlite;
@@ -21,6 +23,7 @@ class TrendBase {
 
 public:
 	void registerValue(TrendValue *val);
+	void registerCtrl(TrendCtrl *ctrl);
 	int open();
 	int step(int epoch);
 public:
