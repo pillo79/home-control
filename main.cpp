@@ -2,6 +2,7 @@
 #include "modbusdevice.h"
 #include "hardware.h"
 
+#include "state.h"
 #include "control.h"
 #include "dlg_control.h"
 #include "dlg_status.h"
@@ -12,6 +13,7 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 
+	s();
 	control();
 
 	ControlDlg *controlDlg = new ControlDlg;

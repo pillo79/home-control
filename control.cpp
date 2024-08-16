@@ -6,10 +6,10 @@
 #include "powercalc.h"
 #include "trendbase.h"
 
+#include "state.h"
+
 #include <QTime>
 #include <stdio.h>
-
-#define MAX_PTS 480 // 60*24/3 (1 day in steps of 3 minutes)
 
 struct TargetPower {
 	 int power;
@@ -30,26 +30,7 @@ const TargetPower POWER_LEVEL[] = {
 const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
 
 ControlThread::ControlThread()
-	: wTemperaturaACS	("TemperaturaACS",	"°C",	"%.1f", MAX_PTS, 0.5)
-	, wTemperaturaBoiler	("TemperaturaBoiler",	"°C",	"%.1f", MAX_PTS, 0.5)
-	, wTemperaturaAccumulo	("TemperaturaAccumulo",	"°C",	"%.1f", MAX_PTS, 0.5)
-	, wTemperaturaPannelli	("TemperaturaPannelli",	"°C",	"%.1f", MAX_PTS, 0.5)
-	, wTempLegnaH		("TempGiorno",		"°C",	"%.1f", MAX_PTS, 0.5)
-	, wTempLegnaL		("TempNotte",		"°C",	"%.1f", MAX_PTS, 0.5)
-
-	, wPotProdotta		("PotProdotta",		"W",	"%.0f", MAX_PTS, 0.0)
-	, wPotConsumata		("PotConsumata",	"W",	"%.0f", MAX_PTS, 0.0)
-	, wPotResistenze	("PotResistenze",	"W",	"%.0f", MAX_PTS, 0.0)
-	, wEnergProdotta	("EnergProdotta",	"kWh",	"%.3f", MAX_PTS, 0.0)
-	, wEnergConsumata	("EnergConsumata",	"kWh",	"%.3f", MAX_PTS, 0.0)
-	, wEnergPassivo		("EnergPassivo",	"kWh",	"%.3f", MAX_PTS, 0.0)
-
-	, wTempEsterno		("TempEsterno",		"°C",	"%.1f", MAX_PTS, 0.5)
 {
-	wApriCucinaPerc = 40;
-	wVelFanCoil = 20;
-	xModoRiscaldamento = true;
-
 	TrendBase::instance()->open();
 
 	start();
@@ -79,7 +60,7 @@ void ControlThread::setPowerLevel(int level)
 	for (int i=0; i<5; ++i)
 		HW.PompaCalore.xConfigResistenze[i]->setValue(POWER_LEVEL[level].io_map[i]);
 
-	xResistenzeInUso = (level > 0);
+	s().xResistenzeInUso = (level > 0);
 }
 
 void ControlThread::run()
@@ -116,43 +97,43 @@ void ControlThread::run()
 		ReadHardwareInputs();
 		int rd_ms = rd_time.elapsed();
 
-		mFields.lock();
+		s().mFields.lock();
 
-		wCommErrorMask = GetCommErrorMask();
+		s().wCommErrorMask = GetCommErrorMask();
 
 		// impulso reset PLC
-		if (wCommErrorMask) {
+		if (s().wCommErrorMask) {
 			if (!xRichiestaRestart) {
 				xRichiestaRestart = true;
-				dtLastResetPLC = QDateTime::currentDateTime();
-				append(qPrintable(QString("%1 %2\n").arg(dtLastResetPLC.toString("yyyy-MM-dd hh:mm")).arg(wCommErrorMask, 4, 16, QChar('0'))), "/media/mmcblk0p2/reset.log");
-				++wResetPLCs;
+				s().dtLastResetPLC = QDateTime::currentDateTime();
+				append(qPrintable(QString("%1 %2\n").arg(s().dtLastResetPLC.toString("yyyy-MM-dd hh:mm")).arg(s().wCommErrorMask, 4, 16, QChar('0'))), "/media/mmcblk0p2/reset.log");
+				++s().wResetPLCs;
 			}
 		}
 
 //		static DelayRiseTimer tRichiestaRestart;
 //		bool xRitardoRichiestaRestart = tRichiestaRestart.update(DELAY_SEC(1), xRichiestaRestart);
 //		HW.xResetPLC->setValue(xRichiestaRestart && !xRitardoRichiestaRestart);
-//		if (xRitardoRichiestaRestart && !wCommErrorMask)
+//		if (xRitardoRichiestaRestart && !s().wCommErrorMask)
 //			xRichiestaRestart = false;
 
-		wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue() / 10.0;
-		wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue() / 10.0;
-		wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue() / 10.0;
-		wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
-		wTempLegnaH = HW.Legna.wTemperaturaPufferH->getValue() / 10.0;
-		wTempLegnaL = HW.Legna.wTemperaturaPufferL->getValue() / 10.0;
-		xLegnaInUso = HW.Legna.xCaldaiaAccesa->getValue();
+		s().wTemperaturaACS = HW.PompaCalore.wTemperaturaACS->getValue() / 10.0;
+		s().wTemperaturaBoiler = HW.PompaCalore.wTemperaturaBoiler->getValue() / 10.0;
+		s().wTemperaturaAccumulo = HW.Accumulo.wTemperatura->getValue() / 10.0;
+		s().wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
+		s().wTempLegnaH = HW.Legna.wTemperaturaPufferH->getValue() / 10.0;
+		s().wTempLegnaL = HW.Legna.wTemperaturaPufferL->getValue() / 10.0;
+		s().xLegnaInUso = HW.Legna.xCaldaiaAccesa->getValue();
 
-		wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
+		s().wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
 		Timer::tick();
 		QDateTime today = QDateTime::currentDateTime();
 		QTime now = today.time();
 		int nowSecs = now.hour()*3600 + now.minute()*60 + now.second();
 
-		wPotProdotta = HW.Pannelli.wPotenzaProdotta->getValue();
-		wPotConsumata = HW.Pannelli.wPotenzaConsumata->getValue();
+		s().wPotProdotta = HW.Pannelli.wPotenzaProdotta->getValue();
+		s().wPotConsumata = HW.Pannelli.wPotenzaConsumata->getValue();
 
 		double curEnergProdotta = HW.Pannelli.wEnergiaProdotta->getValue() / 1000.0;
 		double curEnergConsumata = HW.Pannelli.wEnergiaConsumata->getValue() / 1000.0;
@@ -161,10 +142,10 @@ void ControlThread::run()
 			giorEnergConsumata = curEnergConsumata;
 			initGiorEnergia = false;
 		}
-		wEnergProdotta = curEnergProdotta - giorEnergProdotta;
-		wEnergConsumata = curEnergConsumata - giorEnergConsumata;
+		s().wEnergProdotta = curEnergProdotta - giorEnergProdotta;
+		s().wEnergConsumata = curEnergConsumata - giorEnergConsumata;
 
-		wPotResistenze = HW.Pannelli.wPotenzaResistenze->getValue();
+		s().wPotResistenze = HW.Pannelli.wPotenzaResistenze->getValue();
 
 		if (now.minute() != lastTime.minute()) {
 			if (initMinEnergia) {
@@ -174,25 +155,25 @@ void ControlThread::run()
 				double prod = curEnergProdotta - minEnergProdotta;
 				double cons = curEnergConsumata - minEnergConsumata;
 				if (prod > cons)
-					tTempoAttivo = tTempoAttivo.addSecs(60);
+					s().tTempoAttivo = s().tTempoAttivo.addSecs(60);
 				else
-					wEnergPassivo = wEnergPassivo + (cons-prod);
+					s().wEnergPassivo = s().wEnergPassivo + (cons-prod);
 			}
 			minEnergProdotta = curEnergProdotta;
 			minEnergConsumata = curEnergConsumata;
 
-			if ((wPotProdotta < 1500) || ((wPotConsumata > wPotProdotta) && !PowerLevel) || (wTemperaturaBoiler > 55))
+			if ((s().wPotProdotta < 1500) || ((s().wPotConsumata > s().wPotProdotta) && !PowerLevel) || (s().wTemperaturaBoiler > 55))
 				xAutoPompaCaloreRisc = false;
-			else if ((wPotProdotta > 2500) && (wTemperaturaBoiler < 52))
+			else if ((s().wPotProdotta > 2500) && (s().wTemperaturaBoiler < 52))
 				xAutoPompaCaloreRisc = true;
 
 			if ((now.minute() % 3) == 0) {
-				int power_budget = wPotProdotta + wPotResistenze - wPotConsumata;
+				int power_budget = s().wPotProdotta + s().wPotResistenze - s().wPotConsumata;
 				int next_level;
 
 				// never allocate more power than currently produced
-				if (power_budget > wPotProdotta)
-					power_budget = wPotProdotta;
+				if (power_budget > s().wPotProdotta)
+					power_budget = s().wPotProdotta;
 
 				for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
 					if (power_budget > POWER_LEVEL[next_level].min_budget)
@@ -203,11 +184,11 @@ void ControlThread::run()
 					NextPowerLevel = next_level;
 					setPowerLevel(0);
 					printf("%4.0f +%4.0f[%i] -%4.0f = %4i => SWITCH TO %4i[%i]\n",
-						wPotProdotta.value(), wPotResistenze.value(), PowerLevel, wPotConsumata.value(),
+						s().wPotProdotta.value(), s().wPotResistenze.value(), PowerLevel, s().wPotConsumata.value(),
 						power_budget, POWER_LEVEL[NextPowerLevel].power, NextPowerLevel);
 				} else {
 					printf("%4.0f +%4.0f[%i] -%4.0f = %4i => NO CHANGE\n",
-						wPotProdotta.value(), wPotResistenze.value(), PowerLevel, wPotConsumata.value(),
+						s().wPotProdotta.value(), s().wPotResistenze.value(), PowerLevel, s().wPotConsumata.value(),
 						power_budget);
 				}
 
@@ -220,8 +201,8 @@ void ControlThread::run()
 			switch (now.hour()) {
 			case 0:
 				// NEXT DAY!
-				tTempoAttivo.setHMS(0,0,0);
-				wEnergPassivo = 0.0;
+				s().tTempoAttivo.setHMS(0,0,0);
+				s().wEnergPassivo = 0.0;
 				initGiorEnergia = true;
 				xCaricoAccumuloAttivo = false;
 				break;
@@ -236,54 +217,54 @@ void ControlThread::run()
 			}
 		}
 
-		if (!xModoRiscaldamento) {
+		if (!s().xModoRiscaldamento) {
 			// ignora richieste zone notte/giorno
-			xAttivaZonaNotte = xAttivaZonaGiorno = false;
+			s().xAttivaZonaNotte = s().xAttivaZonaGiorno = false;
 		}
 
 		bool richieste_valide = false;
-		if (xAttivaProg) {
+		if (s().xAttivaProg) {
 			richieste_valide |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			richieste_valide |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		} else {
 			richieste_valide = true;
 		}
 
-		bool zone_accese = richieste_valide && (xAttivaZonaNotte || xAttivaZonaGiorno || xAttivaZonaSoffitta);
-		bool impianto_acceso = richieste_valide && (zone_accese || xAttivaFanCoil);
-		bool risc_manuale_solo_hp = xSetManuale && xModoRiscaldamento && xUsaPompaCalore && !xUsaGas;
-		xImpiantoAttivo = impianto_acceso;
+		bool zone_accese = richieste_valide && (s().xAttivaZonaNotte || s().xAttivaZonaGiorno || s().xAttivaZonaSoffitta);
+		bool impianto_acceso = richieste_valide && (zone_accese || s().xAttivaFanCoil);
+		bool risc_manuale_solo_hp = s().xSetManuale && s().xModoRiscaldamento && s().xUsaPompaCalore && !s().xUsaGas;
+		s().xImpiantoAttivo = impianto_acceso;
 
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
 		static DelayRiseTimer tStartPompe;
 		bool start_pompe = tStartPompe.update(DELAY_SEC(20), impianto_acceso);
-		HW.Riscaldamento.xStartPompaGiorno->setValue(start_pompe && xAttivaZonaGiorno);
-		HW.Riscaldamento.xStartPompaNotte->setValue(start_pompe && xAttivaZonaNotte);
-		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
-		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
-		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && xAttivaZonaSoffitta);
-		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe && xModoRiscaldamento);
+		HW.Riscaldamento.xStartPompaGiorno->setValue(start_pompe && s().xAttivaZonaGiorno);
+		HW.Riscaldamento.xStartPompaNotte->setValue(start_pompe && s().xAttivaZonaNotte);
+		HW.Riscaldamento.xStartPompaSoffitta->setValue(start_pompe && s().xAttivaZonaSoffitta);
+		HW.Riscaldamento.xStartFanCoilStanzaSoffitta->setValue(start_pompe && s().xAttivaZonaSoffitta);
+		HW.Riscaldamento.xStartFanCoilBagnoSoffitta->setValue(start_pompe && s().xAttivaZonaSoffitta);
+		HW.Riscaldamento.xStartPompaCircuito->setValue(start_pompe && s().xModoRiscaldamento);
 
 		bool acs_attiva = false;
-		if (wTemperaturaACS < 55) {
+		if (s().wTemperaturaACS < 55) {
 			/* orari ACS auto */
 			acs_attiva |= ((now>QTime(11,0)) && (now<QTime(14,0)));
 			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
 
-		if (xModoRiscaldamento)
+		if (s().xModoRiscaldamento)
 			acs_attiva |= impianto_acceso;
 
-		if (acs_attiva && xDisabilitaGas) {
+		if (acs_attiva && s().xDisabilitaGas) {
 			// HP deve scaldare ACS anche se potenza non sufficiente
-			if (wTemperaturaACS < 50)
+			if (s().wTemperaturaACS < 50)
 				xAutoPompaCaloreRisc = true;
-			else if (wTemperaturaACS > 55)
+			else if (s().wTemperaturaACS > 55)
 				xAutoPompaCaloreRisc = false;
 		}
 
-		if (!xModoRiscaldamento && impianto_acceso) {
+		if (!s().xModoRiscaldamento && impianto_acceso) {
 			// imposta e forza raffreddamento HP
 			xAutoPompaCaloreRisc = false;
 			xAutoPompaCaloreCond = true;
@@ -312,16 +293,16 @@ void ControlThread::run()
 		bool reset_man_finito = tResetManValvole.update(DELAY_SEC(20), impianto_acceso);
 		static DelayRiseTimer tSetPosValvolaUV1;
 		bool set_pos_uv1_finito = tSetPosValvolaUV1.update(DELAY_MSEC(1900), reset_man_finito);
-		HW.PompaCalore.xForzaRiscApri->setValue(impianto_acceso && xModoRiscaldamento && !reset_man_finito && !risc_manuale_solo_hp);
-		HW.PompaCalore.xForzaRiscFerma->setValue(xModoRiscaldamento && set_pos_uv1_finito && !risc_manuale_solo_hp);
+		HW.PompaCalore.xForzaRiscApri->setValue(impianto_acceso && s().xModoRiscaldamento && !reset_man_finito && !risc_manuale_solo_hp);
+		HW.PompaCalore.xForzaRiscFerma->setValue(s().xModoRiscaldamento && set_pos_uv1_finito && !risc_manuale_solo_hp);
 
-		if (xDisabilitaPompaCalore) {
+		if (s().xDisabilitaPompaCalore) {
 			// disabilita comando a pompa calore ma gestisci valvole
 			xAutoPompaCaloreRisc = xAutoPompaCaloreCond = false;
 		}
 
 		static DelayRiseTimer tNuovoLivelloRes;
-		if (xDisabilitaResistenze || (wTemperaturaACS > 80) || (wTemperaturaBoiler > 80) || (wPotConsumata < 0.1)) {
+		if (s().xDisabilitaResistenze || (s().wTemperaturaACS > 80) || (s().wTemperaturaBoiler > 80) || (s().wPotConsumata < 0.1)) {
 			// force off
 			setPowerLevel(0);
 			PowerLevel = 0;
@@ -333,42 +314,42 @@ void ControlThread::run()
 			NextPowerLevel = -1;
 		}
 
-		xPompaCaloreAttiva = HW.PompaCalore.xStatoPompaCalore->getValue();
+		s().xPompaCaloreAttiva = HW.PompaCalore.xStatoPompaCalore->getValue();
 
-		HW.FanCoilCorridoio.xChiudiValvola->setValue(!xAttivaFanCoil);
+		HW.FanCoilCorridoio.xChiudiValvola->setValue(!s().xAttivaFanCoil);
 		static DelayRiseTimer tStartFanCoil;
-		bool valvola_fancoil_chiusa = tStartFanCoil.update(DELAY_SEC(30), xAttivaFanCoil);
+		bool valvola_fancoil_chiusa = tStartFanCoil.update(DELAY_SEC(30), s().xAttivaFanCoil);
 
 		// filtro ventilatore per riscaldamento manuale solo HP
 		static bool ventilatore_in_funzione = false;
 		static DelayRiseTimer tStartVentilatore;
-		bool start_ventilatore = tStartVentilatore.update(DELAY_SEC(60), xPompaCaloreAttiva);
+		bool start_ventilatore = tStartVentilatore.update(DELAY_SEC(60), s().xPompaCaloreAttiva);
 		static DelayFallTimer tStopVentilatore;
-		bool stop_ventilatore = tStopVentilatore.update(DELAY_SEC(120), xPompaCaloreAttiva);
+		bool stop_ventilatore = tStopVentilatore.update(DELAY_SEC(120), s().xPompaCaloreAttiva);
 		if (start_ventilatore || !risc_manuale_solo_hp)
 			ventilatore_in_funzione = true;
 		else if (!stop_ventilatore)
 			ventilatore_in_funzione = false;
 
 		HW.FanCoilCorridoio.xStartVentilatore->setValue(valvola_fancoil_chiusa && ventilatore_in_funzione);
-		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(wVelFanCoil*200);
+		HW.FanCoilCorridoio.wLivelloVentilatore->setValue(s().wVelFanCoil*200);
 
 		static bool set_serranda_cucina = false;
 
 		static bool ultimo_fancoil = false;
-		if (ultimo_fancoil != xAttivaFanCoil)
+		if (ultimo_fancoil != s().xAttivaFanCoil)
 			set_serranda_cucina = true;
-		ultimo_fancoil = xAttivaFanCoil;
+		ultimo_fancoil = s().xAttivaFanCoil;
 
 		static int ultimo_perc_cucina = 0;
-		if (ultimo_perc_cucina != wApriCucinaPerc)
+		if (ultimo_perc_cucina != s().wApriCucinaPerc)
 			set_serranda_cucina = true;
-		ultimo_perc_cucina = wApriCucinaPerc;
+		ultimo_perc_cucina = s().wApriCucinaPerc;
 
 		static bool ultimo_forza_chiudi = false;
-		if (ultimo_forza_chiudi != xForzaChiudi)
+		if (ultimo_forza_chiudi != s().xForzaChiudi)
 			set_serranda_cucina = true;
-		ultimo_forza_chiudi = xForzaChiudi;
+		ultimo_forza_chiudi = s().xForzaChiudi;
 
 		static DelayRiseTimer tResetSerrandaCucina;
 		static DelayRiseTimer tApriSerrandaCucina;
@@ -376,8 +357,8 @@ void ControlThread::run()
 		bool reset_cucina_ok = tResetSerrandaCucina.update(DELAY_SEC(30), set_serranda_cucina);
 		bool chiudi_cucina = set_serranda_cucina && !reset_cucina_ok;
 
-		bool cucina_aperta = tApriSerrandaCucina.update(DELAY_SEC((wApriCucinaPerc*25)/100), reset_cucina_ok);
-		bool apri_cucina = reset_cucina_ok && xAttivaFanCoil && !xForzaChiudi && !cucina_aperta;
+		bool cucina_aperta = tApriSerrandaCucina.update(DELAY_SEC((s().wApriCucinaPerc*25)/100), reset_cucina_ok);
+		bool apri_cucina = reset_cucina_ok && s().xAttivaFanCoil && !s().xForzaChiudi && !cucina_aperta;
 
 		bool muovi_serranda = apri_cucina || chiudi_cucina;
 		if (set_serranda_cucina && !muovi_serranda)
@@ -386,33 +367,33 @@ void ControlThread::run()
 		HW.FanCoilCorridoio.xMuoviSerrandaCucina->setValue(muovi_serranda);
 		HW.FanCoilCorridoio.xApriSerrandaCucina->setValue(apri_cucina);
 
-		if (xSetManuale) {
+		if (s().xSetManuale) {
 			// forza pompa off se sovra temp
-			if (xUsaPompaCalore && xModoRiscaldamento && (wTemperaturaACS > 65))
-				xUsaPompaCalore = false;
+			if (s().xUsaPompaCalore && s().xModoRiscaldamento && (s().wTemperaturaACS > 65))
+				s().xUsaPompaCalore = false;
 
-			xPompaCaloreRiscInUso = xUsaPompaCalore && xModoRiscaldamento;
-			xPompaCaloreCondInUso = xUsaPompaCalore && !xModoRiscaldamento;
+			s().xPompaCaloreRiscInUso = s().xUsaPompaCalore && s().xModoRiscaldamento;
+			s().xPompaCaloreCondInUso = s().xUsaPompaCalore && !s().xModoRiscaldamento;
 		} else {
-			xPompaCaloreRiscInUso = xAutoPompaCaloreRisc;
-			xPompaCaloreCondInUso = xAutoPompaCaloreCond;
+			s().xPompaCaloreRiscInUso = xAutoPompaCaloreRisc;
+			s().xPompaCaloreCondInUso = xAutoPompaCaloreCond;
 		}
 
-		HW.PompaCalore.xStopPompaCalore->setValue(!(xPompaCaloreRiscInUso || xPompaCaloreCondInUso));
-		HW.PompaCalore.xRichiestaCaldo->setValue(xPompaCaloreRiscInUso);
-		HW.PompaCalore.xRichiestaFreddo->setValue(xPompaCaloreCondInUso);
+		HW.PompaCalore.xStopPompaCalore->setValue(!(s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
+		HW.PompaCalore.xRichiestaCaldo->setValue(s().xPompaCaloreRiscInUso);
+		HW.PompaCalore.xRichiestaFreddo->setValue(s().xPompaCaloreCondInUso);
 
 		// condizioni HPSU->cantina ("troppo caldo")
 		static bool forzaTrasfHPSUVersoLegna = false;
-		if ((wTemperaturaACS > 70) && (wTemperaturaACS > wTempLegnaH+10.0)) {
+		if ((s().wTemperaturaACS > 70) && (s().wTemperaturaACS > s().wTempLegnaH+10.0)) {
 			forzaTrasfHPSUVersoLegna = true;
-		} else if ((wTemperaturaACS < 65) || (wTemperaturaACS < wTempLegnaH+6.0)) {
+		} else if ((s().wTemperaturaACS < 65) || (s().wTemperaturaACS < s().wTempLegnaH+6.0)) {
 			forzaTrasfHPSUVersoLegna = false;
 		}
 		static bool equilibraLegna = false;
-		if ((wTempLegnaH < wTempLegnaL+5.0) || !forzaTrasfHPSUVersoLegna)
+		if ((s().wTempLegnaH < s().wTempLegnaL+5.0) || !forzaTrasfHPSUVersoLegna)
 			equilibraLegna = false;
-		else if (wTempLegnaH > wTempLegnaL+20.0)
+		else if (s().wTempLegnaH > s().wTempLegnaL+20.0)
 			equilibraLegna = true;
 		HW.Legna.xForzaP2Scambiatore->setValue(forzaTrasfHPSUVersoLegna);
 		HW.Legna.xStartP2Scambiatore->setValue(forzaTrasfHPSUVersoLegna);
@@ -427,12 +408,12 @@ void ControlThread::run()
 
 		if (!orario_carico_accumulo)
 			xCaricoAccumuloAttivo = false;
-		else if (wTemperaturaBoiler > 60)
+		else if (s().wTemperaturaBoiler > 60)
 			xCaricoAccumuloAttivo = true;
 
-		if ((orario_uso_accumulo || acs_attiva) && !xDisabilitaAccumulo) {
+		if ((orario_uso_accumulo || acs_attiva) && !s().xDisabilitaAccumulo) {
 			/* trasf Accumulo->HPSU (uso energia) */
-			if ((wTemperaturaAccumulo > 40) && (wTemperaturaAccumulo > wTemperaturaACS+6.0) && !xGasInUso) {
+			if ((s().wTemperaturaAccumulo > 40) && (s().wTemperaturaAccumulo > s().wTemperaturaACS+6.0) && !s().xGasInUso) {
 				xAutoTrasfDaAccumulo = true;
 				xAutoTrasfVersoAccumulo = false;
 			}
@@ -441,9 +422,9 @@ void ControlThread::run()
 			ferma_accumulo = false;
 		}
 
-		if (!xAutoTrasfDaAccumulo && xCaricoAccumuloAttivo && !xDisabilitaAccumulo) {
+		if (!xAutoTrasfDaAccumulo && xCaricoAccumuloAttivo && !s().xDisabilitaAccumulo) {
 			/* trasf HPSU->Accumulo (salvataggio energia)*/
-			if ((wTemperaturaACS > 50) && ((wTemperaturaAccumulo < wTemperaturaACS-6) || (wTemperaturaACS > 70)) && !xGasInUso) {
+			if ((s().wTemperaturaACS > 50) && ((s().wTemperaturaAccumulo < s().wTemperaturaACS-6) || (s().wTemperaturaACS > 70)) && !s().xGasInUso) {
 				xAutoTrasfDaAccumulo = false;
 				xAutoTrasfVersoAccumulo = true;
 			}
@@ -452,12 +433,12 @@ void ControlThread::run()
 			ferma_accumulo = false;
 		}
 
-		if (ferma_accumulo || xGasInUso || (wTemperaturaAccumulo < 35) || (wTemperaturaAccumulo < wTemperaturaACS+2)) {
+		if (ferma_accumulo || s().xGasInUso || (s().wTemperaturaAccumulo < 35) || (s().wTemperaturaAccumulo < s().wTemperaturaACS+2)) {
 			/* stop trasf Accumulo->HPSU (uso energia) */
 			xAutoTrasfDaAccumulo = false;
 		}
 
-		if (ferma_accumulo || xGasInUso || (wTemperaturaACS < 45) || ((wTemperaturaACS < 69) && (wTemperaturaAccumulo > wTemperaturaACS-2))) {
+		if (ferma_accumulo || s().xGasInUso || (s().wTemperaturaACS < 45) || ((s().wTemperaturaACS < 69) && (s().wTemperaturaAccumulo > s().wTemperaturaACS-2))) {
 			/* stop trasf HPSU->Accumulo (salvataggio energia)*/
 			xAutoTrasfVersoAccumulo = false;
 		}
@@ -466,45 +447,45 @@ void ControlThread::run()
 		if (xAutoTrasfDaAccumulo)
 			acs_attiva = false;
 
-		if (xSetManuale) {
-			xTrasfDaAccumuloInCorso = xTrasfDaAccumulo;
-			xTrasfVersoAccumuloInCorso = xTrasfVersoAccumulo;
+		if (s().xSetManuale) {
+			s().xTrasfDaAccumuloInCorso = s().xTrasfDaAccumulo;
+			s().xTrasfVersoAccumuloInCorso = s().xTrasfVersoAccumulo;
 		} else {
-			xTrasfDaAccumuloInCorso = xAutoTrasfDaAccumulo;
-			xTrasfVersoAccumuloInCorso = xAutoTrasfVersoAccumulo;
+			s().xTrasfDaAccumuloInCorso = xAutoTrasfDaAccumulo;
+			s().xTrasfVersoAccumuloInCorso = xAutoTrasfVersoAccumulo;
 		}
 
-		bool start_pompa_accumulo = (xTrasfDaAccumuloInCorso || xTrasfVersoAccumuloInCorso);
+		bool start_pompa_accumulo = (s().xTrasfDaAccumuloInCorso || s().xTrasfVersoAccumuloInCorso);
 		static DelayRiseTimer tDurataPompaAccumulo;
-		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(120), start_pompa_accumulo && xSetManuale);
+		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(120), start_pompa_accumulo && s().xSetManuale);
 		HW.Accumulo.xStartPompa->setValue(start_pompa_accumulo && !max_durata_pompa_accumulo);
 		if (max_durata_pompa_accumulo) {
-			xTrasfDaAccumuloInCorso = false;
-			xTrasfVersoAccumuloInCorso = false;
+			s().xTrasfDaAccumuloInCorso = false;
+			s().xTrasfVersoAccumuloInCorso = false;
 		}
 
-		if (acs_attiva && !xPompaCaloreRiscInUso && !xDisabilitaGas) {
+		if (acs_attiva && !s().xPompaCaloreRiscInUso && !s().xDisabilitaGas) {
 			/* auto mode */
-			if (wTemperaturaACS < 50)
+			if (s().wTemperaturaACS < 50)
 				xAutoGas = true;
-		else if (wTemperaturaACS > 55)
+		else if (s().wTemperaturaACS > 55)
 			xAutoGas = false;
 		} else {
 			xAutoGas = false;
 		}
 
-		if (xSetManuale)
-			xGasInUso = xUsaGas;
+		if (s().xSetManuale)
+			s().xGasInUso = s().xUsaGas;
 		else
-			xGasInUso = xAutoGas;
+			s().xGasInUso = xAutoGas;
 
-		HW.Gas.xAlimenta->setValue(xGasInUso);
+		HW.Gas.xAlimenta->setValue(s().xGasInUso);
 		static DelayRiseTimer tStartGas;
-		HW.Gas.xStartCaldaia->setValue(tStartGas.update(DELAY_SEC(10), xGasInUso));
+		HW.Gas.xStartCaldaia->setValue(tStartGas.update(DELAY_SEC(10), s().xGasInUso));
 		static DelayFallTimer tStartPompa;
 		HW.Gas.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Gas.xStartCaldaia->getValue()));
 
-		mFields.unlock();
+		s().mFields.unlock();
 		int ctrl_ms = now.elapsed();
 		QTime wr_time = QTime::currentTime();
 		WriteHardwareOutputs();

@@ -16,8 +16,6 @@ class ControlThread : public QThread {
 	public:
 		ControlThread();
 		~ControlThread();
-
-		State *s;
 };
 
 ControlThread &control();

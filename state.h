@@ -1,6 +1,12 @@
 #ifndef __STATE_H__
 #define __STATE_H__
 
+#include "trendvalue.h"
+
+#include <QThread>
+#include <QMutex>
+#include <QTime>
+
 class State {
 		friend State &s();
 

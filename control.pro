@@ -9,8 +9,8 @@ INCLUDEPATH += . \
 RESOURCES += control.qrc
 
 # Input
-HEADERS += hardware.h modbusdevice.h modbusio.h plc_lib.h powercalc.h control.h
-SOURCES += main.cpp plc_lib.cpp hardware.cpp modbusdevice.cpp modbusio.cpp powercalc.cpp control.cpp
+HEADERS += state.h hardware.h modbusdevice.h modbusio.h plc_lib.h powercalc.h control.h
+SOURCES += main.cpp plc_lib.cpp hardware.cpp modbusdevice.cpp modbusio.cpp powercalc.cpp state.cpp control.cpp
 LIBS += -L../libmodbus/src -lmodbus
 
 HEADERS += ctrlvalue.h ctrlobserver.h
