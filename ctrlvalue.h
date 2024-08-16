@@ -1,7 +1,6 @@
 #ifndef __CTRLVALUE_H__
 #define __CTRLVALUE_H__
 
-#include <QMutex>
 #include <QString>
 
 enum OBSERVERS {
@@ -17,7 +16,6 @@ class CtrlObs;
 
 class CtrlVal {
 	protected:
-		mutable QMutex m_mutex;
 		CtrlObs * m_obs[OBS_COUNT];
 		CtrlObs * m_lastObs;
 
@@ -46,7 +44,7 @@ class CtrlBoolVal : public CtrlVal {
 
 		CtrlBoolObs &operator ()(bool obsId) { return *(CtrlBoolObs *) m_obs[obsId]; }
 
-		bool value() const;
+		bool value() const { return m_val; };
 		operator bool() const { return value(); };
 
 		virtual QString format();
@@ -68,7 +66,7 @@ class CtrlIntVal : public CtrlVal {
 
 		CtrlIntObs &operator ()(int obsId) { return *(CtrlIntObs *) m_obs[obsId]; }
 
-		int value() const;
+		int value() const { return m_val; };
 		operator int() const { return value(); };
 
 		virtual QString format();

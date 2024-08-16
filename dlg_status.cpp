@@ -116,8 +116,6 @@ void StatusDlg::updateScreen()
 	ui.tlData->setText(QDate::currentDate().toString("dd/MM/yyyy"));
 	ui.tlOra->setText(QTime::currentTime().toString("h:mm"));
 
-	QMutexLocker lock(&s().mFields);
-
 	ui.tlTempAcquaTop->setText(s().wTemperaturaACS.format());
 	ui.tlTempAcquaBot->setText(s().wTemperaturaBoiler.format());
 	ui.tlTempCantinaTop->setText(s().wTempLegnaH.format());

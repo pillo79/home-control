@@ -2,8 +2,7 @@
 #include "ctrlobserver.h"
 
 CtrlVal::CtrlVal()
-	: m_mutex(QMutex::Recursive)
-	, m_lastObs(NULL)
+	: m_lastObs(NULL)
 {
 	memset(m_obs, 0, sizeof(m_obs));
 }
@@ -32,15 +31,8 @@ CtrlBoolVal::CtrlBoolVal(bool val)
 	}
 }
 
-bool CtrlBoolVal::value() const
-{
-	QMutexLocker lock(&m_mutex);
-	return m_val;
-}
-
 void CtrlBoolVal::setValue(CtrlBoolObs *src, bool newVal)
 {
-	QMutexLocker lock(&m_mutex);
 	bool changed = false;
 
 	if (newVal != m_val) {
@@ -75,15 +67,8 @@ CtrlIntVal::CtrlIntVal(int min, int max, int val)
 	}
 }
 
-int CtrlIntVal::value() const
-{
-	QMutexLocker lock(&m_mutex);
-	return m_val;
-}
-
 void CtrlIntVal::setValue(CtrlIntObs *src, int newVal)
 {
-	QMutexLocker lock(&m_mutex);
 	bool changed = false;
 
 	if (newVal < m_min) {

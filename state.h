@@ -20,7 +20,7 @@ class State {
 		void saveSettings();
 
 	public:
-		QMutex mFields;
+		QMutex fieldLock;
 
 		/* inputs */
 		CtrlBoolVal xModoRiscaldamento;

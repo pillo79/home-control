@@ -44,10 +44,8 @@ class ControlDlg : public QWidget
 
 	private:
 		Ui::ControlDlg ui;
-		QSettings mSettings;
 		QTimer m_closeTimer;
 	//	QPushButton *mProgEn[24];
-		int mLockCount;
 
 		QColor mDisabledColor;
 		QColor mForcedNormColor, mAutoNormColor;
@@ -60,13 +58,10 @@ class ControlDlg : public QWidget
 		void setBtnStatus3Way(QPushButton *pb, bool state1, bool state2, ButtonColor mode, QString force1, QString force2, QString auto1, QString auto2, QString off, bool disable=false, QString disabled="");
 
 		void loadSettings();
-		void saveSettings();
 
 		virtual void showEvent(QShowEvent *);
 		void resetCloseTimer();
 		void updateBtnStatus();
-		void lockMutex();
-		void unlockMutex();
 };
 
 #endif /* __DLG_CONTROL_H__ */

@@ -100,7 +100,7 @@ void ControlThread::run()
 		ReadHardwareInputs();
 		int rd_ms = rd_time.elapsed();
 
-		s().mFields.lock();
+		s().fieldLock.lock();
 
 		s().wCommErrorMask = GetCommErrorMask();
 
@@ -488,7 +488,8 @@ void ControlThread::run()
 		static DelayFallTimer tStartPompa;
 		HW.Gas.xStartPompa->setValue(tStartPompa.update(DELAY_SEC(60), HW.Gas.xStartCaldaia->getValue()));
 
-		s().mFields.unlock();
+		s().fieldLock.unlock();
+
 		int ctrl_ms = now.elapsed();
 		QTime wr_time = QTime::currentTime();
 		WriteHardwareOutputs();

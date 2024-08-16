@@ -13,8 +13,6 @@
 
 ControlDlg::ControlDlg(QWidget *parent)
     : QWidget(parent)
-    , mSettings("/media/mmcblk0p2/settings.ini", QSettings::IniFormat)
-    , mLockCount(0)
 {
 	ui.setupUi(this);
 	/*
@@ -72,23 +70,7 @@ void ControlDlg::loadSettings()
 
 	ui.pbForzaChiudi->setChecked(s().xForzaChiudi);
 
-	lockMutex();
 	updateBtnStatus();
-	unlockMutex();
-}
-
-void ControlDlg::lockMutex()
-{
-	if (!mLockCount)
-		s().mFields.lock();
-	mLockCount++;
-}
-
-void ControlDlg::unlockMutex()
-{
-	mLockCount--;
-	if (!mLockCount)
-		s().mFields.unlock();
 }
 
 void ControlDlg::on_pbModoRisc_toggled(bool checked)
@@ -105,54 +87,54 @@ void ControlDlg::on_pbModoRisc_toggled(bool checked)
 		ui.pbNotte->setEnabled(false);
 	}
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xModoRiscaldamento(O_UI_CTRL) = checked;
 	if (!checked) {
 		ui.pbGiorno->setChecked(s().xAttivaZonaGiorno(O_UI_CTRL) = false);
 		ui.pbNotte->setChecked(s().xAttivaZonaNotte(O_UI_CTRL) = false);
 	}
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbNotte_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xAttivaZonaNotte(O_UI_CTRL) = checked;
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbGiorno_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xAttivaZonaGiorno(O_UI_CTRL) = checked;
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbSoffitta_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xAttivaZonaSoffitta(O_UI_CTRL) = checked;
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbFanCoil_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xAttivaFanCoil(O_UI_CTRL) = checked;
 	updateBtnStatus();
-	unlockMutex();
 
 	if (!checked && ui.pbForzaChiudi->isChecked())
 		ui.pbForzaChiudi->setChecked(false);
@@ -160,10 +142,10 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 
 void ControlDlg::on_pbProg_toggled(bool checked)
 {
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xAttivaProg(O_UI_CTRL) = checked;
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off, bool disable, QString disabled)
@@ -304,7 +286,8 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	if (checked) {
 		s().xSetManuale(O_UI_CTRL) = true;
 		/* recover from current state */
@@ -322,56 +305,56 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		ui.pbTrasfAccumulo->setChecked(s().xDisabilitaAccumulo);
 	}
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbRiscGas_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	if (ui.pbRiscManuale->isChecked()) {
 		s().xUsaGas(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaGas(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	if (ui.pbRiscManuale->isChecked()) {
 		s().xUsaPompaCalore(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaPompaCalore(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	if (ui.pbRiscManuale->isChecked()) {
 		s().xUsaResistenze(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaResistenze(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::on_pbTrasfAccumulo_clicked()
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	if (ui.pbRiscManuale->isChecked()) {
 		if (!s().xTrasfDaAccumulo && !s().xTrasfVersoAccumulo) {
 			// fermo->da
@@ -392,16 +375,15 @@ void ControlDlg::on_pbTrasfAccumulo_clicked()
 	} else {
 		s().xDisabilitaAccumulo(O_UI_CTRL) = ui.pbTrasfAccumulo->isChecked();
 	}
-	unlockMutex();
 }
 
 void ControlDlg::on_pbVelMinus_clicked()
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().wVelFanCoil(O_UI_CTRL) -= 5;
-	unlockMutex();
 
 	ui.tlVelFanCoil->setText(s().wVelFanCoil.format());
 }
@@ -410,9 +392,9 @@ void ControlDlg::on_pbVelPlus_clicked()
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().wVelFanCoil(O_UI_CTRL) += 5;
-	unlockMutex();
 
 	ui.tlVelFanCoil->setText(s().wVelFanCoil.format());
 }
@@ -421,9 +403,9 @@ void ControlDlg::on_pbApriPlus_clicked()
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().wApriCucinaPerc(O_UI_CTRL) += 10;
-	unlockMutex();
 
 	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
 }
@@ -432,9 +414,9 @@ void ControlDlg::on_pbApriMinus_clicked()
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().wApriCucinaPerc(O_UI_CTRL) -= 10;
-	unlockMutex();
 
 	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
 }
@@ -443,10 +425,10 @@ void ControlDlg::on_pbForzaChiudi_toggled(bool checked)
 {
 	resetCloseTimer();
 
-	lockMutex();
+	QMutexLocker lock(&s().fieldLock);
+
 	s().xForzaChiudi(O_UI_CTRL) = checked;
 	updateBtnStatus();
-	unlockMutex();
 }
 
 void ControlDlg::resetCloseTimer()
@@ -466,8 +448,6 @@ void ControlDlg::on_pbOK_clicked()
 
 void ControlDlg::updateScreen()
 {
-	lockMutex();
-
 	static const QTime MIDNIGHT = QTime(0, 0, 10);
 	if (QTime::currentTime() < MIDNIGHT) {
 		// operations to be performed every midnight
@@ -476,6 +456,4 @@ void ControlDlg::updateScreen()
 	}
 
 	updateBtnStatus();
-
-	unlockMutex();
 }
