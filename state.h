@@ -2,54 +2,60 @@
 #define __STATE_H__
 
 #include "trendvalue.h"
+#include "ctrlvalue.h"
 
-#include <QThread>
 #include <QMutex>
+#include <QSettings>
+#include <QThread>
 #include <QTime>
 
 class State {
 		friend State &s();
 
 		State();
+		QSettings m_settings;
 
 	public:
+		void loadSettings();
+		void saveSettings();
 
+	public:
 		QMutex mFields;
 
 		/* inputs */
-		bool xModoRiscaldamento;
-		bool xAttivaZonaNotte;
-		bool xAttivaZonaGiorno;
-		bool xAttivaZonaSoffitta;
-		bool xAttivaFanCoil;
-		bool xAttivaProg;
+		CtrlBoolVal xModoRiscaldamento;
+		CtrlBoolVal xAttivaZonaNotte;
+		CtrlBoolVal xAttivaZonaGiorno;
+		CtrlBoolVal xAttivaZonaSoffitta;
+		CtrlBoolVal xAttivaFanCoil;
+		CtrlBoolVal xAttivaProg;
 
-		bool xSetManuale;
-		bool xUsaPompaCalore;
-		bool xUsaGas;
-		bool xUsaResistenze;
-		bool xTrasfDaAccumulo;
-		bool xTrasfVersoAccumulo;
+		CtrlBoolVal xSetManuale;
+		CtrlBoolVal xUsaPompaCalore;
+		CtrlBoolVal xUsaGas;
+		CtrlBoolVal xUsaResistenze;
+		CtrlBoolVal xTrasfDaAccumulo;
+		CtrlBoolVal xTrasfVersoAccumulo;
 
-		bool xDisabilitaPompaCalore;
-		bool xDisabilitaGas;
-		bool xDisabilitaResistenze;
-		bool xDisabilitaAccumulo;
+		CtrlBoolVal xDisabilitaPompaCalore;
+		CtrlBoolVal xDisabilitaGas;
+		CtrlBoolVal xDisabilitaResistenze;
+		CtrlBoolVal xDisabilitaAccumulo;
 
-		int wVelFanCoil;
-		int wApriCucinaPerc;
-		bool xForzaChiudi;
+		CtrlIntVal wVelFanCoil;
+		CtrlIntVal wApriCucinaPerc;
+		CtrlBoolVal xForzaChiudi;
 
 		/* outputs */
-		bool xGasInUso;
-		bool xLegnaInUso;
-		bool xImpiantoAttivo;
-		bool xPompaCaloreRiscInUso;
-		bool xPompaCaloreCondInUso;
-		bool xPompaCaloreAttiva;
-		bool xResistenzeInUso;
-		bool xTrasfDaAccumuloInCorso;
-		bool xTrasfVersoAccumuloInCorso;
+		CtrlBoolVal xGasInUso;
+		CtrlBoolVal xLegnaInUso;
+		CtrlBoolVal xImpiantoAttivo;
+		CtrlBoolVal xPompaCaloreRiscInUso;
+		CtrlBoolVal xPompaCaloreCondInUso;
+		CtrlBoolVal xPompaCaloreAttiva;
+		CtrlBoolVal xResistenzeInUso;
+		CtrlBoolVal xTrasfDaAccumuloInCorso;
+		CtrlBoolVal xTrasfVersoAccumuloInCorso;
 
 		TrendValue wTemperaturaACS;
 		TrendValue wTemperaturaBoiler;

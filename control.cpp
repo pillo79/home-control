@@ -6,6 +6,9 @@
 #include "powercalc.h"
 #include "trendbase.h"
 
+#include "ctrlvalue.h"
+#include "ctrlobserver.h"
+
 #include "state.h"
 
 #include <QTime>
@@ -60,7 +63,7 @@ void ControlThread::setPowerLevel(int level)
 	for (int i=0; i<5; ++i)
 		HW.PompaCalore.xConfigResistenze[i]->setValue(POWER_LEVEL[level].io_map[i]);
 
-	s().xResistenzeInUso = (level > 0);
+	s().xResistenzeInUso(O_CTRL) = (level > 0);
 }
 
 void ControlThread::run()
@@ -123,7 +126,7 @@ void ControlThread::run()
 		s().wTemperaturaPannelli = HW.PompaCalore.wTemperaturaPannelli->getValue() / 10.0;
 		s().wTempLegnaH = HW.Legna.wTemperaturaPufferH->getValue() / 10.0;
 		s().wTempLegnaL = HW.Legna.wTemperaturaPufferL->getValue() / 10.0;
-		s().xLegnaInUso = HW.Legna.xCaldaiaAccesa->getValue();
+		s().xLegnaInUso(O_CTRL) = HW.Legna.xCaldaiaAccesa->getValue();
 
 		s().wTempEsterno =  HW.Ambiente.wTemperaturaEsterna->getValue() / 10.0;
 
@@ -219,7 +222,7 @@ void ControlThread::run()
 
 		if (!s().xModoRiscaldamento) {
 			// ignora richieste zone notte/giorno
-			s().xAttivaZonaNotte = s().xAttivaZonaGiorno = false;
+			s().xAttivaZonaNotte(O_CTRL) = s().xAttivaZonaGiorno(O_CTRL) = false;
 		}
 
 		bool richieste_valide = false;
@@ -233,7 +236,7 @@ void ControlThread::run()
 		bool zone_accese = richieste_valide && (s().xAttivaZonaNotte || s().xAttivaZonaGiorno || s().xAttivaZonaSoffitta);
 		bool impianto_acceso = richieste_valide && (zone_accese || s().xAttivaFanCoil);
 		bool risc_manuale_solo_hp = s().xSetManuale && s().xModoRiscaldamento && s().xUsaPompaCalore && !s().xUsaGas;
-		s().xImpiantoAttivo = impianto_acceso;
+		s().xImpiantoAttivo(O_CTRL) = impianto_acceso;
 
 		HW.Riscaldamento.xChiudiValvola->setValue(!zone_accese);
 
@@ -314,7 +317,7 @@ void ControlThread::run()
 			NextPowerLevel = -1;
 		}
 
-		s().xPompaCaloreAttiva = HW.PompaCalore.xStatoPompaCalore->getValue();
+		s().xPompaCaloreAttiva(O_CTRL) = HW.PompaCalore.xStatoPompaCalore->getValue();
 
 		HW.FanCoilCorridoio.xChiudiValvola->setValue(!s().xAttivaFanCoil);
 		static DelayRiseTimer tStartFanCoil;
@@ -370,13 +373,13 @@ void ControlThread::run()
 		if (s().xSetManuale) {
 			// forza pompa off se sovra temp
 			if (s().xUsaPompaCalore && s().xModoRiscaldamento && (s().wTemperaturaACS > 65))
-				s().xUsaPompaCalore = false;
+				s().xUsaPompaCalore(O_CTRL) = false;
 
-			s().xPompaCaloreRiscInUso = s().xUsaPompaCalore && s().xModoRiscaldamento;
-			s().xPompaCaloreCondInUso = s().xUsaPompaCalore && !s().xModoRiscaldamento;
+			s().xPompaCaloreRiscInUso(O_CTRL) = s().xUsaPompaCalore && s().xModoRiscaldamento;
+			s().xPompaCaloreCondInUso(O_CTRL) = s().xUsaPompaCalore && !s().xModoRiscaldamento;
 		} else {
-			s().xPompaCaloreRiscInUso = xAutoPompaCaloreRisc;
-			s().xPompaCaloreCondInUso = xAutoPompaCaloreCond;
+			s().xPompaCaloreRiscInUso(O_CTRL) = xAutoPompaCaloreRisc;
+			s().xPompaCaloreCondInUso(O_CTRL) = xAutoPompaCaloreCond;
 		}
 
 		HW.PompaCalore.xStopPompaCalore->setValue(!(s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
@@ -448,11 +451,11 @@ void ControlThread::run()
 			acs_attiva = false;
 
 		if (s().xSetManuale) {
-			s().xTrasfDaAccumuloInCorso = s().xTrasfDaAccumulo;
-			s().xTrasfVersoAccumuloInCorso = s().xTrasfVersoAccumulo;
+			s().xTrasfDaAccumuloInCorso(O_CTRL) = s().xTrasfDaAccumulo;
+			s().xTrasfVersoAccumuloInCorso(O_CTRL) = s().xTrasfVersoAccumulo;
 		} else {
-			s().xTrasfDaAccumuloInCorso = xAutoTrasfDaAccumulo;
-			s().xTrasfVersoAccumuloInCorso = xAutoTrasfVersoAccumulo;
+			s().xTrasfDaAccumuloInCorso(O_CTRL) = xAutoTrasfDaAccumulo;
+			s().xTrasfVersoAccumuloInCorso(O_CTRL) = xAutoTrasfVersoAccumulo;
 		}
 
 		bool start_pompa_accumulo = (s().xTrasfDaAccumuloInCorso || s().xTrasfVersoAccumuloInCorso);
@@ -460,8 +463,8 @@ void ControlThread::run()
 		bool max_durata_pompa_accumulo = tDurataPompaAccumulo.update(DELAY_MIN(120), start_pompa_accumulo && s().xSetManuale);
 		HW.Accumulo.xStartPompa->setValue(start_pompa_accumulo && !max_durata_pompa_accumulo);
 		if (max_durata_pompa_accumulo) {
-			s().xTrasfDaAccumuloInCorso = false;
-			s().xTrasfVersoAccumuloInCorso = false;
+			s().xTrasfDaAccumuloInCorso(O_CTRL) = false;
+			s().xTrasfVersoAccumuloInCorso(O_CTRL) = false;
 		}
 
 		if (acs_attiva && !s().xPompaCaloreRiscInUso && !s().xDisabilitaGas) {
@@ -475,9 +478,9 @@ void ControlThread::run()
 		}
 
 		if (s().xSetManuale)
-			s().xGasInUso = s().xUsaGas;
+			s().xGasInUso(O_CTRL) = s().xUsaGas;
 		else
-			s().xGasInUso = xAutoGas;
+			s().xGasInUso(O_CTRL) = xAutoGas;
 
 		HW.Gas.xAlimenta->setValue(s().xGasInUso);
 		static DelayRiseTimer tStartGas;

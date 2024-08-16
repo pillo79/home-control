@@ -2,7 +2,8 @@
 #include "ctrlobserver.h"
 
 CtrlVal::CtrlVal()
-	: m_lastObs(NULL)
+	: m_mutex(QMutex::Recursive)
+	, m_lastObs(NULL)
 {
 	memset(m_obs, 0, sizeof(m_obs));
 }

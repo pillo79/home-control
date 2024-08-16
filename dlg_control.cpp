@@ -5,6 +5,9 @@
 
 #include "state.h"
 
+#include "ctrlvalue.h"
+#include "ctrlobserver.h"
+
 #include <QtGui>
 #include <QApplication>
 
@@ -35,7 +38,7 @@ ControlDlg::ControlDlg(QWidget *parent)
 	connect(&m_closeTimer, SIGNAL( timeout(void) ), this, SLOT ( hide(void) ));
 
 	char buf[256];
-	sprintf(buf, "%i%%", s().wVelFanCoil);
+	sprintf(buf, "%i%%", s().wVelFanCoil.value());
 	ui.tlVelFanCoil->setText(buf);
 
 	mDisabledColor = QColor(96, 96, 96);
@@ -51,52 +54,27 @@ ControlDlg::ControlDlg(QWidget *parent)
 
 void ControlDlg::loadSettings()
 {
-	if (mSettings.value("pbModoRisc").toBool()) {
+	if (s().xModoRiscaldamento) {
 		ui.pbModoRisc->setChecked(true);
 	} else {
 		ui.pbModoCondiz->setChecked(true);
 	}
 
-	ui.pbNotte->setChecked(mSettings.value("pbNotte").toBool());
-	ui.pbGiorno->setChecked(mSettings.value("pbGiorno").toBool());
-	ui.pbSoffitta->setChecked(mSettings.value("pbSoffitta").toBool());
-	ui.pbFanCoil->setChecked(mSettings.value("pbFanCoil").toBool());
+	ui.pbNotte->setChecked(s().xAttivaZonaNotte);
+	ui.pbGiorno->setChecked(s().xAttivaZonaGiorno);
+	ui.pbSoffitta->setChecked(s().xAttivaZonaSoffitta);
+	ui.pbFanCoil->setChecked(s().xAttivaFanCoil);
 
-	ui.pbRiscManuale->setChecked(mSettings.value("pbRiscManuale").toBool());
-	ui.pbRiscGas->setChecked(mSettings.value("pbRiscGas").toBool());
-	ui.pbRiscPompaCalore->setChecked(mSettings.value("pbRiscPompaCalore").toBool());
-	ui.pbRiscResistenze->setChecked(mSettings.value("pbRiscResistenze").toBool());
+	ui.pbRiscManuale->setChecked(s().xSetManuale);
+	ui.pbRiscGas->setChecked(s().xUsaGas);
+	ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore);
+	ui.pbRiscResistenze->setChecked(s().xUsaResistenze);
 
-	ui.pbForzaChiudi->setChecked(mSettings.value("pbForzaChiudi").toBool());
+	ui.pbForzaChiudi->setChecked(s().xForzaChiudi);
 
 	lockMutex();
-
-	s().wVelFanCoil = mSettings.value("wVelFanCoil").toInt();
-	s().wApriCucinaPerc = mSettings.value("wApriCucinaPerc").toInt();
-
 	updateBtnStatus();
-
 	unlockMutex();
-}
-
-void ControlDlg::saveSettings()
-{
-	mSettings.setValue("pbModoRisc", ui.pbModoRisc->isChecked());
-
-	mSettings.setValue("pbNotte", ui.pbNotte->isChecked());
-	mSettings.setValue("pbGiorno", ui.pbGiorno->isChecked());
-	mSettings.setValue("pbSoffitta", ui.pbSoffitta->isChecked());
-	mSettings.setValue("pbFanCoil", ui.pbFanCoil->isChecked());
-
-	mSettings.setValue("pbRiscManuale", ui.pbRiscManuale->isChecked());
-	mSettings.setValue("pbRiscGas", ui.pbRiscGas->isChecked());
-	mSettings.setValue("pbRiscPompaCalore", ui.pbRiscPompaCalore->isChecked());
-	mSettings.setValue("pbRiscResistenze", ui.pbRiscResistenze->isChecked());
-
-	mSettings.setValue("pbForzaChiudi", ui.pbForzaChiudi->isChecked());
-
-	mSettings.setValue("wVelFanCoil", s().wVelFanCoil);
-	mSettings.setValue("wApriCucinaPerc", s().wApriCucinaPerc);
 }
 
 void ControlDlg::lockMutex()
@@ -128,10 +106,10 @@ void ControlDlg::on_pbModoRisc_toggled(bool checked)
 	}
 
 	lockMutex();
-	s().xModoRiscaldamento = checked;
+	s().xModoRiscaldamento(O_UI_CTRL) = checked;
 	if (!checked) {
-		ui.pbGiorno->setChecked(s().xAttivaZonaGiorno = false);
-		ui.pbNotte->setChecked(s().xAttivaZonaNotte = false);
+		ui.pbGiorno->setChecked(s().xAttivaZonaGiorno(O_UI_CTRL) = false);
+		ui.pbNotte->setChecked(s().xAttivaZonaNotte(O_UI_CTRL) = false);
 	}
 	updateBtnStatus();
 	unlockMutex();
@@ -142,7 +120,7 @@ void ControlDlg::on_pbNotte_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	s().xAttivaZonaNotte = checked;
+	s().xAttivaZonaNotte(O_UI_CTRL) = checked;
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -152,7 +130,7 @@ void ControlDlg::on_pbGiorno_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	s().xAttivaZonaGiorno = checked;
+	s().xAttivaZonaGiorno(O_UI_CTRL) = checked;
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -162,7 +140,7 @@ void ControlDlg::on_pbSoffitta_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	s().xAttivaZonaSoffitta = checked;
+	s().xAttivaZonaSoffitta(O_UI_CTRL) = checked;
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -172,7 +150,7 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	s().xAttivaFanCoil = checked;
+	s().xAttivaFanCoil(O_UI_CTRL) = checked;
 	updateBtnStatus();
 	unlockMutex();
 
@@ -183,7 +161,7 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 void ControlDlg::on_pbProg_toggled(bool checked)
 {
 	lockMutex();
-	s().xAttivaProg = checked;
+	s().xAttivaProg(O_UI_CTRL) = checked;
 	updateBtnStatus();
 	unlockMutex();
 }
@@ -315,13 +293,11 @@ void ControlDlg::updateBtnStatus()
 			ultimoTrasfAccumulo = true;
 	} else {
 		if (ultimoTrasfAccumulo) {
-			s().xTrasfDaAccumulo = false;
-			s().xTrasfVersoAccumulo = false;
+			s().xTrasfDaAccumulo(O_UI_CTRL) = false;
+			s().xTrasfVersoAccumulo(O_UI_CTRL) = false;
 		}
 		ultimoTrasfAccumulo = false;
 	}
-
-	saveSettings();
 }
 
 void ControlDlg::on_pbRiscManuale_toggled(bool checked)
@@ -330,16 +306,16 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 
 	lockMutex();
 	if (checked) {
-		s().xSetManuale = true;
+		s().xSetManuale(O_UI_CTRL) = true;
 		/* recover from current state */
-		ui.pbRiscGas->setChecked(s().xUsaGas = s().xGasInUso);
-		ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore = (s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
-		ui.pbRiscResistenze->setChecked(s().xUsaResistenze = s().xResistenzeInUso);
-		s().xTrasfDaAccumulo = s().xTrasfDaAccumuloInCorso;
-		s().xTrasfVersoAccumulo = s().xTrasfVersoAccumuloInCorso;
+		ui.pbRiscGas->setChecked(s().xUsaGas(O_UI_CTRL) = s().xGasInUso);
+		ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore(O_UI_CTRL) = (s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
+		ui.pbRiscResistenze->setChecked(s().xUsaResistenze(O_UI_CTRL) = s().xResistenzeInUso);
+		s().xTrasfDaAccumulo(O_UI_CTRL) = s().xTrasfDaAccumuloInCorso;
+		s().xTrasfVersoAccumulo(O_UI_CTRL) = s().xTrasfVersoAccumuloInCorso;
 		ui.pbTrasfAccumulo->setChecked(s().xTrasfDaAccumulo || s().xTrasfVersoAccumulo);
 	} else {
-		s().xSetManuale = false;
+		s().xSetManuale(O_UI_CTRL) = false;
 		ui.pbRiscGas->setChecked(s().xDisabilitaGas);
 		ui.pbRiscPompaCalore->setChecked(s().xDisabilitaPompaCalore);
 		ui.pbRiscResistenze->setChecked(s().xDisabilitaResistenze);
@@ -355,9 +331,9 @@ void ControlDlg::on_pbRiscGas_toggled(bool checked)
 
 	lockMutex();
 	if (ui.pbRiscManuale->isChecked()) {
-		s().xUsaGas = checked;
+		s().xUsaGas(O_UI_CTRL) = checked;
 	} else {
-		s().xDisabilitaGas = checked;
+		s().xDisabilitaGas(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
 	unlockMutex();
@@ -369,9 +345,9 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 
 	lockMutex();
 	if (ui.pbRiscManuale->isChecked()) {
-		s().xUsaPompaCalore = checked;
+		s().xUsaPompaCalore(O_UI_CTRL) = checked;
 	} else {
-		s().xDisabilitaPompaCalore = checked;
+		s().xDisabilitaPompaCalore(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
 	unlockMutex();
@@ -383,9 +359,9 @@ void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
 
 	lockMutex();
 	if (ui.pbRiscManuale->isChecked()) {
-		s().xUsaResistenze = checked;
+		s().xUsaResistenze(O_UI_CTRL) = checked;
 	} else {
-		s().xDisabilitaResistenze = checked;
+		s().xDisabilitaResistenze(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
 	unlockMutex();
@@ -399,22 +375,22 @@ void ControlDlg::on_pbTrasfAccumulo_clicked()
 	if (ui.pbRiscManuale->isChecked()) {
 		if (!s().xTrasfDaAccumulo && !s().xTrasfVersoAccumulo) {
 			// fermo->da
-			s().xTrasfDaAccumulo = true;
-			s().xTrasfVersoAccumulo = false;
+			s().xTrasfDaAccumulo(O_UI_CTRL) = true;
+			s().xTrasfVersoAccumulo(O_UI_CTRL) = false;
 			ui.pbTrasfAccumulo->setChecked(true);
 		} else if (s().xTrasfDaAccumulo && !s().xTrasfVersoAccumulo) {
 			// da->verso
-			s().xTrasfDaAccumulo = false;
-			s().xTrasfVersoAccumulo = true;
+			s().xTrasfDaAccumulo(O_UI_CTRL) = false;
+			s().xTrasfVersoAccumulo(O_UI_CTRL) = true;
 			ui.pbTrasfAccumulo->setChecked(true);
 		} else if (!s().xTrasfDaAccumulo && s().xTrasfVersoAccumulo) {
 			// verso->off
-			s().xTrasfDaAccumulo = false;
-			s().xTrasfVersoAccumulo = false;
+			s().xTrasfDaAccumulo(O_UI_CTRL) = false;
+			s().xTrasfVersoAccumulo(O_UI_CTRL) = false;
 			ui.pbTrasfAccumulo->setChecked(false);
 		}
 	} else {
-		s().xDisabilitaAccumulo = ui.pbTrasfAccumulo->isChecked();
+		s().xDisabilitaAccumulo(O_UI_CTRL) = ui.pbTrasfAccumulo->isChecked();
 	}
 	unlockMutex();
 }
@@ -424,15 +400,10 @@ void ControlDlg::on_pbVelMinus_clicked()
 	resetCloseTimer();
 
 	lockMutex();
-	if (s().wVelFanCoil > 5)
-		s().wVelFanCoil -= 5;
-	else
-		s().wVelFanCoil = 0;
+	s().wVelFanCoil(O_UI_CTRL) -= 5;
 	unlockMutex();
 
-	char buf[256];
-	sprintf(buf, "%i%%", s().wVelFanCoil);
-	ui.tlVelFanCoil->setText(buf);
+	ui.tlVelFanCoil->setText(s().wVelFanCoil.format());
 }
 
 void ControlDlg::on_pbVelPlus_clicked()
@@ -440,15 +411,10 @@ void ControlDlg::on_pbVelPlus_clicked()
 	resetCloseTimer();
 
 	lockMutex();
-	if (s().wVelFanCoil < 95)
-		s().wVelFanCoil += 5;
-	else
-		s().wVelFanCoil = 100;
+	s().wVelFanCoil(O_UI_CTRL) += 5;
 	unlockMutex();
 
-	char buf[256];
-	sprintf(buf, "%i%%", s().wVelFanCoil);
-	ui.tlVelFanCoil->setText(buf);
+	ui.tlVelFanCoil->setText(s().wVelFanCoil.format());
 }
 
 void ControlDlg::on_pbApriPlus_clicked()
@@ -456,15 +422,10 @@ void ControlDlg::on_pbApriPlus_clicked()
 	resetCloseTimer();
 
 	lockMutex();
-	if (s().wApriCucinaPerc < 90)
-		s().wApriCucinaPerc += 10;
-	else
-		s().wApriCucinaPerc = 100;
+	s().wApriCucinaPerc(O_UI_CTRL) += 10;
 	unlockMutex();
 
-	char buf[256];
-	sprintf(buf, "%i%%", s().wApriCucinaPerc);
-	ui.tlApriCucinaPerc->setText(buf);
+	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
 }
 
 void ControlDlg::on_pbApriMinus_clicked()
@@ -472,15 +433,10 @@ void ControlDlg::on_pbApriMinus_clicked()
 	resetCloseTimer();
 
 	lockMutex();
-	if (s().wApriCucinaPerc > 10)
-		s().wApriCucinaPerc -= 10;
-	else
-		s().wApriCucinaPerc = 0;
+	s().wApriCucinaPerc(O_UI_CTRL) -= 10;
 	unlockMutex();
 
-	char buf[256];
-	sprintf(buf, "%i%%", s().wApriCucinaPerc);
-	ui.tlApriCucinaPerc->setText(buf);
+	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
 }
 
 void ControlDlg::on_pbForzaChiudi_toggled(bool checked)
@@ -488,7 +444,7 @@ void ControlDlg::on_pbForzaChiudi_toggled(bool checked)
 	resetCloseTimer();
 
 	lockMutex();
-	s().xForzaChiudi = checked;
+	s().xForzaChiudi(O_UI_CTRL) = checked;
 	updateBtnStatus();
 	unlockMutex();
 }

@@ -5,6 +5,9 @@
 #include "state.h"
 #include "dlg_alarm.h"
 
+#include "ctrlvalue.h"
+#include "ctrlobserver.h"
+
 #include <QtGui>
 #include <QApplication>
 

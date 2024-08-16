@@ -48,6 +48,8 @@ class CtrlIntObs : public CtrlObs {
 
 		void setValue(int newVal) { m_val->setValue(this, newVal); }
 		int operator =(int newVal) { setValue(newVal); return value(); }
+		int operator +=(int delta) { setValue(value() + delta); return value(); }
+		int operator -=(int delta) { setValue(value() - delta); return value(); }
 };
 
 inline CtrlObs::CtrlObs(int obsId)

@@ -5,9 +5,11 @@
 #include <QString>
 
 enum OBSERVERS {
-	ObsConf,
-	ObsUI,
-	ObsNet,
+	O_CONF,
+	O_CTRL,
+	O_UI_CTRL,
+	O_UI_STAT,
+	O_NET,
 	OBS_COUNT
 };
 
@@ -42,7 +44,7 @@ class CtrlBoolVal : public CtrlVal {
 		CtrlBoolVal(bool val = false);
 		virtual ~CtrlBoolVal() { };
 
-		CtrlBoolObs *operator ()(bool obsId) { return (CtrlBoolObs*) m_obs[obsId]; }
+		CtrlBoolObs &operator ()(bool obsId) { return *(CtrlBoolObs *) m_obs[obsId]; }
 
 		bool value() const;
 		operator bool() const { return value(); };
@@ -64,7 +66,7 @@ class CtrlIntVal : public CtrlVal {
 		CtrlIntVal(int min, int max, int val = 0);
 		virtual ~CtrlIntVal() { };
 
-		CtrlIntObs *operator ()(int obsId) { return (CtrlIntObs*) m_obs[obsId]; }
+		CtrlIntObs &operator ()(int obsId) { return *(CtrlIntObs *) m_obs[obsId]; }
 
 		int value() const;
 		operator int() const { return value(); };
