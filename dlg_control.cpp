@@ -398,6 +398,7 @@ void ControlDlg::resetCloseTimer()
 void ControlDlg::showEvent(QShowEvent *)
 {
 	resetCloseTimer();
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbOK_clicked()

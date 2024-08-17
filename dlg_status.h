@@ -27,8 +27,6 @@ class StatusDlg : public QWidget
 		Ui::StatusDlg ui;
 		QWidget *m_controlDlg;
 		QWidget *m_alarmDlg;
-
-		void updateStatoRisc();
 };
 
 #endif /* __DLG_STATUS_H__ */

@@ -40,17 +40,31 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
 
 void StatusDlg::on_pbSetNotte_clicked()
 {
-	m_controlDlg->show();
+	QMutexLocker lock(&s().fieldLock);
+
+	if (s().xModoRiscaldamento) {
+		s().xAttivaZonaNotte(O_UI_STAT) = ui.pbSetNotte->isChecked();
+	} else {
+		s().xAttivaFanCoil(O_UI_STAT) = ui.pbSetNotte->isChecked();
+	}
 }
 
 void StatusDlg::on_pbSetGiorno_clicked()
 {
-	m_controlDlg->show();
+	QMutexLocker lock(&s().fieldLock);
+
+	if (s().xModoRiscaldamento) {
+		s().xAttivaZonaGiorno(O_UI_STAT) = ui.pbSetGiorno->isChecked();
+	} else {
+		s().xAttivaFanCoil(O_UI_STAT) = ui.pbSetGiorno->isChecked();
+	}
 }
 
 void StatusDlg::on_pbSetSoffitta_clicked()
 {
-	m_controlDlg->show();
+	QMutexLocker lock(&s().fieldLock);
+
+	s().xAttivaZonaSoffitta(O_UI_STAT) = ui.pbSetSoffitta->isChecked();
 }
 
 void StatusDlg::on_pbConfig_clicked()
@@ -61,32 +75,6 @@ void StatusDlg::on_pbConfig_clicked()
 void StatusDlg::on_pbProg_clicked()
 {
 	// TODO
-}
-
-void StatusDlg::updateStatoRisc()
-{
-/*	if (ui.pbRiscGas->isChecked()) {
-		ui.pbRiscGas->setPalette(QPalette(QColor(255, 64, 64)));
-		ui.pbRiscGas->setText("Gas ON");
-	} else if (s().xGasInUso) {
-		ui.pbRiscGas->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscGas->setText("Gas auto ON");
-	} else {
-		ui.pbRiscGas->setPalette(QApplication::palette());
-		ui.pbRiscGas->setText("Gas OFF");
-	}
-
-	if (ui.pbRiscPompaCalore->isChecked()) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(64, 255, 64)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore ON");
-	} else if (control().xPompaCaloreInUso) {
-		ui.pbRiscPompaCalore->setPalette(QPalette(QColor(220,220,128)));
-		ui.pbRiscPompaCalore->setText("Pompa di calore auto ON");
-	} else {
-		ui.pbRiscPompaCalore->setPalette(QApplication::palette());
-		ui.pbRiscPompaCalore->setText("Pompa di calore OFF");
-	}
-*/
 }
 
 static void setButtonActive(QPushButton *button, QString text, QColor color)
@@ -132,9 +120,6 @@ void StatusDlg::updateScreen()
 	ui.tlTempCantinaBot->setText(s().wTempLegnaL.format());
 	ui.tlTempAccumulo->setText(s().wTemperaturaAccumulo.format());
 	ui.tlTempPannelli->setText(s().wTemperaturaPannelli.format());
-
-//	ui.tlTempSoffitta->setText(control().wTempSoffitta.format());
-//	ui.tlUmidSoffitta->setText(control().wUmidSoffitta.format());
 
 	ui.tlTempEsterno->setText(s().wTempEsterno.format());
 
