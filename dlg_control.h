@@ -37,7 +37,7 @@ class ControlDlg : public QWidget
 		void on_pbApriPlus_clicked();
 		void on_pbForzaChiudi_toggled(bool checked);
 
-		void on_pbTrasfAccumulo_clicked();
+		void on_pbTrasfAccumulo_toggled(bool checked);
 
 		void on_pbOK_clicked();
 

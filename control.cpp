@@ -391,8 +391,9 @@ void ControlThread::run()
 			acs_attiva = false;
 
 		if (s().xSetManuale) {
-			s().xTrasfDaAccumuloInCorso(O_CTRL) = s().xTrasfDaAccumulo;
-			s().xTrasfVersoAccumuloInCorso(O_CTRL) = s().xTrasfVersoAccumulo;
+			// arbitrario, basta che giri la pompa
+			s().xTrasfDaAccumuloInCorso(O_CTRL) = s().xTrasfAccumulo;
+			s().xTrasfVersoAccumuloInCorso(O_CTRL) = false;
 		} else {
 			s().xTrasfDaAccumuloInCorso(O_CTRL) = xAutoTrasfDaAccumulo;
 			s().xTrasfVersoAccumuloInCorso(O_CTRL) = xAutoTrasfVersoAccumulo;
@@ -405,6 +406,10 @@ void ControlThread::run()
 		if (max_durata_pompa_accumulo) {
 			s().xTrasfDaAccumuloInCorso(O_CTRL) = false;
 			s().xTrasfVersoAccumuloInCorso(O_CTRL) = false;
+			if (s().xSetManuale) {
+				// reset input
+				s().xTrasfAccumulo(O_CTRL) = false;
+			}
 		}
 
 		if (acs_attiva && !s().xPompaCaloreRiscInUso && !s().xDisabilitaGas) {

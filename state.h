@@ -33,8 +33,7 @@ class State {
 		CtrlBoolVal xSetManuale;
 		CtrlBoolVal xUsaPompaCalore;
 		CtrlBoolVal xUsaGas;
-		CtrlBoolVal xTrasfDaAccumulo;
-		CtrlBoolVal xTrasfVersoAccumulo;
+		CtrlBoolVal xTrasfAccumulo;
 
 		CtrlBoolVal xDisabilitaPompaCalore;
 		CtrlBoolVal xDisabilitaGas;

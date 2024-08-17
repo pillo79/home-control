@@ -253,19 +253,7 @@ void ControlDlg::updateBtnStatus()
 
 	setBtnStatus(ui.pbForzaChiudi, false, bcNorm, "Mantieni chiusa", "", "Apri quando serve");
 
-	setBtnStatus3Way(ui.pbTrasfAccumulo, s().xTrasfDaAccumuloInCorso, s().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && s().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
-
-	static bool ultimoTrasfAccumulo = false;
-	if (s().xTrasfDaAccumuloInCorso || s().xTrasfVersoAccumuloInCorso) {
-		if (ui.pbTrasfAccumulo->isChecked() && ui.pbRiscManuale->isChecked())
-			ultimoTrasfAccumulo = true;
-	} else {
-		if (ultimoTrasfAccumulo) {
-			s().xTrasfDaAccumulo(O_UI_CTRL) = false;
-			s().xTrasfVersoAccumulo(O_UI_CTRL) = false;
-		}
-		ultimoTrasfAccumulo = false;
-	}
+	setBtnStatus3Way(ui.pbTrasfAccumulo, s().xTrasfDaAccumuloInCorso, s().xTrasfVersoAccumuloInCorso, bcNorm, "Accumulo\nATTIVO", "Accumulo\nATTIVO", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && s().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
 }
 
 void ControlDlg::on_pbRiscManuale_toggled(bool checked)
@@ -279,9 +267,8 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		/* recover from current state */
 		ui.pbRiscGas->setChecked(s().xUsaGas(O_UI_CTRL) = s().xGasInUso);
 		ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore(O_UI_CTRL) = (s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
-		s().xTrasfDaAccumulo(O_UI_CTRL) = s().xTrasfDaAccumuloInCorso;
-		s().xTrasfVersoAccumulo(O_UI_CTRL) = s().xTrasfVersoAccumuloInCorso;
-		ui.pbTrasfAccumulo->setChecked(s().xTrasfDaAccumulo || s().xTrasfVersoAccumulo);
+		s().xTrasfAccumulo(O_UI_CTRL) = s().xTrasfDaAccumuloInCorso || s().xTrasfVersoAccumuloInCorso;
+		ui.pbTrasfAccumulo->setChecked(s().xTrasfAccumulo);
 	} else {
 		s().xSetManuale(O_UI_CTRL) = false;
 		ui.pbRiscGas->setChecked(s().xDisabilitaGas);
@@ -319,32 +306,18 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbTrasfAccumulo_clicked()
+void ControlDlg::on_pbTrasfAccumulo_toggled(bool checked)
 {
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
 
 	if (ui.pbRiscManuale->isChecked()) {
-		if (!s().xTrasfDaAccumulo && !s().xTrasfVersoAccumulo) {
-			// fermo->da
-			s().xTrasfDaAccumulo(O_UI_CTRL) = true;
-			s().xTrasfVersoAccumulo(O_UI_CTRL) = false;
-			ui.pbTrasfAccumulo->setChecked(true);
-		} else if (s().xTrasfDaAccumulo && !s().xTrasfVersoAccumulo) {
-			// da->verso
-			s().xTrasfDaAccumulo(O_UI_CTRL) = false;
-			s().xTrasfVersoAccumulo(O_UI_CTRL) = true;
-			ui.pbTrasfAccumulo->setChecked(true);
-		} else if (!s().xTrasfDaAccumulo && s().xTrasfVersoAccumulo) {
-			// verso->off
-			s().xTrasfDaAccumulo(O_UI_CTRL) = false;
-			s().xTrasfVersoAccumulo(O_UI_CTRL) = false;
-			ui.pbTrasfAccumulo->setChecked(false);
-		}
+		s().xTrasfAccumulo(O_UI_CTRL) = checked;
 	} else {
-		s().xDisabilitaAccumulo(O_UI_CTRL) = ui.pbTrasfAccumulo->isChecked();
+		s().xDisabilitaAccumulo(O_UI_CTRL) = checked;
 	}
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbVelMinus_clicked()
