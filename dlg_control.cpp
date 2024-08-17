@@ -29,6 +29,7 @@ ControlDlg::ControlDlg(QWidget *parent)
 	flags |= Qt::FramelessWindowHint;
 	setWindowFlags(flags);
 
+	m_closeTimer.setSingleShot(true);
 	connect(&m_closeTimer, SIGNAL( timeout(void) ), this, SLOT ( hide(void) ));
 
 	char buf[256];
@@ -492,8 +493,12 @@ void ControlDlg::on_pbForzaChiudi_toggled(bool checked)
 
 void ControlDlg::resetCloseTimer()
 {
-	m_closeTimer.setSingleShot(true);
 	m_closeTimer.start(60000);
+}
+
+void ControlDlg::showEvent(QShowEvent *)
+{
+	resetCloseTimer();
 }
 
 void ControlDlg::on_pbOK_clicked()

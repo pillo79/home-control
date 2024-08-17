@@ -62,6 +62,7 @@ class ControlDlg : public QWidget
 		void loadSettings();
 		void saveSettings();
 
+		virtual void showEvent(QShowEvent *);
 		void resetCloseTimer();
 		void updateBtnStatus();
 		void lockMutex();
