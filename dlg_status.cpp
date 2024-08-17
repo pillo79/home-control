@@ -72,9 +72,11 @@ void StatusDlg::on_pbConfig_clicked()
 	m_controlDlg->show();
 }
 
-void StatusDlg::on_pbProg_clicked()
+void StatusDlg::on_pbSetProg_clicked()
 {
-	// TODO
+	QMutexLocker lock(&s().fieldLock);
+
+	s().xAttivaProg(O_UI_STAT) = ui.pbSetProg->isChecked();
 }
 
 static void setButtonActive(QPushButton *button, QString text, QColor color)
@@ -83,12 +85,14 @@ static void setButtonActive(QPushButton *button, QString text, QColor color)
 	palette.setColor(button->backgroundRole(), color);
 	button->setPalette(palette);
 	button->setText(text);
+	button->setChecked(true);
 }
 
 static void setButtonInactive(QPushButton *button, QString text)
 {
 	button->setPalette(QApplication::palette());
 	button->setText(text);
+	button->setChecked(false);
 }
 
 static void setLabelActive(QLabel *label, QColor color)
@@ -217,6 +221,11 @@ void StatusDlg::updateScreen()
 		else
 			setButtonInactive(ui.pbSetSoffitta, "spento");
 	}
+
+	if (s().xAttivaProg)
+		setButtonActive(ui.pbSetProg, "", s().xImpiantoAttivo? onColor : autoColor);
+	else
+		setButtonInactive(ui.pbSetProg, "");
 
 	if ((s().wCommErrorMask != 0) && (QTime::currentTime().msec() < 500))
 		m_alarmDlg->show();

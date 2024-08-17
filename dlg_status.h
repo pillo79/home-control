@@ -18,7 +18,7 @@ class StatusDlg : public QWidget
 		void on_pbSetGiorno_clicked();
 		void on_pbSetSoffitta_clicked();
 
-		void on_pbProg_clicked();
+		void on_pbSetProg_clicked();
 		void on_pbConfig_clicked();
 
 		void updateScreen();
