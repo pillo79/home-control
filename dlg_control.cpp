@@ -72,8 +72,10 @@ void ControlDlg::loadSettings()
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbModoRisc_toggled(bool checked)
+void ControlDlg::on_pbModoRisc_clicked()
 {
+	bool checked = ui.pbModoRisc->isChecked();
+
 	resetCloseTimer();
 
 	if (checked) {
@@ -96,8 +98,10 @@ void ControlDlg::on_pbModoRisc_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbNotte_toggled(bool checked)
+void ControlDlg::on_pbNotte_clicked()
 {
+	bool checked = ui.pbNotte->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -106,8 +110,10 @@ void ControlDlg::on_pbNotte_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbGiorno_toggled(bool checked)
+void ControlDlg::on_pbGiorno_clicked()
 {
+	bool checked = ui.pbGiorno->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -116,8 +122,10 @@ void ControlDlg::on_pbGiorno_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbSoffitta_toggled(bool checked)
+void ControlDlg::on_pbSoffitta_clicked()
 {
+	bool checked = ui.pbSoffitta->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -126,8 +134,10 @@ void ControlDlg::on_pbSoffitta_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbFanCoil_toggled(bool checked)
+void ControlDlg::on_pbFanCoil_clicked()
 {
+	bool checked = ui.pbFanCoil->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -139,8 +149,10 @@ void ControlDlg::on_pbFanCoil_toggled(bool checked)
 		ui.pbForzaChiudi->setChecked(false);
 }
 
-void ControlDlg::on_pbProg_toggled(bool checked)
+void ControlDlg::on_pbProg_clicked()
 {
+	bool checked = ui.pbProg->isChecked();
+
 	QMutexLocker lock(&s().fieldLock);
 
 	s().xAttivaProg(O_UI_CTRL) = checked;
@@ -256,8 +268,10 @@ void ControlDlg::updateBtnStatus()
 	setBtnStatus3Way(ui.pbTrasfAccumulo, s().xTrasfDaAccumuloInCorso, s().xTrasfVersoAccumuloInCorso, bcNorm, "Accumulo\nATTIVO", "Accumulo\nATTIVO", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && s().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
 }
 
-void ControlDlg::on_pbRiscManuale_toggled(bool checked)
+void ControlDlg::on_pbRiscManuale_clicked()
 {
+	bool checked = ui.pbRiscManuale->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -278,8 +292,10 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbRiscGas_toggled(bool checked)
+void ControlDlg::on_pbRiscGas_clicked()
 {
+	bool checked = ui.pbRiscGas->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -292,8 +308,10 @@ void ControlDlg::on_pbRiscGas_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
+void ControlDlg::on_pbRiscPompaCalore_clicked()
 {
+	bool checked = ui.pbRiscPompaCalore->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -306,8 +324,10 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 	updateBtnStatus();
 }
 
-void ControlDlg::on_pbTrasfAccumulo_toggled(bool checked)
+void ControlDlg::on_pbTrasfAccumulo_clicked()
 {
+	bool checked = ui.pbTrasfAccumulo->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
@@ -364,8 +384,10 @@ void ControlDlg::on_pbApriMinus_clicked()
 	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
 }
 
-void ControlDlg::on_pbForzaChiudi_toggled(bool checked)
+void ControlDlg::on_pbForzaChiudi_clicked()
 {
+	bool checked = ui.pbForzaChiudi->isChecked();
+
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);

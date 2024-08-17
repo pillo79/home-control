@@ -38,17 +38,17 @@ StatusDlg::StatusDlg(QWidget *parent, QWidget *controlDlg)
 	setWindowFlags(flags);
 }
 
-void StatusDlg::on_pbSetNotte_toggled(bool)
+void StatusDlg::on_pbSetNotte_clicked()
 {
 	m_controlDlg->show();
 }
 
-void StatusDlg::on_pbSetGiorno_toggled(bool)
+void StatusDlg::on_pbSetGiorno_clicked()
 {
 	m_controlDlg->show();
 }
 
-void StatusDlg::on_pbSetSoffitta_toggled(bool)
+void StatusDlg::on_pbSetSoffitta_clicked()
 {
 	m_controlDlg->show();
 }

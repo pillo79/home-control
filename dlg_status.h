@@ -14,9 +14,9 @@ class StatusDlg : public QWidget
 		StatusDlg(QWidget *parent = 0, QWidget *controlDlg = 0);
 
 	public slots:
-		void on_pbSetNotte_toggled(bool checked);
-		void on_pbSetGiorno_toggled(bool checked);
-		void on_pbSetSoffitta_toggled(bool checked);
+		void on_pbSetNotte_clicked();
+		void on_pbSetGiorno_clicked();
+		void on_pbSetSoffitta_clicked();
 
 		void on_pbProg_clicked();
 		void on_pbConfig_clicked();

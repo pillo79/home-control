@@ -19,25 +19,25 @@ class ControlDlg : public QWidget
 		void updateScreen();
 
 	private slots:
-		void on_pbNotte_toggled(bool checked);
-		void on_pbGiorno_toggled(bool checked);
-		void on_pbSoffitta_toggled(bool checked);
-		void on_pbFanCoil_toggled(bool checked);
-		void on_pbProg_toggled(bool checked);
+		void on_pbNotte_clicked();
+		void on_pbGiorno_clicked();
+		void on_pbSoffitta_clicked();
+		void on_pbFanCoil_clicked();
+		void on_pbProg_clicked();
 
-		void on_pbModoRisc_toggled(bool checked);
-		void on_pbRiscGas_toggled(bool checked);
-		void on_pbRiscPompaCalore_toggled(bool checked);
-		void on_pbRiscManuale_toggled(bool checked);
+		void on_pbModoRisc_clicked();
+		void on_pbRiscGas_clicked();
+		void on_pbRiscPompaCalore_clicked();
+		void on_pbRiscManuale_clicked();
 
 		void on_pbVelMinus_clicked();
 		void on_pbVelPlus_clicked();
 
 		void on_pbApriMinus_clicked();
 		void on_pbApriPlus_clicked();
-		void on_pbForzaChiudi_toggled(bool checked);
+		void on_pbForzaChiudi_clicked();
 
-		void on_pbTrasfAccumulo_toggled(bool checked);
+		void on_pbTrasfAccumulo_clicked();
 
 		void on_pbOK_clicked();
 
