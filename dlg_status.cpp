@@ -53,6 +53,16 @@ void StatusDlg::on_pbSetSoffitta_toggled(bool)
 	m_controlDlg->show();
 }
 
+void StatusDlg::on_pbConfig_clicked()
+{
+	m_controlDlg->show();
+}
+
+void StatusDlg::on_pbProg_clicked()
+{
+	// TODO
+}
+
 void StatusDlg::updateStatoRisc()
 {
 /*	if (ui.pbRiscGas->isChecked()) {
@@ -163,15 +173,6 @@ void StatusDlg::updateScreen()
 		setLabelActive(ui.tlStatoPompaCalore, QColor(64,192,255));
 	} else {
 		setLabelInactive(ui.tlStatoPompaCalore);
-	}
-
-	if (s().xResistenzeInUso) {
-		setLabelActive(ui.tlStatoResistenze, QColor(255, 64, 64));
-		sprintf(buf, "<b>Resistenze</b><br/>%.0f W", s().wPotResistenze.value());
-		ui.tlStatoResistenze->setText(buf);
-	} else {
-		setLabelInactive(ui.tlStatoResistenze);
-		ui.tlStatoResistenze->setText("<b>Resistenze</b>");
 	}
 
 	if (s().xTrasfDaAccumuloInCorso) {

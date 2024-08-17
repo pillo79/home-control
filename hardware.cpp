@@ -74,11 +74,11 @@ int InitHardware()
 	INIT(PompaCalore.xRichiestaCaldo,		BitOutput,	Seneca_10DO_2, 4);
 	INIT(PompaCalore.xRichiestaFreddo,		BitOutput,	Seneca_10DO_2, 5);
 //	INIT(PompaCalore.xInserResistenze,		BitOutput,	Seneca_24DO_6, 1);	// obsoleto
-	INIT(PompaCalore.xConfigResistenze[0],		BitOutput,	Seneca_24DO_6, 9);
-	INIT(PompaCalore.xConfigResistenze[1],		BitOutput,	Seneca_24DO_6, 10);
-	INIT(PompaCalore.xConfigResistenze[2],		BitOutput,	Seneca_24DO_6, 11);
-	INIT(PompaCalore.xConfigResistenze[3],		BitOutput,	Seneca_24DO_6, 12);
-	INIT(PompaCalore.xConfigResistenze[4],		BitOutput,	Seneca_24DO_6, 13);
+//	INIT(PompaCalore.xConfigResistenze[0],		BitOutput,	Seneca_24DO_6, 9);	// obsoleto
+//	INIT(PompaCalore.xConfigResistenze[1],		BitOutput,	Seneca_24DO_6, 10);	// obsoleto
+//	INIT(PompaCalore.xConfigResistenze[2],		BitOutput,	Seneca_24DO_6, 11);	// obsoleto
+//	INIT(PompaCalore.xConfigResistenze[3],		BitOutput,	Seneca_24DO_6, 12);	// obsoleto
+//	INIT(PompaCalore.xConfigResistenze[4],		BitOutput,	Seneca_24DO_6, 13);	// obsoleto
 
 	INIT(PompaCalore.xForzaValvole,			BitOutput,	Seneca_24DO_6, 2);
 	INIT(PompaCalore.xForza3VieApri,		BitOutput,	Seneca_24DO_6, 3);

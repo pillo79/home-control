@@ -42,7 +42,6 @@ void State::loadSettings()
 	xSetManuale(O_CONF)		= m_settings.value("pbRiscManuale").toBool();
 	xUsaGas(O_CONF)			= m_settings.value("pbRiscGas").toBool();
 	xUsaPompaCalore(O_CONF)		= m_settings.value("pbRiscPompaCalore").toBool();
-	xUsaResistenze(O_CONF)		= m_settings.value("pbRiscResistenze").toBool();
 
 	xForzaChiudi(O_CONF)		= m_settings.value("pbForzaChiudi").toBool();
 
@@ -62,7 +61,6 @@ void State::saveSettings()
 	m_settings.setValue("pbRiscManuale",		xSetManuale.value());
 	m_settings.setValue("pbRiscGas",		xUsaGas.value());
 	m_settings.setValue("pbRiscPompaCalore",	xUsaPompaCalore.value());
-	m_settings.setValue("pbRiscResistenze",		xUsaResistenze.value());
 
 	m_settings.setValue("pbForzaChiudi",		xForzaChiudi.value());
 

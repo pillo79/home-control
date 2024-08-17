@@ -33,13 +33,11 @@ class State {
 		CtrlBoolVal xSetManuale;
 		CtrlBoolVal xUsaPompaCalore;
 		CtrlBoolVal xUsaGas;
-		CtrlBoolVal xUsaResistenze;
 		CtrlBoolVal xTrasfDaAccumulo;
 		CtrlBoolVal xTrasfVersoAccumulo;
 
 		CtrlBoolVal xDisabilitaPompaCalore;
 		CtrlBoolVal xDisabilitaGas;
-		CtrlBoolVal xDisabilitaResistenze;
 		CtrlBoolVal xDisabilitaAccumulo;
 
 		CtrlIntVal wVelFanCoil;
@@ -53,7 +51,6 @@ class State {
 		CtrlBoolVal xPompaCaloreRiscInUso;
 		CtrlBoolVal xPompaCaloreCondInUso;
 		CtrlBoolVal xPompaCaloreAttiva;
-		CtrlBoolVal xResistenzeInUso;
 		CtrlBoolVal xTrasfDaAccumuloInCorso;
 		CtrlBoolVal xTrasfVersoAccumuloInCorso;
 

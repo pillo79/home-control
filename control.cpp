@@ -20,18 +20,6 @@ struct TargetPower {
 	 int io_map[5];
 };
 
-const TargetPower POWER_LEVEL[] = {
-	{	   0,  -9999,	{ 0, 0, 0, 0, 0 }, },
-	{	 900,	1000,	{ 0, 0, 1, 1, 0 }, },
-	{	1400,	1600,	{ 0, 1, 0, 1, 0 }, },
-	{	1800,	2100,	{ 0, 1, 0, 1, 1 }, },
-	{	2500,	2900,	{ 1, 1, 0, 0, 0 }, },
-//	{	2500,	2900,	{ 0, 1, 1, 1, 0 }, },	// alternativa
-	{	3800,	4300,	{ 1, 1, 0, 1, 0 }, },
-	//{	6000,	6500,	{ 1, 1, 0, 0, 1 }, },	// ancora da testare!
-};
-const int POWER_LEVELS = sizeof(POWER_LEVEL)/sizeof(TargetPower);
-
 ControlThread::ControlThread()
 {
 	TrendBase::instance()->open();
@@ -58,14 +46,6 @@ static void append(const char *what, const char *where)
 	fclose(f);
 }
 
-void ControlThread::setPowerLevel(int level)
-{
-	for (int i=0; i<5; ++i)
-		HW.PompaCalore.xConfigResistenze[i]->setValue(POWER_LEVEL[level].io_map[i]);
-
-	s().xResistenzeInUso(O_CTRL) = (level > 0);
-}
-
 void ControlThread::run()
 {
 	ModbusDevice::openSerial("/dev/ttyUSB0");
@@ -82,9 +62,6 @@ void ControlThread::run()
 	bool xCaricoAccumuloAttivo = false;
 
 	bool xRichiestaRestart = false;
-
-	int PowerLevel = 0;
-	int NextPowerLevel = -1;
 
 	bool initGiorEnergia = true;
 	double giorEnergProdotta = 0.0;
@@ -165,36 +142,12 @@ void ControlThread::run()
 			minEnergProdotta = curEnergProdotta;
 			minEnergConsumata = curEnergConsumata;
 
-			if ((s().wPotProdotta < 1500) || ((s().wPotConsumata > s().wPotProdotta) && !PowerLevel) || (s().wTemperaturaBoiler > 55))
+			if ((s().wPotProdotta < 1500) || (s().wPotConsumata > s().wPotProdotta) || (s().wTemperaturaBoiler > 55))
 				xAutoPompaCaloreRisc = false;
 			else if ((s().wPotProdotta > 2500) && (s().wTemperaturaBoiler < 52))
 				xAutoPompaCaloreRisc = true;
 
 			if ((now.minute() % 3) == 0) {
-				int power_budget = s().wPotProdotta + s().wPotResistenze - s().wPotConsumata;
-				int next_level;
-
-				// never allocate more power than currently produced
-				if (power_budget > s().wPotProdotta)
-					power_budget = s().wPotProdotta;
-
-				for (next_level=POWER_LEVELS-1; next_level>=0; --next_level) {
-					if (power_budget > POWER_LEVEL[next_level].min_budget)
-						break;
-				}
-
-				if (next_level != PowerLevel) {
-					NextPowerLevel = next_level;
-					setPowerLevel(0);
-					printf("%4.0f +%4.0f[%i] -%4.0f = %4i => SWITCH TO %4i[%i]\n",
-						s().wPotProdotta.value(), s().wPotResistenze.value(), PowerLevel, s().wPotConsumata.value(),
-						power_budget, POWER_LEVEL[NextPowerLevel].power, NextPowerLevel);
-				} else {
-					printf("%4.0f +%4.0f[%i] -%4.0f = %4i => NO CHANGE\n",
-						s().wPotProdotta.value(), s().wPotResistenze.value(), PowerLevel, s().wPotConsumata.value(),
-						power_budget);
-				}
-
 				// advance TrendValues and save row on DB
 				TrendBase::instance()->step(today.toTime_t());
 			}
@@ -302,19 +255,6 @@ void ControlThread::run()
 		if (s().xDisabilitaPompaCalore) {
 			// disabilita comando a pompa calore ma gestisci valvole
 			xAutoPompaCaloreRisc = xAutoPompaCaloreCond = false;
-		}
-
-		static DelayRiseTimer tNuovoLivelloRes;
-		if (s().xDisabilitaResistenze || (s().wTemperaturaACS > 80) || (s().wTemperaturaBoiler > 80) || (s().wPotConsumata < 0.1)) {
-			// force off
-			setPowerLevel(0);
-			PowerLevel = 0;
-			NextPowerLevel = -1;
-		} else if (tNuovoLivelloRes.update(DELAY_MSEC(500), (NextPowerLevel != -1))) {
-			// update!
-			setPowerLevel(NextPowerLevel);
-			PowerLevel = NextPowerLevel;
-			NextPowerLevel = -1;
 		}
 
 		s().xPompaCaloreAttiva(O_CTRL) = HW.PompaCalore.xStatoPompaCalore->getValue();

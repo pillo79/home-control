@@ -66,7 +66,6 @@ void ControlDlg::loadSettings()
 	ui.pbRiscManuale->setChecked(s().xSetManuale);
 	ui.pbRiscGas->setChecked(s().xUsaGas);
 	ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore);
-	ui.pbRiscResistenze->setChecked(s().xUsaResistenze);
 
 	ui.pbForzaChiudi->setChecked(s().xForzaChiudi);
 
@@ -225,8 +224,6 @@ void ControlDlg::setBtnStatus3Way(QPushButton *pb, bool stateRisc, bool stateCon
 
 void ControlDlg::updateBtnStatus()
 {
-	char buf1[256], buf2[256];
-
 	bool manuale = ui.pbRiscManuale->isChecked();
 	ButtonColor mode;
 
@@ -254,20 +251,9 @@ void ControlDlg::updateBtnStatus()
 	setBtnStatus(ui.pbRiscGas, s().xGasInUso, bcRisc, "Gas\nON", "Gas\nauto ON", "Gas\nOFF", !manuale && s().xDisabilitaGas, "BLOCCO\nGas");
 	setBtnStatus3Way(ui.pbRiscPompaCalore, s().xPompaCaloreRiscInUso, s().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF", !manuale && s().xDisabilitaPompaCalore, "BLOCCO\nHPSU");
 
-	sprintf(buf1, "Resistenze\n%.0f W", s().wPotResistenze.value());
-	sprintf(buf2, "Resistenze\nauto %.0f W", s().wPotResistenze.value());
-	setBtnStatus(ui.pbRiscResistenze, s().xResistenzeInUso, bcRisc, buf1, buf2, "Resistenze\nOFF", !manuale && s().xDisabilitaResistenze, "BLOCCO\nResistenze");
-
 	setBtnStatus(ui.pbForzaChiudi, false, bcNorm, "Mantieni chiusa", "", "Apri quando serve");
 
 	setBtnStatus3Way(ui.pbTrasfAccumulo, s().xTrasfDaAccumuloInCorso, s().xTrasfVersoAccumuloInCorso, bcNorm, "DA\nAccumulo", "VERSO\nAccumulo", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && s().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
-
-	static bool ultimoResistenzeInUso = false;
-	if (ui.pbRiscResistenze->isChecked() && ultimoResistenzeInUso && !s().xResistenzeInUso) {
-		// fine ciclo: reset bottone automatico
-		ui.pbRiscResistenze->setChecked(false);
-	}
-	ultimoResistenzeInUso = s().xResistenzeInUso;
 
 	static bool ultimoTrasfAccumulo = false;
 	if (s().xTrasfDaAccumuloInCorso || s().xTrasfVersoAccumuloInCorso) {
@@ -293,7 +279,6 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		/* recover from current state */
 		ui.pbRiscGas->setChecked(s().xUsaGas(O_UI_CTRL) = s().xGasInUso);
 		ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore(O_UI_CTRL) = (s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
-		ui.pbRiscResistenze->setChecked(s().xUsaResistenze(O_UI_CTRL) = s().xResistenzeInUso);
 		s().xTrasfDaAccumulo(O_UI_CTRL) = s().xTrasfDaAccumuloInCorso;
 		s().xTrasfVersoAccumulo(O_UI_CTRL) = s().xTrasfVersoAccumuloInCorso;
 		ui.pbTrasfAccumulo->setChecked(s().xTrasfDaAccumulo || s().xTrasfVersoAccumulo);
@@ -301,7 +286,6 @@ void ControlDlg::on_pbRiscManuale_toggled(bool checked)
 		s().xSetManuale(O_UI_CTRL) = false;
 		ui.pbRiscGas->setChecked(s().xDisabilitaGas);
 		ui.pbRiscPompaCalore->setChecked(s().xDisabilitaPompaCalore);
-		ui.pbRiscResistenze->setChecked(s().xDisabilitaResistenze);
 		ui.pbTrasfAccumulo->setChecked(s().xDisabilitaAccumulo);
 	}
 	updateBtnStatus();
@@ -331,20 +315,6 @@ void ControlDlg::on_pbRiscPompaCalore_toggled(bool checked)
 		s().xUsaPompaCalore(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaPompaCalore(O_UI_CTRL) = checked;
-	}
-	updateBtnStatus();
-}
-
-void ControlDlg::on_pbRiscResistenze_toggled(bool checked)
-{
-	resetCloseTimer();
-
-	QMutexLocker lock(&s().fieldLock);
-
-	if (ui.pbRiscManuale->isChecked()) {
-		s().xUsaResistenze(O_UI_CTRL) = checked;
-	} else {
-		s().xDisabilitaResistenze(O_UI_CTRL) = checked;
 	}
 	updateBtnStatus();
 }
