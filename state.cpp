@@ -5,7 +5,8 @@
 #define MAX_PTS 480 // 60*24/3 (1 day in steps of 3 minutes)
 
 State::State()
-	: m_settings("/media/mmcblk0p2/settings.ini", QSettings::IniFormat)
+	: QObject()
+	, m_settings("/media/mmcblk0p2/settings.ini", QSettings::IniFormat)
 
 	, xModoRiscaldamento	(true)
 	, wVelFanCoil		(0, 100, 20)
@@ -28,6 +29,9 @@ State::State()
 	, wTempEsterno		("TempEsterno",		"°C",	"%.1f", MAX_PTS, 0.5)
 {
 	loadSettings();
+
+	m_saveTimer.setSingleShot(true);
+	connect(&m_saveTimer, SIGNAL( timeout(void) ), this, SLOT( do_saveSettings(void) ));
 }
 
 void State::loadSettings()
@@ -38,6 +42,7 @@ void State::loadSettings()
 	xAttivaZonaGiorno(O_CONF)	= m_settings.value("pbGiorno").toBool();
 	xAttivaZonaSoffitta(O_CONF)	= m_settings.value("pbSoffitta").toBool();
 	xAttivaFanCoil(O_CONF)		= m_settings.value("pbFanCoil").toBool();
+	xAttivaProg(O_CONF)		= m_settings.value("pbProg").toBool();
 
 	xSetManuale(O_CONF)		= m_settings.value("pbRiscManuale").toBool();
 	xUsaGas(O_CONF)			= m_settings.value("pbRiscGas").toBool();
@@ -49,7 +54,7 @@ void State::loadSettings()
 	wApriCucinaPerc(O_CONF)		= m_settings.value("wApriCucinaPerc").toInt();
 }
 
-void State::saveSettings()
+void State::do_saveSettings()
 {
 	m_settings.setValue("pbModoRisc",		xModoRiscaldamento.value());
 
@@ -57,6 +62,7 @@ void State::saveSettings()
 	m_settings.setValue("pbGiorno",			xAttivaZonaGiorno.value());
 	m_settings.setValue("pbSoffitta",		xAttivaZonaSoffitta.value());
 	m_settings.setValue("pbFanCoil",		xAttivaFanCoil.value());
+	m_settings.setValue("pbProg",			xAttivaProg.value());
 
 	m_settings.setValue("pbRiscManuale",		xSetManuale.value());
 	m_settings.setValue("pbRiscGas",		xUsaGas.value());
@@ -66,6 +72,11 @@ void State::saveSettings()
 
 	m_settings.setValue("wVelFanCoil",		wVelFanCoil.value());
 	m_settings.setValue("wApriCucinaPerc",		wApriCucinaPerc.value());
+}
+
+void State::saveSettings()
+{
+	m_saveTimer.start(10000);
 }
 
 State &s() {

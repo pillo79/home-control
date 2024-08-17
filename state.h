@@ -8,12 +8,20 @@
 #include <QSettings>
 #include <QThread>
 #include <QTime>
+#include <QTimer>
 
-class State {
+class State : private QObject {
+		Q_OBJECT
 		friend State &s();
 
-		State();
 		QSettings m_settings;
+		QTimer m_saveTimer;
+
+		State();
+		virtual ~State() { };
+
+	private slots:
+		void do_saveSettings();
 
 	public:
 		void loadSettings();

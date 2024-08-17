@@ -47,6 +47,7 @@ ControlDlg::ControlDlg(QWidget *parent)
 	mForcedCondColor = QColor(64, 64, 255);
 	mAutoCondColor = QColor(96, 160, 255);
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -61,6 +62,8 @@ void ControlDlg::on_pbModoRisc_clicked()
 	s().xAttivaZonaNotte(O_UI_CTRL) = false;
 	s().xAttivaZonaSoffitta(O_UI_CTRL) = false;
 	s().xAttivaFanCoil(O_UI_CTRL) = false;
+
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -72,6 +75,7 @@ void ControlDlg::on_pbNotte_clicked()
 
 	s().xAttivaZonaNotte(O_UI_CTRL) = ui.pbNotte->isChecked();
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -83,6 +87,7 @@ void ControlDlg::on_pbGiorno_clicked()
 
 	s().xAttivaZonaGiorno(O_UI_CTRL) = ui.pbGiorno->isChecked();
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -94,6 +99,7 @@ void ControlDlg::on_pbSoffitta_clicked()
 
 	s().xAttivaZonaSoffitta(O_UI_CTRL) = ui.pbSoffitta->isChecked();
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -109,6 +115,7 @@ void ControlDlg::on_pbFanCoil_clicked()
 	if (!checked)
 		s().xForzaChiudi(O_UI_CTRL) = false;
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -118,6 +125,7 @@ void ControlDlg::on_pbProg_clicked()
 
 	s().xAttivaProg(O_UI_CTRL) = ui.pbProg->isChecked();
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -284,6 +292,8 @@ void ControlDlg::on_pbRiscManuale_clicked()
 	} else {
 		s().xSetManuale(O_UI_CTRL) = false;
 	}
+
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -300,6 +310,8 @@ void ControlDlg::on_pbRiscGas_clicked()
 	} else {
 		s().xDisabilitaGas(O_UI_CTRL) = checked;
 	}
+
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -316,6 +328,8 @@ void ControlDlg::on_pbRiscPompaCalore_clicked()
 	} else {
 		s().xDisabilitaPompaCalore(O_UI_CTRL) = checked;
 	}
+
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -332,6 +346,8 @@ void ControlDlg::on_pbTrasfAccumulo_clicked()
 	} else {
 		s().xDisabilitaAccumulo(O_UI_CTRL) = checked;
 	}
+
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -344,6 +360,9 @@ void ControlDlg::on_pbVelMinus_clicked()
 	s().wVelFanCoil(O_UI_CTRL) -= 5;
 
 	ui.tlVelFanCoil->setText(s().wVelFanCoil.format());
+
+	s().saveSettings();
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbVelPlus_clicked()
@@ -355,6 +374,9 @@ void ControlDlg::on_pbVelPlus_clicked()
 	s().wVelFanCoil(O_UI_CTRL) += 5;
 
 	ui.tlVelFanCoil->setText(s().wVelFanCoil.format());
+
+	s().saveSettings();
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbApriPlus_clicked()
@@ -366,6 +388,9 @@ void ControlDlg::on_pbApriPlus_clicked()
 	s().wApriCucinaPerc(O_UI_CTRL) += 10;
 
 	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
+
+	s().saveSettings();
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbApriMinus_clicked()
@@ -377,6 +402,9 @@ void ControlDlg::on_pbApriMinus_clicked()
 	s().wApriCucinaPerc(O_UI_CTRL) -= 10;
 
 	ui.tlApriCucinaPerc->setText(s().wApriCucinaPerc.format());
+
+	s().saveSettings();
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbForzaChiudi_clicked()
@@ -387,6 +415,7 @@ void ControlDlg::on_pbForzaChiudi_clicked()
 
 	s().xForzaChiudi(O_UI_CTRL) = ui.pbForzaChiudi->isChecked();
 
+	s().saveSettings();
 	updateBtnStatus();
 }
 
@@ -414,5 +443,6 @@ void ControlDlg::updateScreen()
 		s().xSetManuale(O_UI_CTRL) = false;
 	}
 
+	s().saveSettings();
 	updateBtnStatus();
 }
