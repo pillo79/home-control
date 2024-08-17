@@ -47,90 +47,53 @@ ControlDlg::ControlDlg(QWidget *parent)
 	mForcedCondColor = QColor(64, 64, 255);
 	mAutoCondColor = QColor(96, 160, 255);
 
-	loadSettings();
-}
-
-void ControlDlg::loadSettings()
-{
-	if (s().xModoRiscaldamento) {
-		ui.pbModoRisc->setChecked(true);
-	} else {
-		ui.pbModoCondiz->setChecked(true);
-	}
-
-	ui.pbNotte->setChecked(s().xAttivaZonaNotte);
-	ui.pbGiorno->setChecked(s().xAttivaZonaGiorno);
-	ui.pbSoffitta->setChecked(s().xAttivaZonaSoffitta);
-	ui.pbFanCoil->setChecked(s().xAttivaFanCoil);
-
-	ui.pbRiscManuale->setChecked(s().xSetManuale);
-	ui.pbRiscGas->setChecked(s().xUsaGas);
-	ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore);
-
-	ui.pbForzaChiudi->setChecked(s().xForzaChiudi);
-
 	updateBtnStatus();
 }
 
 void ControlDlg::on_pbModoRisc_clicked()
 {
-	bool checked = ui.pbModoRisc->isChecked();
-
 	resetCloseTimer();
-
-	if (checked) {
-		ui.groupBoxTipo->setTitle("Tipo di riscaldamento");
-		ui.pbGiorno->setEnabled(true);
-		ui.pbNotte->setEnabled(true);
-	} else {
-		ui.groupBoxTipo->setTitle("Tipo di condizionamento");
-		ui.pbGiorno->setEnabled(false);
-		ui.pbNotte->setEnabled(false);
-	}
 
 	QMutexLocker lock(&s().fieldLock);
 
-	s().xModoRiscaldamento(O_UI_CTRL) = checked;
-	if (!checked) {
-		ui.pbGiorno->setChecked(s().xAttivaZonaGiorno(O_UI_CTRL) = false);
-		ui.pbNotte->setChecked(s().xAttivaZonaNotte(O_UI_CTRL) = false);
-	}
+	s().xModoRiscaldamento(O_UI_CTRL) = ui.pbModoRisc->isChecked();
+	s().xAttivaZonaGiorno(O_UI_CTRL) = false;
+	s().xAttivaZonaNotte(O_UI_CTRL) = false;
+	s().xAttivaZonaSoffitta(O_UI_CTRL) = false;
+	s().xAttivaFanCoil(O_UI_CTRL) = false;
 	updateBtnStatus();
 }
 
 void ControlDlg::on_pbNotte_clicked()
 {
-	bool checked = ui.pbNotte->isChecked();
-
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
 
-	s().xAttivaZonaNotte(O_UI_CTRL) = checked;
+	s().xAttivaZonaNotte(O_UI_CTRL) = ui.pbNotte->isChecked();
+
 	updateBtnStatus();
 }
 
 void ControlDlg::on_pbGiorno_clicked()
 {
-	bool checked = ui.pbGiorno->isChecked();
-
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
 
-	s().xAttivaZonaGiorno(O_UI_CTRL) = checked;
+	s().xAttivaZonaGiorno(O_UI_CTRL) = ui.pbGiorno->isChecked();
+
 	updateBtnStatus();
 }
 
 void ControlDlg::on_pbSoffitta_clicked()
 {
-	bool checked = ui.pbSoffitta->isChecked();
-
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
 
-	s().xAttivaZonaSoffitta(O_UI_CTRL) = checked;
+	s().xAttivaZonaSoffitta(O_UI_CTRL) = ui.pbSoffitta->isChecked();
+
 	updateBtnStatus();
 }
 
@@ -143,28 +106,35 @@ void ControlDlg::on_pbFanCoil_clicked()
 	QMutexLocker lock(&s().fieldLock);
 
 	s().xAttivaFanCoil(O_UI_CTRL) = checked;
-	updateBtnStatus();
+	if (!checked)
+		s().xForzaChiudi(O_UI_CTRL) = false;
 
-	if (!checked && ui.pbForzaChiudi->isChecked())
-		ui.pbForzaChiudi->setChecked(false);
+	updateBtnStatus();
 }
 
 void ControlDlg::on_pbProg_clicked()
 {
-	bool checked = ui.pbProg->isChecked();
-
 	QMutexLocker lock(&s().fieldLock);
 
-	s().xAttivaProg(O_UI_CTRL) = checked;
+	s().xAttivaProg(O_UI_CTRL) = ui.pbProg->isChecked();
+
 	updateBtnStatus();
 }
 
-void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QString forced, QString automatic, QString off, bool disable, QString disabled)
+/**
+ * - disable=true: disabled (mDisabledColor)
+ * - PB checked: forced (depending on mode)
+ * - PB unchecked, state=true: automatic (depending on mode)
+ * - PB unchecked, state=false: off (default colors)
+ */
+void ControlDlg::setBtnStatus(QPushButton *pb, bool force, bool state, ButtonColor mode, QString forced, QString automatic, QString off, bool disable, QString disabled)
 {
+	pb->setChecked(force || disable);
+
 	if (disable) {
 		if (!disabled.isEmpty()) pb->setText(disabled);
 		pb->setPalette(QPalette(mDisabledColor));
-	} else if (pb->isChecked()) {
+	} else if (force) {
 		if (!forced.isEmpty()) pb->setText(forced);
 		switch(mode) {
 			case bcNorm: pb->setPalette(QPalette(mForcedNormColor)); break;
@@ -186,12 +156,20 @@ void ControlDlg::setBtnStatus(QPushButton *pb, bool state, ButtonColor mode, QSt
 	}
 }
 
-void ControlDlg::setBtnStatus3Way(QPushButton *pb, bool stateRisc, bool stateCond, ButtonColor mode, QString forceRisc, QString forceCond, QString autoRisc, QString autoCond, QString off, bool disable, QString disabled)
+/**
+ * - disable=true: disabled (mDisabledColor)
+ * - PB checked: forced (depending on mode), forceRisc or forceCond dep. on stateRisc and stateCond
+ * - PB unchecked, state=true: automatic (depending on mode) forceRisc or forceCond dep. on stateRisc and stateCond
+ * - PB unchecked, state=false: off (default colors)
+ */
+void ControlDlg::setBtnStatus3Way(QPushButton *pb, bool force, bool stateRisc, bool stateCond, ButtonColor mode, QString forceRisc, QString forceCond, QString autoRisc, QString autoCond, QString off, bool disable, QString disabled)
 {
+	pb->setChecked(force || disable);
+
 	if (disable) {
 		if (!disabled.isEmpty()) pb->setText(disabled);
 		pb->setPalette(QPalette(mDisabledColor));
-	} else if (pb->isChecked()) {
+	} else if (force) {
 		if (stateRisc) {
 			if (!forceRisc.isEmpty()) pb->setText(forceRisc);
 			switch(mode) {
@@ -239,33 +217,54 @@ void ControlDlg::updateBtnStatus()
 	bool manuale = ui.pbRiscManuale->isChecked();
 	ButtonColor mode;
 
-	if (ui.pbModoRisc->isChecked()) {
+	if (s().xModoRiscaldamento) {
 		mForcedColor = mForcedRiscColor;
 		mAutoColor = mAutoRiscColor;
 		mode = bcRisc;
+
+		ui.groupBoxTipo->setTitle("Tipo di riscaldamento");
+		ui.pbGiorno->setEnabled(true);
+		ui.pbNotte->setEnabled(true);
 	} else {
 		mForcedColor = mForcedCondColor;
 		mAutoColor = mAutoCondColor;
 		mode = bcCond;
+
+		ui.groupBoxTipo->setTitle("Tipo di condizionamento");
+		ui.pbGiorno->setEnabled(false);
+		ui.pbNotte->setEnabled(false);
 	}
 
-	setBtnStatus(ui.pbModoRisc, false);
-	setBtnStatus(ui.pbModoCondiz, false);
+	setBtnStatus(ui.pbModoRisc, s().xModoRiscaldamento, false);
+	setBtnStatus(ui.pbModoCondiz, !s().xModoRiscaldamento, false);
 
-	setBtnStatus(ui.pbNotte, false, s().xImpiantoAttivo? mode : bcNorm);
-	setBtnStatus(ui.pbGiorno, false, s().xImpiantoAttivo? mode : bcNorm);
-	setBtnStatus(ui.pbSoffitta, false, s().xImpiantoAttivo? mode : bcNorm);
-	setBtnStatus(ui.pbFanCoil, false, s().xImpiantoAttivo? mode : bcNorm);
-	setBtnStatus(ui.pbProg, false, bcNorm, "Attivo", "", "Non attivo");
+	setBtnStatus(ui.pbNotte, s().xAttivaZonaNotte, false,
+			s().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbGiorno, s().xAttivaZonaGiorno, false,
+			s().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbSoffitta, s().xAttivaZonaSoffitta, false,
+			s().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbFanCoil, s().xAttivaFanCoil, false,
+			s().xImpiantoAttivo? mode : bcNorm);
+	setBtnStatus(ui.pbProg, s().xAttivaProg, false,
+			bcNorm, "Attivo", "", "Non attivo");
 
-	setBtnStatus(ui.pbRiscManuale, false, bcNorm, "Manuale", "", "Automatico");
+	setBtnStatus(ui.pbRiscManuale, s().xSetManuale, false,
+			bcNorm, "Manuale", "", "Automatico");
 
-	setBtnStatus(ui.pbRiscGas, s().xGasInUso, bcRisc, "Gas\nON", "Gas\nauto ON", "Gas\nOFF", !manuale && s().xDisabilitaGas, "BLOCCO\nGas");
-	setBtnStatus3Way(ui.pbRiscPompaCalore, s().xPompaCaloreRiscInUso, s().xPompaCaloreCondInUso, bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF", !manuale && s().xDisabilitaPompaCalore, "BLOCCO\nHPSU");
+	setBtnStatus(ui.pbRiscGas, manuale && s().xUsaGas, s().xGasInUso,
+			bcRisc, "Gas\nON", "Gas\nauto ON", "Gas\nOFF",
+			!manuale && s().xDisabilitaGas, "BLOCCO\nGas");
+	setBtnStatus3Way(ui.pbRiscPompaCalore, manuale && s().xUsaPompaCalore, s().xPompaCaloreRiscInUso, s().xPompaCaloreCondInUso,
+			bcAuto, "HPSU\nON", "HPSU\nON", "HPSU\nauto ON", "HPSU\nauto ON", "HPSU\nOFF",
+			!manuale && s().xDisabilitaPompaCalore, "BLOCCO\nHPSU");
 
-	setBtnStatus(ui.pbForzaChiudi, false, bcNorm, "Mantieni chiusa", "", "Apri quando serve");
+	setBtnStatus3Way(ui.pbTrasfAccumulo, manuale && s().xTrasfAccumulo, s().xTrasfDaAccumuloInCorso, s().xTrasfVersoAccumuloInCorso,
+			bcNorm, "Accumulo\nATTIVO", "Accumulo\nATTIVO", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF",
+			!manuale && s().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
 
-	setBtnStatus3Way(ui.pbTrasfAccumulo, s().xTrasfDaAccumuloInCorso, s().xTrasfVersoAccumuloInCorso, bcNorm, "Accumulo\nATTIVO", "Accumulo\nATTIVO", "DA\nAccumulo", "VERSO\nAccumulo", "Accumulo\nOFF", !manuale && s().xDisabilitaAccumulo, "BLOCCO\nAccumulo");
+	setBtnStatus(ui.pbForzaChiudi, s().xForzaChiudi, false,
+			bcNorm, "Mantieni chiusa", "", "Apri quando serve");
 }
 
 void ControlDlg::on_pbRiscManuale_clicked()
@@ -279,15 +278,11 @@ void ControlDlg::on_pbRiscManuale_clicked()
 	if (checked) {
 		s().xSetManuale(O_UI_CTRL) = true;
 		/* recover from current state */
-		ui.pbRiscGas->setChecked(s().xUsaGas(O_UI_CTRL) = s().xGasInUso);
-		ui.pbRiscPompaCalore->setChecked(s().xUsaPompaCalore(O_UI_CTRL) = (s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso));
+		s().xUsaGas(O_UI_CTRL) = s().xGasInUso;
+		s().xUsaPompaCalore(O_UI_CTRL) = s().xPompaCaloreRiscInUso || s().xPompaCaloreCondInUso;
 		s().xTrasfAccumulo(O_UI_CTRL) = s().xTrasfDaAccumuloInCorso || s().xTrasfVersoAccumuloInCorso;
-		ui.pbTrasfAccumulo->setChecked(s().xTrasfAccumulo);
 	} else {
 		s().xSetManuale(O_UI_CTRL) = false;
-		ui.pbRiscGas->setChecked(s().xDisabilitaGas);
-		ui.pbRiscPompaCalore->setChecked(s().xDisabilitaPompaCalore);
-		ui.pbTrasfAccumulo->setChecked(s().xDisabilitaAccumulo);
 	}
 	updateBtnStatus();
 }
@@ -300,7 +295,7 @@ void ControlDlg::on_pbRiscGas_clicked()
 
 	QMutexLocker lock(&s().fieldLock);
 
-	if (ui.pbRiscManuale->isChecked()) {
+	if (s().xSetManuale) {
 		s().xUsaGas(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaGas(O_UI_CTRL) = checked;
@@ -316,7 +311,7 @@ void ControlDlg::on_pbRiscPompaCalore_clicked()
 
 	QMutexLocker lock(&s().fieldLock);
 
-	if (ui.pbRiscManuale->isChecked()) {
+	if (s().xSetManuale) {
 		s().xUsaPompaCalore(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaPompaCalore(O_UI_CTRL) = checked;
@@ -332,7 +327,7 @@ void ControlDlg::on_pbTrasfAccumulo_clicked()
 
 	QMutexLocker lock(&s().fieldLock);
 
-	if (ui.pbRiscManuale->isChecked()) {
+	if (s().xSetManuale) {
 		s().xTrasfAccumulo(O_UI_CTRL) = checked;
 	} else {
 		s().xDisabilitaAccumulo(O_UI_CTRL) = checked;
@@ -386,13 +381,12 @@ void ControlDlg::on_pbApriMinus_clicked()
 
 void ControlDlg::on_pbForzaChiudi_clicked()
 {
-	bool checked = ui.pbForzaChiudi->isChecked();
-
 	resetCloseTimer();
 
 	QMutexLocker lock(&s().fieldLock);
 
-	s().xForzaChiudi(O_UI_CTRL) = checked;
+	s().xForzaChiudi(O_UI_CTRL) = ui.pbForzaChiudi->isChecked();
+
 	updateBtnStatus();
 }
 
@@ -416,8 +410,7 @@ void ControlDlg::updateScreen()
 	static const QTime MIDNIGHT = QTime(0, 0, 10);
 	if (QTime::currentTime() < MIDNIGHT) {
 		// operations to be performed every midnight
-		if (ui.pbRiscManuale->isChecked())
-			ui.pbRiscManuale->setChecked(false);
+		s().xSetManuale(O_UI_CTRL) = false;
 	}
 
 	updateBtnStatus();
