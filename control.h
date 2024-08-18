@@ -15,7 +15,7 @@ class ControlThread : public QThread {
 		void run();
 	public:
 		ControlThread();
-		~ControlThread();
+		virtual ~ControlThread();
 };
 
 ControlThread &control();

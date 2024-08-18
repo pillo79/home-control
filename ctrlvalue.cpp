@@ -1,11 +1,15 @@
 #include "ctrlvalue.h"
 #include "ctrlobserver.h"
 
+#include "state.h"
+
 CtrlVal::CtrlVal(QString name)
 	: m_name(name)
 	, m_lastObs(NULL)
 {
 	memset(m_obs, 0, sizeof(m_obs));
+
+	State::registerValue(this);
 }
 
 void CtrlVal::notify(bool changed)

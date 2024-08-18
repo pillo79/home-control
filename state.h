@@ -13,6 +13,7 @@
 class State : private QObject {
 		Q_OBJECT
 		friend State &s();
+		friend class CtrlVal;
 
 		QSettings m_settings;
 		QTimer m_saveTimer;
@@ -20,12 +21,18 @@ class State : private QObject {
 		State();
 		virtual ~State() { };
 
+	private:
+		static QList<CtrlVal *> _values;
+		static void registerValue(CtrlVal *entry);
+
 	private slots:
 		void do_saveSettings();
 
 	public:
 		void loadSettings();
 		void saveSettings();
+
+		static const QList<CtrlVal *> &values() { return _values; }
 
 	public:
 		QMutex fieldLock;
