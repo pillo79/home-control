@@ -52,6 +52,22 @@ class CtrlIntObs : public CtrlObs {
 		int operator -=(int delta) { setValue(value() - delta); return value(); }
 };
 
+class CtrlFloatObs : public CtrlObs {
+		CtrlFloatVal *m_val;
+
+	public:
+		CtrlFloatObs(CtrlFloatVal *val, int obsId);
+		virtual ~CtrlFloatObs() { };
+
+		double value() const { return m_val->value(); }
+		operator double() const { return value(); }
+
+		void setValue(double newVal) { m_val->setValue(this, newVal); }
+		double operator =(double newVal) { setValue(newVal); return value(); }
+		double operator +=(double delta) { setValue(value() + delta); return value(); }
+		double operator -=(double delta) { setValue(value() - delta); return value(); }
+};
+
 inline CtrlObs::CtrlObs(int obsId)
 	: QObject()
 	, m_obsId(obsId)
@@ -67,6 +83,13 @@ inline CtrlBoolObs::CtrlBoolObs(CtrlBoolVal *val, int obsId)
 }
 
 inline CtrlIntObs::CtrlIntObs(CtrlIntVal *val, int obsId)
+	: CtrlObs(obsId)
+	, m_val(val)
+{
+
+}
+
+inline CtrlFloatObs::CtrlFloatObs(CtrlFloatVal *val, int obsId)
 	: CtrlObs(obsId)
 	, m_val(val)
 {
