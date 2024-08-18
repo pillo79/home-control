@@ -4,16 +4,14 @@
 #include <math.h>
 
 TrendValue::TrendValue(const QString &name, const QString &unit, const QString &fmt, int maxPoints, double range)
-	: m_name	(name)
+	: CtrlFloatVal  (name, 0, 0, 0, fmt)
 	, m_unit	(unit)
-	, m_fmt		(fmt)
 	, m_maxPoints	(maxPoints)
 	, m_range	(range)
 	, m_histMin	(0)
 	, m_histMax	(0)
 	, m_dataMin	(0)
 	, m_dataMax	(0)
-	, m_last	(0)
 {
 	TrendBase::instance()->registerValue(this);
 }
@@ -22,26 +20,26 @@ void TrendValue::setValue(double v)
 {
 	if (m_range == 0.0) {
 		// filter is disabled, add everything
-		m_last = v;
+		m_val = v;
 		m_samples.append(v);
 	} else if (m_samples.isEmpty()) {
 		// add if meaningful
 		if (v != 0) {
-			m_last = v;
+			m_val = v;
 			m_samples.append(v);
 		}
 	} else {
 		// filter out bad samples
-		if (fabs(v-m_last) < m_range) {
+		if (fabs(v-m_val) < m_range) {
 			// not so different from previous value, add
-			m_last = v;
+			m_val = v;
 			m_samples.append(v);
-		} else if (v < m_last) {
-			// nudge m_last a bit down, but do not add yet
-			m_last -= m_range/10.0;
+		} else if (v < m_val) {
+			// nudge m_val a bit down, but do not add yet
+			m_val -= m_range/10.0;
 		} else {
-			// nudge m_last a bit up, but do not add yet
-			m_last += m_range/10.0;
+			// nudge m_val a bit up, but do not add yet
+			m_val += m_range/10.0;
 		}
 	}
 }

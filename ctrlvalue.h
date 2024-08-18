@@ -26,8 +26,9 @@ class CtrlVal {
 		CtrlVal(QString name);
 		virtual ~CtrlVal() { };
 
-		virtual QString format() { return token(); };
-		virtual QString token() = 0;
+		const QString &name() const { return m_name; }
+		virtual QString format() const { return token(); };
+		virtual QString token() const = 0;
 };
 
 class CtrlBoolObs;
@@ -35,6 +36,7 @@ class CtrlBoolObs;
 class CtrlBoolVal : public CtrlVal {
 		friend class CtrlBoolObs;
 
+	protected:
 		bool m_val;
 		QString m_trueStr, m_falseStr;
 
@@ -49,8 +51,8 @@ class CtrlBoolVal : public CtrlVal {
 		bool value() const { return m_val; };
 		operator bool() const { return value(); };
 
-		virtual QString format() { return m_val ? m_trueStr : m_falseStr; };
-		virtual QString token() { return m_val ? "true" : "false"; };
+		virtual QString format() const { return m_val ? m_trueStr : m_falseStr; };
+		virtual QString token() const { return m_val ? "true" : "false"; };
 };
 
 class CtrlIntObs;
@@ -58,6 +60,7 @@ class CtrlIntObs;
 class CtrlIntVal : public CtrlVal {
 		friend class CtrlIntObs;
 
+	protected:
 		int m_min, m_max;
 		int m_val;
 		QString m_fmt;
@@ -73,8 +76,8 @@ class CtrlIntVal : public CtrlVal {
 		int value() const { return m_val; };
 		operator int() const { return value(); };
 
-		virtual QString format() { return QString().sprintf(qPrintable(m_fmt), m_val); };
-		virtual QString token() { return QString::number(m_val); };
+		virtual QString format() const { return QString().sprintf(qPrintable(m_fmt), m_val); };
+		virtual QString token() const { return QString::number(m_val); };
 };
 
 class CtrlFloatObs;
@@ -82,6 +85,7 @@ class CtrlFloatObs;
 class CtrlFloatVal : public CtrlVal {
 		friend class CtrlFloatObs;
 
+	protected:
 		double m_min, m_max;
 		double m_val;
 		QString m_fmt;
@@ -97,8 +101,8 @@ class CtrlFloatVal : public CtrlVal {
 		double value() const { return m_val; };
 		operator double() const { return value(); };
 
-		virtual QString format() { return QString().sprintf(qPrintable(m_fmt), m_val); };
-		virtual QString token() { return QString::number(m_val, 'e', 6); };
+		virtual QString format() const { return QString().sprintf(qPrintable(m_fmt), m_val); };
+		virtual QString token() const { return QString::number(m_val, 'e', 6); };
 };
 
 #endif /* __CTRLVALUE_H__ */

@@ -103,7 +103,14 @@ void State::saveSettings()
 	m_saveTimer.start(10000);
 }
 
+QList<CtrlVal *> State::_values;
+
 State &s() {
 	static State instance;
 	return instance;
+}
+
+void State::registerValue(CtrlVal *val)
+{
+	State::_values.append(val);
 }
