@@ -209,16 +209,17 @@ void ControlThread::run()
 			acs_attiva |= ((now>QTime(18,0)) && (now<QTime(21,0)));
 		}
 
-		if (s().xModoRiscaldamento)
-			acs_attiva |= impianto_acceso;
-
-		if (acs_attiva && s().xDisabilitaGas) {
+		if (acs_attiva && s().xDisabilitaGas && !s().xLegnaInUso) {
 			// HP deve scaldare ACS anche se potenza non sufficiente
+			// (ma non parte per riscaldamento)
 			if (s().wTemperaturaACS < 50)
 				xAutoPompaCaloreRisc = true;
 			else if (s().wTemperaturaACS > 55)
 				xAutoPompaCaloreRisc = false;
 		}
+
+		if (s().xModoRiscaldamento)
+			acs_attiva |= impianto_acceso;
 
 		if (!s().xModoRiscaldamento && impianto_acceso) {
 			// imposta e forza raffreddamento HP
