@@ -3,6 +3,7 @@
 
 #include "trendvalue.h"
 #include "ctrlvalue.h"
+#include "ctrlobserver.h"
 
 #include <QMutex>
 #include <QSettings>

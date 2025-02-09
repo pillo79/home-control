@@ -26,6 +26,8 @@ class CtrlVal {
 		CtrlVal(QString name);
 		virtual ~CtrlVal() { };
 
+		CtrlObs &operator ()(bool obsId) { return *m_obs[obsId]; }
+
 		const QString &name() const { return m_name; }
 		virtual QString format() const { return token(); };
 		virtual QString token() const = 0;

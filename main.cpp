@@ -4,6 +4,7 @@
 
 #include "state.h"
 #include "control.h"
+#include "network.h"
 #include "dlg_control.h"
 #include "dlg_status.h"
 
@@ -26,6 +27,8 @@ int main(int argc, char *argv[])
 
 	screenUpdate.setSingleShot(false);
 	screenUpdate.start(100);
+
+	network();
 
 	statusDlg->show();
 	return app.exec();
