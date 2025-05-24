@@ -51,6 +51,11 @@ ControlDlg::ControlDlg(QWidget *parent)
 	updateBtnStatus();
 }
 
+void ControlDlg::on_pbModoCondiz_clicked()
+{
+	on_pbModoRisc_clicked();
+}
+
 void ControlDlg::on_pbModoRisc_clicked()
 {
 	resetCloseTimer();

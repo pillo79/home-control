@@ -25,6 +25,7 @@ class ControlDlg : public QWidget
 		void on_pbFanCoil_clicked();
 		void on_pbProg_clicked();
 
+		void on_pbModoCondiz_clicked();
 		void on_pbModoRisc_clicked();
 		void on_pbRiscGas_clicked();
 		void on_pbRiscPompaCalore_clicked();
